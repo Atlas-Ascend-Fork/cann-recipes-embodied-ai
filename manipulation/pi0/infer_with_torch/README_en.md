@@ -146,3 +146,4 @@ chmod +x run_pi0_inference.sh
 ├── README.md                                 # Environment configuration and operation guide for π0 inference on Ascend (Chinese)
 ├── run_pi0_inference.sh                      # One-click launch script for π0 inference on Ascend
 └── test_pi0_on_ascend.py                     # Main code for π0 inference on Ascend
+```
