@@ -1,6 +1,4 @@
 # Cosmos-predict2.5-2B视频生成具身智能世界模型昇腾使用指南
-<br>
-
 
 ## Cosmos-predict2.5-2B整体介绍
 论文题目：World Simulation with Video Foundation Models for Physical AI
@@ -14,9 +12,6 @@ Cosmos-Predict2.5-2B 是 NVIDIA 推出的最新一代世界基础模型（World 
 该模型整合了 2亿条 精选视频片段的预训练数据，涵盖机器人操作、自动驾驶、智能空间、人体动态及物理现象等多个领域，并通过强化学习后训练进一步优化视频质量与指令对齐能力。在 PAI-Bench 物理 AI 基准测试中，Cosmos-Predict2.5-2B 在文本生成世界（Text2World）和图像生成世界（Image2World）任务上均达到业界领先水平，整体评分与参数量大 7 倍 的 Wan2.2-27B-A14B 模型相当。
 
 支持文本、图像、视频三种条件输入模式，可灵活应用于合成数据生成、策略评估、闭环仿真及多视角相机控制等任务。在机器人策略学习、自动驾驶仿真、VLA 模型训练数据合成等场景中表现优异，模型生成的单段视频长度约为 5.8 秒，通过逐段生成并拼接，成功实现长达 30-120 秒 的长时序一致视频生成，展现出强大的时序连贯性和物理合理性。
-
-<br>
-
 
 ## Cosmos-Predict2.5-2B 的相关代码仓拉取
 
@@ -64,9 +59,6 @@ cd ../
 ```
 完成上述操作之后，最终cosmos-predict2.5根目录中相关代码目录树详见[附录：根目录相关代码目录树](#根目录相关代码目录树)。
 
-<br>
-
-
 ## Cosmos-Predict2.5-2B在昇腾A3上的运行环境配置
 ### 与昇腾平台相关的环境配置
 安装CANN软件包。本样例的编译执行依赖CANN开发套件包（cann-toolkit）与CANN二进制算子包（cann-kernels），支持的CANN软件版本为`CANN 8.3.RC1`。
@@ -84,8 +76,6 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 # 方式2：指定路径进行安装
 source ${cann_install_path}/ascend-toolkit/set_env.sh
 ```
-
-<br>
 
 ### uv环境管理工具安装（可选，如果当前环境已经安装uv，可以跳过）
 ```bash
@@ -120,9 +110,6 @@ chmod +x decord_install.sh
 uv sync
 ```
 
-<br>
-
-
 ### Cosmos-Predict2.5-2B在昇腾上的推理步骤
 运行下面的代码，即可自动下载多个关联模型，然后进行模型推理。
 ```bash
@@ -152,7 +139,7 @@ ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node=8 --master_p
 -o outputs/base_video2world \
 --inference-type=video2world \
 --model="2B/post-trained" \
---disable_guardrails  
+--disable_guardrails
 ```
 
 基于上述运行过程，耗时为920秒左右，得到预测的机器人倒水视频文件，保存在./outputs/base_video2world文件夹中，为robot_pouring.mp4视频文件。
@@ -167,55 +154,43 @@ A robotic arm, primarily white with black joints and cables, is shown in a clean
 | --- | --- |
 | ![robot_pouring_input.gif](https://raw.gitcode.com/user-images/assets/7380116/5fd2d9ca-03a9-42fd-a373-205e2d6b47be/robot_pouring_input.gif 'robot_pouring_input.gif') | ![robot_pouring_output.gif](https://raw.gitcode.com/user-images/assets/7380116/4eb608b9-2ea5-4682-947a-2a9dec4004d6/robot_pouring_output.gif 'robot_pouring_output.gif') |
 
-
-<br>
-
-
 ## Cosmos-Predict2.5-2B在昇腾上的精度验证步骤
+
 ### 基于视频观察和PAI-BENCH测试方法来验证其在昇腾A3上的推理精度
-- 和NVIDIA平台生成的预测视频进行对比，观察A3环境生成视频是否一致。
 
-- PAI-BENCH测试方案
-  - 参考[PAI-BENCH测试框架](https://github.com/SHI-Labs/physical-ai-bench.git)中的[PAI-Bench-G (Video Generation)](https://github.com/SHI-Labs/physical-ai-bench/tree/main/generation#dataset)部分进行预测视频的质量评估。
-  - 执行PAI-BENCH测试脚本之后，会在/physical-ai-bench/generation/evaluation_results/文件夹中生成一个results_xxxxxxxx_xxxxxx_eval_results.json文件,根据Cosmos-Predict2.5-2B模型代码仓/cosmos-predict2.5/assets/base/robot_pouring.json生成的robot_57.mp4（robot_pouring.mp4进行重命名），评估的质量分数中每一项得分参考下面的数值范围即可：
-  <br>
-  (1) aesthetic_quality（美学质量）             [0.63, 0.66]
-  <br>
-  (2) background_consistency（背景一致性）      [0.97, 1.00]
-  <br>
-  (3) imaging_quality（成像质量）               [0.70, 0.73]
-  <br>
-  (4) motion_smoothness（运动平滑度）           [0.98, 1.00]
-  <br>	
-  (5) subject_consistency（主体一致性）         [0.98, 1.00]
-<br>
+和NVIDIA平台生成的预测视频进行对比，观察A3环境生成视频是否一致。
 
+PAI-BENCH测试方案：
+- 参考[PAI-BENCH测试框架](https://github.com/SHI-Labs/physical-ai-bench.git)中的[PAI-Bench-G (Video Generation)](https://github.com/SHI-Labs/physical-ai-bench/tree/main/generation#dataset)部分进行预测视频的质量评估。
+- 执行PAI-BENCH测试脚本之后，会在/physical-ai-bench/generation/evaluation_results/文件夹中生成一个results_xxxxxxxx_xxxxxx_eval_results.json文件,根据Cosmos-Predict2.5-2B模型代码仓/cosmos-predict2.5/assets/base/robot_pouring.json生成的robot_57.mp4（robot_pouring.mp4进行重命名），评估的质量分数中每一项得分参考下面的数值范围即可：
+  1. aesthetic_quality（美学质量）: [0.63, 0.66]
+  2. background_consistency（背景一致性）: [0.97, 1.00]
+  3. imaging_quality（成像质量）: [0.70, 0.73]
+  4. motion_smoothness（运动平滑度）: [0.98, 1.00]
+  5. subject_consistency（主体一致性）: [0.98, 1.00]
 
 ## Citation
 ```
 @misc{nvidia2025worldsimulationvideofoundation,
-      title={World Simulation with Video Foundation Models for Physical AI}, 
+      title={World Simulation with Video Foundation Models for Physical AI},
       author={NVIDIA and : and Arslan Ali and Junjie Bai and Maciej Bala and Yogesh Balaji and Aaron Blakeman and Tiffany Cai and Jiaxin Cao and Tianshi Cao and Elizabeth Cha and Yu-Wei Chao and Prithvijit Chattopadhyay and Mike Chen and Yongxin Chen and Yu Chen and Shuai Cheng and Yin Cui and Jenna Diamond and Yifan Ding and Jiaojiao Fan and Linxi Fan and Liang Feng and Francesco Ferroni and Sanja Fidler and Xiao Fu and Ruiyuan Gao and Yunhao Ge and Jinwei Gu and Aryaman Gupta and Siddharth Gururani and Imad El Hanafi and Ali Hassani and Zekun Hao and Jacob Huffman and Joel Jang and Pooya Jannaty and Jan Kautz and Grace Lam and Xuan Li and Zhaoshuo Li and Maosheng Liao and Chen-Hsuan Lin and Tsung-Yi Lin and Yen-Chen Lin and Huan Ling and Ming-Yu Liu and Xian Liu and Yifan Lu and Alice Luo and Qianli Ma and Hanzi Mao and Kaichun Mo and Seungjun Nah and Yashraj Narang and Abhijeet Panaskar and Lindsey Pavao and Trung Pham and Morteza Ramezanali and Fitsum Reda and Scott Reed and Xuanchi Ren and Haonan Shao and Yue Shen and Stella Shi and Shuran Song and Bartosz Stefaniak and Shangkun Sun and Shitao Tang and Sameena Tasmeen and Lyne Tchapmi and Wei-Cheng Tseng and Jibin Varghese and Andrew Z. Wang and Hao Wang and Haoxiang Wang and Heng Wang and Ting-Chun Wang and Fangyin Wei and Jiashu Xu and Dinghao Yang and Xiaodong Yang and Haotian Ye and Seonghyeon Ye and Xiaohui Zeng and Jing Zhang and Qinsheng Zhang and Kaiwen Zheng and Andrew Zhu and Yuke Zhu},
       year={2025},
       eprint={2511.00062},
       archivePrefix={arXiv},
       primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2511.00062}, 
+      url={https://arxiv.org/abs/2511.00062},
 }
 
 @misc{zhou2025paibenchcomprehensivebenchmarkphysical,
-      title={PAI-Bench: A Comprehensive Benchmark For Physical AI}, 
+      title={PAI-Bench: A Comprehensive Benchmark For Physical AI},
       author={Fengzhe Zhou and Jiannan Huang and Jialuo Li and Deva Ramanan and Humphrey Shi},
       year={2025},
       eprint={2512.01989},
       archivePrefix={arXiv},
       primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2512.01989}, 
+      url={https://arxiv.org/abs/2512.01989},
 }
 ```
-
-<br>
-
 
 ## 附录
 ### 根目录相关代码目录树

@@ -1,11 +1,9 @@
 # Alpamayo-R1 智能驾驶VLA大模型昇腾A2平台使用指南
-<br>
+
 本目录介绍在 A2 上如何对Alpamayo-R1（下文简称 AR-1）模型进行推理，并附带精度验证及输出示例。
 
 ## AR-1整体介绍
 AR-1是英伟达提出的面向L4/L5级智能驾驶的视觉-语言-动作（VLA）大模型，旨在解决自动驾驶在长尾场景中因黑箱决策导致的脆弱性与不可解释性问题。该模型通过融合视觉感知与自然语言指令，构建结构化的场景理解，并引入显式的因果思维链（Chain-of-Causal-Thinking, CoC）机制，在推理过程中模拟人类驾驶员“观察—分析因果—预判后果—决策”的认知流程，从而生成更稳健、可验证的轨迹规划，同时输出自然语言形式的决策解释，提升系统透明度与人机协同效率。
-<br>
-
 
 ## 环境准备
 
@@ -19,14 +17,14 @@ AR-1是英伟达提出的面向L4/L5级智能驾驶的视觉-语言-动作（VLA
 
 2. 安装 uv (如果没有uv)
     ``` bash
-    curl -LsSf https://astral.sh/uv/install.sh | sh    
+    curl -LsSf https://astral.sh/uv/install.sh | sh
     export PATH="$HOME/.local/bin:$PATH"
     ```
 3. 克隆代码
     ```bash
     # 克隆cann-recipes-embodied-ai项目代码
     git clone https://gitcode.com/cann/cann-recipes-embodied-ai.git
-    
+
     # 克隆alpamayo原仓库代码
     git clone https://github.com/NVlabs/alpamayo.git
     cd alpamayo
@@ -59,7 +57,7 @@ AR-1是英伟达提出的面向L4/L5级智能驾驶的视觉-语言-动作（VLA
     #应用patch
     patch -p0 < patches/physical_ai_av-0.1.0-python311.patch
     # 安装
-    cd physical_ai_av-0.1.0    
+    cd physical_ai_av-0.1.0
     uv pip install .
     cd ..
     ```
@@ -89,8 +87,6 @@ AR-1是英伟达提出的面向L4/L5级智能驾驶的视觉-语言-动作（VLA
     |3|昇腾A2|0.9498|
     |5|昇腾A2|0.8514|
     |10|昇腾A2|0.5676|
-<br>
-
 
 ## Citation
 ```
@@ -101,9 +97,6 @@ AR-1是英伟达提出的面向L4/L5级智能驾驶的视觉-语言-动作（VLA
       journal={arXiv preprint arXiv:2511.00088},
 }
 ```
-
-<br>
-
 
 ## 附录
 ### lerobot根目录相关代码目录树
@@ -127,6 +120,6 @@ alpamayo/
 │       ├── helper.py                    # Utility functions
 │       ├── load_physical_aiavdataset.py # Dataset loader
 │       ├── test_inference.py            # Inference test script
-├── pyproject.toml                       # Project 
-├── README.md                       
+├── pyproject.toml                       # Project
+├── README.md
 ```

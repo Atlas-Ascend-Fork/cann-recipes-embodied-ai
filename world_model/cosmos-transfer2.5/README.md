@@ -1,6 +1,4 @@
 # cosmos-transfer2.5-2B视频风格转换具身智能世界模型昇腾使用指南
-<br>
-
 
 ## cosmos-transfer2.5-2B整体介绍
 论文题目：World Simulation with Video Foundation Models for Physical AI
@@ -10,9 +8,6 @@
 ### 功能介绍
 
 Cosmos-Transfer2.5是NVIDIA Cosmos平台的世界基础模型(World Foundation Models)之一,专为物理AI应用设计的多控制网络模型。该模型支持视频风格转换功能,可基于多种控制信号(深度图、语义分割、边缘检测等)实现视频到视频的风格迁移与内容转换,将输入视频转换为符合特定视觉风格或场景需求的输出视频。模型支持接收多种视频模态的结构化输入,包括RGB、深度图、语义分割、边缘检测等,可用于自动驾驶场景模拟、机器人视觉仿真、视频内容创作等真实物理系统场景。本样例基于NVIDIA Cosmos-Transfer2.5-2B模型完成NPU适配优化,实现在昇腾NPU上的高效推理。
-
-<br>
-
 
 ## Cosmos-transfer2.5-2B 的相关代码仓拉取
 
@@ -49,8 +44,6 @@ cd ../
 cp -rf cann-recipes-embodied-ai/world_model/cosmos-transfer2.5/* ./cosmos-transfer2.5
 ```
 完成上述操作之后，最终cosmos-transfer2.5根目录中相关代码目录树详见[附录：根目录相关代码目录树](#根目录相关代码目录树)。
-<br>
-
 
 ## Cosmos-transfer2.5-2B在昇腾A3上的运行环境配置
 ### 与昇腾平台相关的环境配置
@@ -69,7 +62,6 @@ source /usr/local/Ascend/ascend-toolkit/set_env.sh
 # 方式2：指定路径进行安装
 source ${cann_install_path}/ascend-toolkit/set_env.sh
 ```
-<br>
 
 ### uv环境管理工具安装（可选，如果当前环境已经安装uv，可以跳过）
 ```bash
@@ -107,10 +99,6 @@ yum install -y libGL libGLU libEGL libX11-devel
 uv sync
 ```
 
-
-<br>
-
-
 ### Cosmos-Transfer2.5-2B在昇腾上的推理步骤
 运行下面的代码，即可自动下载多个关联模型，然后进行模型推理。
 ```bash
@@ -128,7 +116,7 @@ source .venv/bin/activate
 python examples/inference.py \
   -i assets/robot_example/multicontrol/robot_multicontrol_spec.json \
   -o outputs/multicontrol \
-  --disable-guardrails 
+  --disable-guardrails
 ```
 
 如需使用多NPU推理，运行下面代码，使用torchrun启动命令。
@@ -136,52 +124,44 @@ python examples/inference.py \
 ASCEND_RT_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 torchrun --nproc_per_node=8 --master_port=12341 examples/inference.py \
   -i assets/robot_example/multicontrol/robot_multicontrol_spec.json \
   -o outputs/multicontrol \
-  --disable-guardrails 
+  --disable-guardrails
 ```
 
 ## Cosmos-transfer2.5-2B在昇腾上的精度验证步骤
 ### 基于视频观察和PAI-BENCH测试方法来验证其在昇腾A3上的推理精度
-- 和NVIDIA平台生成的预测视频进行对比，观察A3环境生成视频是否一致。
-- PAI-BENCH测试方案
-  - 参考[PAI-BENCH测试框架](https://github.com/SHI-Labs/physical-ai-bench.git)中的[PAI-Bench-C(Conditional Video Generation)](https://github.com/SHI-Labs/physical-ai-bench/tree/main/conditional_generation)部分进行预测视频的质量评估。
-  - 执行PAI-BENCH测试脚本之后，会在路径下生成一个json文件，其中包含了多项精度指标，评估的质量分数参考下列的数值范围：
-  <br>
-  (1)blur_ssim [0.82,0.84]
-  <br>
-  (2)canny_f1_score [0.32,0.35]
-  <br>
-  (3)depth_si_rmse [0.90,0.95]
-  <br>
-  (4)seg_m_iou [0.66,0.68]
 
-    
+和NVIDIA平台生成的预测视频进行对比，观察A3环境生成视频是否一致。
 
+PAI-BENCH测试方案：
+- 参考[PAI-BENCH测试框架](https://github.com/SHI-Labs/physical-ai-bench.git)中的[PAI-Bench-C(Conditional Video Generation)](https://github.com/SHI-Labs/physical-ai-bench/tree/main/conditional_generation)部分进行预测视频的质量评估。
+- 执行PAI-BENCH测试脚本之后，会在路径下生成一个json文件，其中包含了多项精度指标，评估的质量分数参考下列的数值范围：
+  1. blur_ssim [0.82,0.84]
+  2. canny_f1_score [0.32,0.35]
+  3. depth_si_rmse [0.90,0.95]
+  4. seg_m_iou [0.66,0.68]
 
 ## Citation
 ```
 @misc{nvidia2025worldsimulationvideofoundation,
-      title={World Simulation with Video Foundation Models for Physical AI}, 
+      title={World Simulation with Video Foundation Models for Physical AI},
       author={NVIDIA and : and Arslan Ali and Junjie Bai and Maciej Bala and Yogesh Balaji and Aaron Blakeman and Tiffany Cai and Jiaxin Cao and Tianshi Cao and Elizabeth Cha and Yu-Wei Chao and Prithvijit Chattopadhyay and Mike Chen and Yongxin Chen and Yu Chen and Shuai Cheng and Yin Cui and Jenna Diamond and Yifan Ding and Jiaojiao Fan and Linxi Fan and Liang Feng and Francesco Ferroni and Sanja Fidler and Xiao Fu and Ruiyuan Gao and Yunhao Ge and Jinwei Gu and Aryaman Gupta and Siddharth Gururani and Imad El Hanafi and Ali Hassani and Zekun Hao and Jacob Huffman and Joel Jang and Pooya Jannaty and Jan Kautz and Grace Lam and Xuan Li and Zhaoshuo Li and Maosheng Liao and Chen-Hsuan Lin and Tsung-Yi Lin and Yen-Chen Lin and Huan Ling and Ming-Yu Liu and Xian Liu and Yifan Lu and Alice Luo and Qianli Ma and Hanzi Mao and Kaichun Mo and Seungjun Nah and Yashraj Narang and Abhijeet Panaskar and Lindsey Pavao and Trung Pham and Morteza Ramezanali and Fitsum Reda and Scott Reed and Xuanchi Ren and Haonan Shao and Yue Shen and Stella Shi and Shuran Song and Bartosz Stefaniak and Shangkun Sun and Shitao Tang and Sameena Tasmeen and Lyne Tchapmi and Wei-Cheng Tseng and Jibin Varghese and Andrew Z. Wang and Hao Wang and Haoxiang Wang and Heng Wang and Ting-Chun Wang and Fangyin Wei and Jiashu Xu and Dinghao Yang and Xiaodong Yang and Haotian Ye and Seonghyeon Ye and Xiaohui Zeng and Jing Zhang and Qinsheng Zhang and Kaiwen Zheng and Andrew Zhu and Yuke Zhu},
       year={2025},
       eprint={2511.00062},
       archivePrefix={arXiv},
       primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2511.00062}, 
+      url={https://arxiv.org/abs/2511.00062},
 }
 
 @misc{zhou2025paibenchcomprehensivebenchmarkphysical,
-      title={PAI-Bench: A Comprehensive Benchmark For Physical AI}, 
+      title={PAI-Bench: A Comprehensive Benchmark For Physical AI},
       author={Fengzhe Zhou and Jiannan Huang and Jialuo Li and Deva Ramanan and Humphrey Shi},
       year={2025},
       eprint={2512.01989},
       archivePrefix={arXiv},
       primaryClass={cs.CV},
-      url={https://arxiv.org/abs/2512.01989}, 
+      url={https://arxiv.org/abs/2512.01989},
 }
 ```
-
-<br>
-
 
 ## 附录
 ### 根目录相关代码目录树

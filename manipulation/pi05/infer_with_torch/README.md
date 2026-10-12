@@ -1,6 +1,4 @@
 # pi0.5机器人VLA大模型昇腾使用指南
-<br>
-
 
 ## pi0.5整体介绍
 论文题目：π0.5: a Vision-Language-Action Model with Open-World Generalization
@@ -11,9 +9,6 @@
 
 pi0.5，一种基于pi0的新模型；它通过在异构任务上进行协同训练（co-training），实现更广泛的泛化能力。pi0.5利用来自多种机器人平台的数据、高层语义预测、网络数据以及其他来源，使其能够在真实世界的机器人操作任务中实现更强的通用性。它结合了协同训练与混合多模态样例：这些样例将图像观测、语言指令、目标检测、语义子任务预测以及底层动作整合在一起，通过知识迁移实现有效泛化。pi0.5首次展示：一个端到端、由学习驱动的机器人系统，能够在全新的家庭环境中执行长时序且高灵巧度的操作技能，例如在完全陌生的住宅里完成厨房或卧室清洁等任务。
 
-<br>
-
-
 ## pi0.5的相关代码仓拉取、数据集和模型下载
 ```bash
 # 进入需要放置代码仓的本地xxx目录下：
@@ -23,9 +18,6 @@ chmod +x cann-recipes-embodied-ai/manipulation/pi05/infer_with_torch/download_co
 ./cann-recipes-embodied-ai/manipulation/pi05/infer_with_torch/download_code_and_data.sh
 ```
 完成上述操作之后，最终lerobot根目录中相关代码目录树详见[附录：lerobot根目录相关代码目录树](#lerobot根目录相关代码目录树)。
-
-<br>
-
 
 ## pi0.5在昇腾上的运行环境配置
 ### 与昇腾服务器无关的环境配置
@@ -65,8 +57,6 @@ pip install numpy==1.26.4
 
   Ascend Extension for PyTorch（torch_npu）为支撑PyTorch框架运行在NPU上的适配插件，本样例支持的Ascend Extension for PyTorch版本为`7.1.0`，PyTorch版本为`2.5.1`。
   请根据服务器CPU架构下载对应的[x86_64安装包](https://gitee.com/ascend/pytorch/releases/download/v7.1.0-pytorch2.5.1/torch_npu-2.5.1.post1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl)或[aarch64安装包](https://gitee.com/ascend/pytorch/releases/download/v7.1.0-pytorch2.5.1/torch_npu-2.5.1.post1-cp310-cp310-manylinux_2_17_aarch64.manylinux2014_aarch64.whl)，参考[torch_npu安装文档](https://www.hiascend.com/document/detail/zh/Pytorch/710/configandinstg/instg/insg_0004.html)进行安装。
-<br>
-
 
 ### pi0.5在昇腾上的推理步骤
 运行下面的代码，即可自动构造mock输入，进行pi05模型推理，打印推理性能及机器人动作。
@@ -92,8 +82,6 @@ INFO - Throughput: 1.16 FPS
 INFO - ----------------------------------------
 ```
 - 推理结果：单次推理结果为50组机械臂关节角度序列，shape为[50,32]，每次推理后保存在queue中，action输出一组。
-<br>
-
 
 ## pi05在昇腾上的精度验证步骤
 ### 基于mock的数据输入，NPU与原始CPU/GPU Pytorch输出相似度对比
@@ -115,27 +103,23 @@ Per-timestep Cosine Similarity:
 MSE Loss: 0.000000
 Verification SUCCESS: All similarities > 0.99
 ```
-<br>
 
 ## 可能遇到的问题
-1. 运行推理时，若使用网络环境下载`google/paligemma-3b-pt-224`模型，需提前取模型对应的 huggingface 页面请求访问 Access，参考详见`https://huggingface.co/docs/huggingface_hub/main/cn/quick-start`和`https://huggingface.co/docs/hub/models-gated` 
+1. 运行推理时，若使用网络环境下载`google/paligemma-3b-pt-224`模型，需提前取模型对应的 huggingface 页面请求访问 Access，参考详见`https://huggingface.co/docs/huggingface_hub/main/cn/quick-start`和`https://huggingface.co/docs/hub/models-gated`
 2. 若网络环境下载huggingface模型较慢，遇到下载`google/paligemma-3b-pt-224`卡顿，可手动下载模型到本地路径，再修改`lerobot/src/lerobot/policies/pi05/processor_pi05.py`中对应145行处：`google/paligemma-3b-pt-224`为本地路径。
 
 ## Citation
 ```
 @misc{intelligence2025pi05visionlanguageactionmodelopenworld,
-      title={$\pi_{0.5}$: a Vision-Language-Action Model with Open-World Generalization}, 
+      title={$\pi_{0.5}$: a Vision-Language-Action Model with Open-World Generalization},
       author={Physical Intelligence and Kevin Black and Noah Brown and James Darpinian and Karan Dhabalia and Danny Driess and Adnan Esmail and Michael Equi and Chelsea Finn and Niccolo Fusai and Manuel Y. Galliker and Dibya Ghosh and Lachy Groom and Karol Hausman and Brian Ichter and Szymon Jakubczak and Tim Jones and Liyiming Ke and Devin LeBlanc and Sergey Levine and Adrian Li-Bell and Mohith Mothukuri and Suraj Nair and Karl Pertsch and Allen Z. Ren and Lucy Xiaoyang Shi and Laura Smith and Jost Tobias Springenberg and Kyle Stachowicz and James Tanner and Quan Vuong and Homer Walke and Anna Walling and Haohuan Wang and Lili Yu and Ury Zhilinsky},
       year={2025},
       eprint={2504.16054},
       archivePrefix={arXiv},
       primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2504.16054}, 
+      url={https://arxiv.org/abs/2504.16054},
 }
 ```
-
-<br>
-
 
 ## 附录
 ### lerobot根目录相关代码目录树
