@@ -93,9 +93,15 @@ static ge::graphStatus TilingForFlashGaussianBuildMask(gert::TilingContext* cont
     if (attrsPtr == nullptr) {
         return ge::GRAPH_FAILED;
     }
-    float imageWidth = *(attrsPtr->GetAttrPointer<uint32_t>(IMAGE_WIDTH_INDEX));
-    float imageHeight = *(attrsPtr->GetAttrPointer<uint32_t>(IMAGE_HEIGHT_INDEX));
-    float tileSize = static_cast<float>(*(attrsPtr->GetAttrPointer<uint32_t>(TILE_SIZE_INDEX)));
+    auto imageWidthPtr = attrsPtr->GetAttrPointer<float>(IMAGE_WIDTH_INDEX);
+    auto imageHeightPtr = attrsPtr->GetAttrPointer<float>(IMAGE_HEIGHT_INDEX);
+    auto tileSizePtr = attrsPtr->GetAttrPointer<int64_t>(TILE_SIZE_INDEX);
+    if (imageWidthPtr == nullptr || imageHeightPtr == nullptr || tileSizePtr == nullptr) {
+        return ge::GRAPH_FAILED;
+    }
+    float imageWidth = *imageWidthPtr;
+    float imageHeight = *imageHeightPtr;
+    float tileSize = static_cast<float>(*tileSizePtr);
 
     auto platform = context->GetPlatformInfo();
     if (platform == nullptr) {
