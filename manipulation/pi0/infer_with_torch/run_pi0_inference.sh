@@ -53,10 +53,12 @@ python test_pi0_on_ascend.py \
     --batch_size "$BATCHSIZE" \
     --episodes_idx "$EPISODESIDX" \
     --target_sample_idx "$SAMPLEIDX"
+PYTHON_EXIT_CODE=$?
 
 # 检查脚本运行结果
-if [ $? -eq 0 ]; then
+if [ $PYTHON_EXIT_CODE -eq 0 ]; then
     echo "脚本成功运行!"
 else
     echo "脚本运行失败!"
+    exit "$PYTHON_EXIT_CODE"
 fi
