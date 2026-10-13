@@ -29,7 +29,7 @@ workspace/
 Run this inference sample from:
 
 ```text
-workspace/agibot-arm-world-model/infer_with_torch/src
+workspace/agibot-arm-world-model/infer_with_torch
 ```
 
 The sample does not need to be copied into the `DiffSynth-Studio` source tree as long as `pip install -e .` has already been executed in `DiffSynth-Studio`.
@@ -55,14 +55,14 @@ task_id/episode_id/
 
 ## Run Steps
 
-1. Enter the source directory.
+1. From the `agibot-arm-world-model` sample root, enter the `infer_with_torch` directory.
 2. Set the checkpoint, model, test root, and output directory variables.
 3. Run the launcher script.
 
 Example:
 
 ```bash
-cd infer_with_torch/src
+cd infer_with_torch
 CHECKPOINT_PATH=/path/to/step-18000.safetensors \
 MODEL_DIR=/path/to/Wan2.1-Fun-V1.1-1.3B-Control \
 TEST_ROOT=/path/to/test/info_dataset \

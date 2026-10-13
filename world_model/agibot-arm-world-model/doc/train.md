@@ -12,8 +12,8 @@ This training sample fine-tunes `Wan2.1-Fun-V1.1-1.3B-Control` on the AgiBotWorl
   - action-derived trajectory maps
   - reference image
 - Entry files:
-  - `src/train_fun_control_1_3b_text_49frames.py`
-  - `src/run_train.sh`
+  - `train/train_fun_control_1_3b_text_49frames.py`
+  - `train/run_train.sh`
 
 ## Environment Preparation
 
@@ -30,7 +30,7 @@ workspace/
 Run this training sample from:
 
 ```text
-workspace/agibot-arm-world-model/train/src
+workspace/agibot-arm-world-model/train
 ```
 
 The sample does not need to be copied into the `DiffSynth-Studio` source tree as long as `pip install -e .` has already been executed in `DiffSynth-Studio`.
@@ -67,7 +67,7 @@ Optional split file:
 
 ## Run Steps
 
-1. Enter the source directory.
+1. From the `agibot-arm-world-model` sample root, enter the `train` directory.
 2. Set `MODEL_DIR`, `DATA_ROOT`, `SPLIT_FILE`, and `OUTPUT_DIR`.
 3. Confirm that `NUM_PROCESSES` matches the accelerate config.
 4. Launch the training script.
@@ -75,7 +75,7 @@ Optional split file:
 Example:
 
 ```bash
-cd train/src
+cd train
 MODEL_DIR=/path/to/Wan2.1-Fun-V1.1-1.3B-Control \
 DATA_ROOT=/path/to/agibot_world_dataset \
 SPLIT_FILE=/path/to/split.json \
