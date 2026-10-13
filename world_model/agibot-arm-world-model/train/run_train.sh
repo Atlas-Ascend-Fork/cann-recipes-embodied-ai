@@ -31,7 +31,7 @@ OUTPUT_DIR="${OUTPUT_DIR:-${SCRIPT_DIR}/outputs/agibot_arm_world_model}"
 NUM_PROCESSES="${NUM_PROCESSES:-8}"
 
 accelerate launch --main_process_port "${MASTER_PORT}" --num_processes "${NUM_PROCESSES}" \
-    --config_file "${SCRIPT_DIR}/configs/accelerate_config_zero2.yaml" \
+    --config_file "${SCRIPT_DIR}/../configs/accelerate_config_zero2.yaml" \
     "${SCRIPT_DIR}/train_fun_control_1_3b_text_49frames.py" \
     --model_paths "[\"${MODEL_DIR}/diffusion_pytorch_model.safetensors\",\"${MODEL_DIR}/models_t5_umt5-xxl-enc-bf16.pth\",\"${MODEL_DIR}/Wan2.1_VAE.pth\",\"${MODEL_DIR}/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth\"]" \
     --data_root "${DATA_ROOT}" \
