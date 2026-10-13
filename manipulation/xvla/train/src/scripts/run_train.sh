@@ -83,8 +83,8 @@ LOG_DIR="$XVLA_STORAGE_ROOT/ckpt/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/train_${MODEL_TYPE:-custom}_${TIMESTAMP}.log"
 
-RAW_OUTPUT_DIR=$(awk '/^[[:space:]]*output_dir:[[:space:]]*[^#]/ {gsub(/^[[:space:]]*output_dir:[[:space:]]*/, ""); gsub(/[[:space:]]*#.*/, ""); gsub(/[[:space:]]+$/, ""); print; exit}' "$CONFIG_PATH")
-RAW_JOB_NAME=$(awk '/^[[:space:]]*job_name:[[:space:]]*[^#]/ {gsub(/^[[:space:]]*job_name:[[:space:]]*/, ""); gsub(/[[:space:]]*#.*/, ""); gsub(/[[:space:]]+$/, ""); print; exit}' "$CONFIG_PATH")
+RAW_OUTPUT_DIR=$(awk '/^[[:space:]]*output_dir:[[:space:]]*[^#]/ {gsub(/^[[:space:]]*output_dir:[[:space:]]*/, ""); gsub(/[[:space:]]*#.*/, ""); gsub(/[[:space:]]+$/, ""); gsub(/^[\42\47]+|[\42\47]+$/, ""); print; exit}' "$CONFIG_PATH")
+RAW_JOB_NAME=$(awk '/^[[:space:]]*job_name:[[:space:]]*[^#]/ {gsub(/^[[:space:]]*job_name:[[:space:]]*/, ""); gsub(/[[:space:]]*#.*/, ""); gsub(/[[:space:]]+$/, ""); gsub(/^[\42\47]+|[\42\47]+$/, ""); print; exit}' "$CONFIG_PATH")
 if [[ -z "$RAW_OUTPUT_DIR" || -z "$RAW_JOB_NAME" ]]; then
     echo "Failed to parse output_dir or job_name from config: $CONFIG_PATH"
     exit 1
