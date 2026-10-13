@@ -67,7 +67,7 @@ class Rasterizer:
         inv_x_1 = conics[0, _cam_view, 1, :]
         inv_x_2 = conics[0, _cam_view, 2, :]
 
-        cf_depths = depths[_cam_view]
+        cf_depths = depths[0, _cam_view].unsqueeze(0)
         ts = self.tile_size
         height = self.padded_height
         width = self.padded_width
