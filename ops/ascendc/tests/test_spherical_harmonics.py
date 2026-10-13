@@ -243,5 +243,20 @@ class TestSphericalHarmonicsForward(TestCase):
         for cpu_results, npu_results in self.test_results:
             self.assertRtolEqual(cpu_results.output.cpu().numpy(), npu_results.output.cpu().numpy())
 
+    def test_spherical_harmonics_forward_normalization_epsilon(self):
+        dirs = torch.tensor(
+            [[[0.0, 0.0, 0.0], [3.0e-13, 4.0e-13, 0.0], [0.6, 0.8, 0.0]]],
+            dtype=torch.float32,
+        )
+        coeffs = torch.ones((1, 3, 4, 3), dtype=torch.float32)
+        inputs = Inputs(dirs, coeffs)
+
+        cpu_results = self.cpu_to_exec(inputs, 1)
+        npu_results = self.npu_to_exec(inputs, 1)
+
+        self.assertTrue(torch.isfinite(npu_results.output).all().item())
+        self.assertRtolEqual(cpu_results.output.cpu().numpy(), npu_results.output.cpu().numpy())
+
+
 if __name__ == "__main__":
     run_tests()

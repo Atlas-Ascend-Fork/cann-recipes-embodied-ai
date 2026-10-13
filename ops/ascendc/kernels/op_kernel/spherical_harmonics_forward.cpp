@@ -230,6 +230,7 @@ public:
         Add(ComputingTensor, ComputingTensor, ComputingTensor[taskNumPerCurLoop], taskNumPerCurLoop);
         Add(ComputingTensor, ComputingTensor, ComputingTensor[taskNumPerCurLoop * L2_SH_OFFSET_2], taskNumPerCurLoop);
         Sqrt(ComputingTensor, ComputingTensor, taskNumPerCurLoop);
+        Maxs(ComputingTensor, ComputingTensor, 1e-12f, taskNumPerCurLoop);
 
         Div(DirsTensor, DirsTensor, ComputingTensor, taskNumPerCurLoop);
         Div(DirsTensor[taskNumPerCurLoop], DirsTensor[taskNumPerCurLoop], ComputingTensor, taskNumPerCurLoop);
