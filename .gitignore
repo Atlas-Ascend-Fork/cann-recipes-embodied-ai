@@ -6,3 +6,6 @@
 *.egg-info/
 .claude/
 .opencode/
+
+**/anchorsplat_bak/
+**/anchorsplat_bak/**

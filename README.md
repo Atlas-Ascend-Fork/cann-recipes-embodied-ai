@@ -1,6 +1,7 @@
 # CANN Recipes for Embodied Intelligence
 
 ## 🚀 Latest News
+- [2026/09] AnchorSplat 前馈式场景级 3D Gaussian Splatting 模型新增[昇腾训练与评测样例](3d_vision/anchorsplat/README.md)，通过固定上游版本复用原生昇腾训练与渲染流程。
 - [2026/08] PUMA（[DOMINO](https://github.com/H-EmbodVis/DOMINO)）动态操作 VLA 模型在昇腾 Atlas A2 上已支持[训练](manipulation/puma/train/README.md)与[在线推理](manipulation/puma/infer_with_torch/README.md)，权重可在昇腾直接加载，无需转换，样例已开源。
 - [2026/07] SLARM 前馈式动态场景重建模型在昇腾 Atlas A3 上已支持[推理](3d_vision/SLARM/README.md)，从稀疏多视角序列联合学习3D高斯与场景流，支持高斯泼溅渲染、语义分割与流式因果推理，样例已开源。
 - [2026/07] Cosmos3 世界模型在昇腾 Atlas A3 上已支持[推理](world_model/cosmos3/README.md)，覆盖 T2V、I2V、V2V 视频生成场景，样例已开源。
@@ -141,6 +142,8 @@ flowchart TB
 | [训练与推理](3d_vision/gaussian_splatting/README.md) | Atlas A2 | 训练/推理 | 基于gsplat开源加速库，针对NPU实现Alpha-blending、视锥剔除、负载均衡、Precise Intersection等融合算子优化。 | - |
 | **SLARM** | | | | |
 | [推理](3d_vision/SLARM/README.md) | Atlas A3 | 推理 | CVPR 2026前馈式动态场景重建模型，从稀疏多视角序列联合学习3D高斯与场景流，支持高斯泼溅渲染、语义分割与流式因果推理。 | - |
+| **AnchorSplat** | | | | |
+| [训练与评测](3d_vision/anchorsplat/README.md) | Ascend NPU | 训练/评测 | 基于三维几何先验构建稀疏锚点并解码锚点对齐高斯，上游源码按固定 commit 拉取。 | - |
 
 ## 🧩 能力入口
 
@@ -152,6 +155,7 @@ flowchart TB
 |----|----|----|
 | 梯度检查点精细化 | 大模型 DDP 训练（Pi0 / Pi0.5 / ACT / SmolVLA 等） | [Pi0 训练](manipulation/pi0/train/README.md)（关闭外层 suffix checkpoint）、[Pi0.5 训练](manipulation/pi05/train/README.md)（`--disable-outer-suffix-checkpoint`） |
 | DDP 静态图 | 多卡 DDP 训练 | [Pi0.5 训练](manipulation/pi05/train/README.md)（`static_graph=True`） |
+| 融合注意力 | Transformer 多卡训练 | [AnchorSplat](3d_vision/anchorsplat/README.md)（Point Transformer 使用 NPU Fusion Attention） |
 
 ### 推理能力
 
@@ -241,7 +245,8 @@ flowchart TB
 │   ├─Hunyuan3D                                 # Hunyuan3D 2.0三维生成模型样例
 │   ├─vggt                                      # VGGT三维重建模型样例
 │   ├─gaussian_splatting                        # 3D Gaussian Splatting训推优化样例
-│   └─SLARM                                     # SLARM前馈式动态场景重建模型推理样例
+│   ├─SLARM                                     # SLARM前馈式动态场景重建模型推理样例
+│   └─anchorsplat                               # AnchorSplat前馈式3DGS训练与评测样例
 ├─module                                        # 公共模块目录
 │   └─dit_cache                                 # DiT缓存加速模块
 └─ops                                            # 自定义融合算子目录
