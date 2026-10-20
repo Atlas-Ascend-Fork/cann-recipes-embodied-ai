@@ -116,13 +116,17 @@ if args.full_graph:
     config.experimental_config.frozen_parameter = True
     config.experimental_config.tiling_schedule_optimize = True
     npu_backend = torchair.get_npu_backend(compiler_config=config)
-#编译入图部分     
+#编译入图部分
 if args.full_graph:
     pipeline.model = torch.compile(pipeline.model, dynamic=False, backend=npu_backend, fullgraph=True)
     pipeline.vae.geo_decoder = torch.compile(pipeline.vae.geo_decoder, dynamic=False, backend=npu_backend, fullgraph=True)
-#图模式指令      
-python minimal_demo_npu.py --full_graph 
-```      
+```
+
+图模式启动命令在 shell 中执行：
+
+```bash
+python minimal_demo_npu.py --full_graph
+```
 ### CPU-NPU搬运优化
 - **优化原因：** 从CPU搬运到NPU存在搬运耗时，频繁的搬运会导致性能劣化，在生成时间步的步骤尤其明显，
 - **优化方式：** 直接在NPU上生成时间步
@@ -145,7 +149,7 @@ def timestep_embedding(t: Tensor, dim, max_period=10000, time_factor: float = 10
 ### DIT-Cache step-level适配
 - **基本原理：** DIT-Cache作为扩散模型推理加速的缓存框架，通过复用/预测已有的结果，减少冗余前向计算。其加速逻辑可清晰的分为Step-level和Block-level范式，Step-level通过判断不同采样步数step间的特定特征差异，通过阈值比较，决定是否跳过完整的step计算，直接复用或者预测缓存结果。
 - **Step-level典型方法：** ** 在Step-level加速范畴内，FBCache与TeaCache是典型的cache方法。[TeaCache](https://arxiv.org/pdf/2411.19108) 利用模型输入与输出的强相关性，通过Timestep Emebdding（输入）来估计输出差异：先利用该输入粗估输出变化，再通过多项式拟合修正缩放偏差，最终以累积差异作为判断标准，动态决定是否复用上一步被Cache的输出，避免冗余计算。[FBCache](https://arxiv.org/pdf/2411.19108)的原理是基于First Block L1误差，比较第一个Block输出残差与上一步的第一个Block输出残差之间的差异，如果首块输出误差与上一轮首块输出误差差异小于指定阈值，就跳过当前步计算，复用残差，对当前步的输出进行估计。
-- **block-level典型方法：** ** 在Block-level加速范畴内，Taylorseer是典型的以预测范式代替缓存的方法。[Taylorseer](https://github.com/Shenyi-Z/TaylorSeer) 解决了Step-level中因扩散模型中的特征相似性显著下降，导致的特征缓存引入的错误显著增加，损害生成质量。Taylorseer方法基于未来时间步的扩散模型特征可以基于前一时间步的值进行预测这一理论基础和特征在时间步间缓慢且连续变化的现象，采用微分方法近似特征的高阶导数，并应用Taylor级数预测后续特征。与直接重用缓存特征的方法不同，Taylorseer利用特征变化的连续性来预测未来特征，使扩散模型能够实现无训练且高比例的加速，而不会显著降低生成质量。 
+- **block-level典型方法：** ** 在Block-level加速范畴内，Taylorseer是典型的以预测范式代替缓存的方法。[Taylorseer](https://github.com/Shenyi-Z/TaylorSeer) 解决了Step-level中因扩散模型中的特征相似性显著下降，导致的特征缓存引入的错误显著增加，损害生成质量。Taylorseer方法基于未来时间步的扩散模型特征可以基于前一时间步的值进行预测这一理论基础和特征在时间步间缓慢且连续变化的现象，采用微分方法近似特征的高阶导数，并应用Taylor级数预测后续特征。与直接重用缓存特征的方法不同，Taylorseer利用特征变化的连续性来预测未来特征，使扩散模型能够实现无训练且高比例的加速，而不会显著降低生成质量。
 - **FBCache优化效果：** 通过63张图像生成任务，使用UNI3D指标：
 
     |阈值|跳过率|采样耗时（s）|Uni3d-I|加速比|
@@ -189,7 +193,7 @@ def timestep_embedding(t: Tensor, dim, max_period=10000, time_factor: float = 10
 - **启动方式：** 本代码模块通过修改cache_config.json文件决定是否使用Cache，Cache范式，Cache相关参数均在[3d_vision\Hunyuan3D\hy3dgen\cache\cache_config.json](../../../3d_vision/Hunyuan3D/hy3dgen/cache/cache_config.json) 中直接修改，同时，使用如下指令可以自定义cache_config.json位置
 ```python
 python minimal_demo_npu.py  --cache_config './hy3dgen/cache/cache_config.json'  #cache_config.json位置
-```      
+```
 其中参数意义如下
 ```python
 {
@@ -225,7 +229,7 @@ python minimal_demo_npu.py  --cache_config './hy3dgen/cache/cache_config.json'  
 
 ```
 - **框架位置：** 使用dit_cache作为自定义库，dit_cache方案插入逻辑如下：
-```  
+```
     cann-recipes-embodied-ai
         +--- module #公共优化模块
         |   +--- dit_cache #Dit_Cache通用方案核心位置
@@ -303,7 +307,7 @@ def _delighting_render_multiview(self,images_prompt,selected_camera_elevs,select
                 position_maps[idx] = result
         except Exception as e:
             print(f"Task failed with error: {e}")
-    
+
     return images_prompt, normal_maps, position_maps
 
 def _bake_from_multiview(self, view, camera_elevs,
@@ -315,7 +319,7 @@ def _bake_from_multiview(self, view, camera_elevs,
             future = executor.submit(self.render.back_project,
                                      view, camera_elev, camera_azim)
             futures.append(future)
-        
+
         project_textures = []
         project_weighted_cos_maps = []
         project_boundary_maps = []
@@ -405,7 +409,7 @@ rast_out, rast_out_db = self.raster_rasterize(
             pos_clip, self.pos_idx, resolution=resolution)
 '''
 #替换为
-if (self.save_render and 
+if (self.save_render and
             (elev, azim, camera_distance) in self.render_result.keys()):
             rast_out = self.render_result[(elev, azim, camera_distance)]
 
