@@ -1,6 +1,7 @@
 # CANN Recipes for Embodied Intelligence
 
 ## 🚀 Latest News
+- [2026/09] InternVLA-N1（[DualVLN](https://github.com/InternRobotics/InternNav)）双系统视觉语言导航模型在昇腾 Atlas A2 上已支持[推理](navigation/internvla-n1/infer_with_torch/README.md)，在 VLN-CE R2R / RxR val_unseen 上全量复现论文精度，视觉塔注意力换融合算子后端到端提速 2.4 倍，样例已开源。
 - [2026/09] AnchorSplat 前馈式场景级 3D Gaussian Splatting 模型新增[昇腾训练与评测样例](3d_vision/anchorsplat/README.md)，通过固定上游版本复用原生昇腾训练与渲染流程。
 - [2026/08] PUMA（[DOMINO](https://github.com/H-EmbodVis/DOMINO)）动态操作 VLA 模型在昇腾 Atlas A2 上已支持[训练](manipulation/puma/train/README.md)与[在线推理](manipulation/puma/infer_with_torch/README.md)，权重可在昇腾直接加载，无需转换，样例已开源。
 - [2026/07] SLARM 前馈式动态场景重建模型在昇腾 Atlas A3 上已支持[推理](3d_vision/SLARM/README.md)，从稀疏多视角序列联合学习3D高斯与场景流，支持高斯泼溅渲染、语义分割与流式因果推理，样例已开源。
@@ -116,6 +117,8 @@ flowchart TB
 |----|----|----|----|----|
 | **Alpamayo-R1** | | | | |
 | [在线推理](navigation/alpamayo-r1/README.md) | Atlas A2 | 在线推理 | 面向L4/L5级智能驾驶的VLA大模型(10B)，支持因果思维链推理。 | **~7.32 s** (生成10条预测轨迹) |
+| **InternVLA-N1** | | | | |
+| [推理](navigation/internvla-n1/infer_with_torch/README.md) | Atlas A2 | 推理 | 上海AI实验室的双系统视觉语言导航模型(8.38B)，在VLN-CE R2R / RxR val_unseen上全量复现论文精度(SR 63.57 / 61.82)。 | **2.4x** (视觉塔融合注意力，端到端单episode) |
 
 ### 运动控制模型 (Locomotion)
 
@@ -202,7 +205,9 @@ flowchart TB
 │   │       ├─infer_with_torch
 │   │       └─train
 │   ├─navigation                                # 导航模型文档目录
-│   │   └─alpamayo-r1                           # Alpamayo-R1相关文档
+│   │   ├─alpamayo-r1                           # Alpamayo-R1相关文档
+│   │   └─internvla-n1                          # InternVLA-N1相关文档
+│   │       └─infer_with_torch
 │   └─world_model                               # 世界模型文档目录
 │       └─Cosmos                                # Cosmos相关文档
 ├─manipulation                                  # 操作类模型目录
@@ -237,7 +242,9 @@ flowchart TB
 │       ├─train                                 # AgiBot 训练样例
 │       └─infer_with_torch                      # AgiBot torch 推理样例
 ├─navigation                                    # 导航模型目录
-│   └─alpamayo-r1                               # Alpamayo-R1智驾模型样例
+│   ├─alpamayo-r1                               # Alpamayo-R1智驾模型样例
+│   └─internvla-n1                              # InternVLA-N1视觉语言导航模型样例
+│       └─infer_with_torch                      # InternVLA-N1模型torch推理与评测样例
 ├─locomotion                                    # 运动控制模型目录
 │   └─LQC                                       # Learning-based Quadruped Robot Controller运动控制模型
 │   └─NMR                                       # Neural Motion Retargeting运动控制模型

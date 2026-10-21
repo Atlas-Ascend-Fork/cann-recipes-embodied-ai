@@ -1,0 +1,42 @@
+# InternVLA-N1（DualVLN）昇腾 NPU 推理依赖 —— 已实测通过的版本组合
+#
+# 说明：
+# - torch / torch_npu / torchvision 不在此列，直接复用系统 Python 已装好的版本
+#   （验证环境：torch 2.7.1、torch_npu 2.7.1.post4、torchvision 0.22.1，配 CANN 9.0.0 / 9.2.0）。
+#   venv 用 --system-site-packages 创建即可继承。
+# - flash_attn 被刻意排除：昇腾上没有该实现，改用 attn_implementation="sdpa"，
+#   替换点在 src/npu_eval.py。
+# - diffusers 必须 0.32.2，不能用 requirements/internvla_n1.txt 写的 0.33.1：
+#   仓库内 vendored 的 LuminaNextDiT2DModel._set_gradient_checkpointing 仍是
+#   0.33 之前的签名，用 0.33.1 会在建模型时直接 TypeError。
+#   InternNav 另两份 requirements（habitat / model）写的也是 0.32.2。
+# - habitat 相关依赖不在这里，它们装在独立的 venv 中，见 src/scripts/setup_habitat_env.sh。
+# - 下面的 numpy 约束只在系统 Python 的 numpy 不满足它时才会真的装进 venv —— venv 是用
+#   --system-site-packages 建的，pip 认为已满足就不再装一份，此后实际生效的是系统那一份。
+#   因此系统 numpy 被换掉时评测环境会跟着变，跑前用 setup_habitat_env.sh 末尾的
+#   numpy 1.x 断言确认。
+
+transformers==4.51.0
+# setup_model_env.sh 用 `hf download` 拉权重，`hf` 这个命令名从 0.34 起才有
+# （更早的版本只有 huggingface-cli）；transformers 4.51 只要求 >=0.30，所以单独钉一下
+huggingface_hub>=0.34,<1.0
+diffusers==0.32.2
+accelerate==1.4.0
+tokenizers==0.21.4
+safetensors==0.8.0
+ftfy==6.3.1
+einops==0.8.2
+
+numpy>=1.26,<2.0
+opencv-python-headless>=4.9.0.80,<5.0
+pillow>=11.0.0,<12.0.0
+imageio>=2.22,<2.33
+imageio-ffmpeg>=0.6.0,<0.7
+
+# internnav.agent / internnav.utils 的包级 __init__ 会 eager import 下列依赖，
+# 即使只跑 InternVLA-N1 推理也绕不开
+gym>=0.22.0,<=0.26.2
+numpy-quaternion==2023.0.3
+fastapi>=0.110,<0.111
+starlette>=0.36,<0.38
+uvicorn>=0.29.0,<0.31
