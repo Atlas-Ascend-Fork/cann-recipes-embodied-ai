@@ -128,6 +128,8 @@ flowchart TB
 |----|----|----|----|----|
 | **LQC** | | | | |
 | [训练+推理](locomotion/LQC/README.md) | Atlas A2 | 训练+推理 | 足式机器人的强化学习运动控制器，适用于G1、GO2等主流机器人型号。 | - |
+| **rl_sar** | | | | |
+| [CANN OM 适配](locomotion/rl_sar/README.md) | Ascend（已验证离线推理） | 实机推理适配 | Unitree G1 BeyondDance 策略，固定上游控制代码与独立 CANN 后端。 | - |
 | **NMR** | | | | |
 | [训练+推理](locomotion/NMR/README.md) | Atlas A3 | 训练+推理 | 神经运动重定向模型，基于LLaMA Transformer将人体SMPL-X动作重定向到Unitree G1人形机器人。 | - |
 
@@ -246,8 +248,9 @@ flowchart TB
 │   └─internvla-n1                              # InternVLA-N1视觉语言导航模型样例
 │       └─infer_with_torch                      # InternVLA-N1模型torch推理与评测样例
 ├─locomotion                                    # 运动控制模型目录
-│   └─LQC                                       # Learning-based Quadruped Robot Controller运动控制模型
-│   └─NMR                                       # Neural Motion Retargeting运动控制模型
+│   ├─LQC                                       # Learning-based Quadruped Robot Controller运动控制模型
+│   ├─NMR                                       # Neural Motion Retargeting运动控制模型
+│   └─rl_sar                                    # Unitree G1 控制与 CANN OM 推理适配
 ├─3d_vision                                     # 3D视觉模型目录
 │   ├─Hunyuan3D                                 # Hunyuan3D 2.0三维生成模型样例
 │   ├─vggt                                      # VGGT三维重建模型样例
