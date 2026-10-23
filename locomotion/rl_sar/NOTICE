@@ -1,0 +1,22 @@
+Third-Party Software Notice
+===========================
+
+The generic rl_sar control code is consumed from the pinned `upstream/` Git
+submodule. The submodule is a maintained fork of the rl_sar project and retains
+the upstream copyright and Apache-2.0 license notices.
+
+Pinned source revisions
+-----------------------
+The parent repository pins `upstream/` to commit
+`2c26c1c0c3c1102b6097aef2ee44035f0f07eaa5`.
+The nested Unitree SDK2 dependency is pinned by the upstream submodule to
+commit `65e19c625b76b697f94e0b953e296ecc0ce7b4a1`.
+
+CANN overlay
+------------
+The `cann/`, `config/`, and `patches/` integration is distributed under the
+Apache-2.0 license in the parent repository. Integration patches are applied
+to a build copy; the checked-out upstream submodule remains unchanged.
+
+The upstream and nested dependency license texts are obtained from their
+respective submodule `LICENSE` files after recursive submodule initialization.

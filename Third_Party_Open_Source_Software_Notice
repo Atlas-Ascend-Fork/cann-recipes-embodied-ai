@@ -3129,3 +3129,17 @@ Copyright Notice:
 Copyright (c) Huawei Technologies Co., Ltd. All rights reserved.
 License: Apache License V2.0
 Full License Text: Please see above.
+
+
+Software: rl_sar_unitree
+Maintained fork: https://gitcode.com/qq_40436134/rl_sar_unitree.git
+Usage: locomotion/rl_sar/upstream Git submodule for Unitree G1 hardware control
+Pinned commit: 2c26c1c0c3c1102b6097aef2ee44035f0f07eaa5
+Copyright Notice:
+Copyright (c) 2024-2025 Ziqi Fan
+License: Apache License V2.0
+Full License Text: Please see above.
+
+The upstream submodule pins Unitree SDK2 at commit
+65e19c625b76b697f94e0b953e296ecc0ce7b4a1. Its upstream license is retained
+inside the nested submodule.

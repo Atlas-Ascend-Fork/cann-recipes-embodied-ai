@@ -1,0 +1,17 @@
+# Copyright (c) 2026 Huawei Technologies Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+# Keep all generated builds, test binaries, scratch checks and logs here.
+# Clean the entire directory with ./build.sh --clean.
+/cmake_build/
+
+# Locally supplied models are inputs, not source files.
+/models/
+*.om
+*.onnx
+*.pt
+*.log
+*.csv
+compile_commands.json
+__pycache__/
+*.py[cod]
