@@ -1,0 +1,214 @@
+--- a/library/core/rl_sdk/rl_sdk.cpp
++++ b/library/core/rl_sdk/rl_sdk.cpp
+@@ -5,6 +5,8 @@
+
+ #include "rl_sdk.hpp"
+ #include <ATen/core/TensorBody.h>
++#include <cstdlib>
++#include <cmath>
+ #include <fstream>
+ #include <ostream>
+ #include <vector>
+@@ -231,6 +233,70 @@
+     this->control.yaw = 0.0;
+ }
+
++#ifdef RL_SAR_ENABLE_EXTERNAL_BACKEND
++namespace
++{
++void ApplyInferenceResult(RL& rl, const InferenceResult& result)
++{
++    if (result.actions.size() != static_cast<size_t>(rl.params.num_of_dofs) ||
++        result.ref_joint_pos.size() != static_cast<size_t>(rl.params.num_of_dofs) ||
++        result.ref_joint_vel.size() != static_cast<size_t>(rl.params.num_of_dofs) ||
++        result.ref_body_quat.size() != 4)
++    {
++        throw std::runtime_error("External inference backend returned invalid output shapes");
++    }
++
++    const auto finite = [](const std::vector<float>& values) {
++        return std::all_of(values.begin(), values.end(), [](float value) { return std::isfinite(value); });
++    };
++    if (!finite(result.actions) || !finite(result.ref_joint_pos) ||
++        !finite(result.ref_joint_vel) || !finite(result.ref_body_quat))
++    {
++        throw std::runtime_error("External inference backend returned non-finite output");
++    }
++
++    rl.ref_joint_pos = rl.VectorToTensor(result.ref_joint_pos, {1, rl.params.num_of_dofs});
++    rl.ref_joint_vel = rl.VectorToTensor(result.ref_joint_vel, {1, rl.params.num_of_dofs});
++    rl.ref_body_quat_w = rl.VectorToTensor(result.ref_body_quat, {1, 4});
++}
++}
++
++bool RL::InitExternalBackend(const std::string& model_path)
++{
++    const PolicyDimensions policy{
++        static_cast<size_t>(this->params.num_observations),
++        static_cast<size_t>(this->params.num_of_dofs)};
++    this->external_backend = CreateExternalInferenceBackend(model_path, policy);
++    if (!this->external_backend)
++    {
++        return false;
++    }
++
++    this->external_backend->LoadModel(model_path);
++    ApplyInferenceResult(*this, this->external_backend->Forward(this->ComputeObservationFloat(), 0.0f));
++    return true;
++}
++
++bool RL::HasExternalBackend() const
++{
++    return this->external_backend && this->external_backend->IsModelLoaded();
++}
++
++torch::Tensor RL::ForwardExternalBackend()
++{
++    InferenceResult result = this->external_backend->Forward(
++        this->ComputeObservationFloat(), static_cast<float>(this->episode_length_buf));
++    ApplyInferenceResult(*this, result);
++
++    torch::Tensor actions = this->VectorToTensor(result.actions, {1, this->params.num_of_dofs});
++    if (this->params.clip_actions_upper.numel() != 0 && this->params.clip_actions_lower.numel() != 0)
++    {
++        return torch::clamp(actions, this->params.clip_actions_lower, this->params.clip_actions_upper);
++    }
++    return actions;
++}
++#endif
++
+ void RL::InitRL(std::string robot_path)
+ {
+     try {
+@@ -258,7 +324,10 @@
+         }
+
+         // init model
+-        std::string model_path = std::string(CMAKE_CURRENT_SOURCE_DIR) + "/policy/" + robot_path + "/" + this->params.model_name;
++        const char* model_path_override = std::getenv("RL_SAR_MODEL_PATH");
++        std::string model_path = model_path_override && model_path_override[0] != '\0'
++            ? model_path_override
++            : std::string(CMAKE_CURRENT_SOURCE_DIR) + "/policy/" + robot_path + "/" + this->params.model_name;
+         std::cout << "[RL_SDK] Model specified in config: " << this->params.model_name << std::endl;
+
+         // Check if model file exists
+@@ -269,7 +338,12 @@
+         model_file.close();
+
+         // Determine model type and load accordingly
+-        if (this->params.model_name.find(".onnx") != std::string::npos) {
++#ifdef RL_SAR_ENABLE_EXTERNAL_BACKEND
++        if (this->InitExternalBackend(model_path)) {
++            std::cout << "[RL_SDK] External inference backend loaded successfully" << std::endl;
++        } else
++#endif
++        if (model_path.size() >= 5 && model_path.compare(model_path.size() - 5, 5, ".onnx") == 0) {
+             // Config specifies ONNX model - load only ONNX
+             std::cout << "[RL_SDK] Loading ONNX model: " << model_path << std::endl;
+             try {
+@@ -295,7 +369,7 @@
+
+             // Try to find corresponding PyTorch model for fallback
+             std::string pt_model_path = model_path;
+-            size_t onnx_pos = pt_model_path.find(".onnx");
++            size_t onnx_pos = pt_model_path.rfind(".onnx");
+             if (onnx_pos != std::string::npos) {
+                 pt_model_path.replace(onnx_pos, 5, ".pt");
+                 std::ifstream pt_file(pt_model_path);
+@@ -314,7 +388,7 @@
+                     this->pytorch_model_loaded = false;
+                 }
+             }
+-        } else if (this->params.model_name.find(".pt") != std::string::npos) {
++        } else if (model_path.size() >= 3 && model_path.compare(model_path.size() - 3, 3, ".pt") == 0) {
+             // Config specifies PyTorch model - load PyTorch first, then try ONNX
+             std::cout << "[RL_SDK] Loading PyTorch model: " << model_path << std::endl;
+             try {
+@@ -328,7 +402,7 @@
+             this->onnx_engine.model_loaded_ = false;  // Reset ONNX model loaded flag
+             // Try to load corresponding ONNX model
+             std::string onnx_model_path = model_path;
+-            size_t pt_pos = onnx_model_path.find(".pt");
++            size_t pt_pos = onnx_model_path.rfind(".pt");
+             if (pt_pos != std::string::npos) {
+                 onnx_model_path.replace(pt_pos, 3, ".onnx");
+                 std::ifstream onnx_file(onnx_model_path);
+@@ -346,6 +420,8 @@
+                     std::cout << "[RL_SDK] Using PyTorch model only" << std::endl;
+                 }
+             }
++        } else if (model_path.size() >= 3 && model_path.compare(model_path.size() - 3, 3, ".om") == 0) {
++            throw std::runtime_error("OM model requires a build with RL_SAR_ENABLE_OM=ON");
+         } else {
+             // Unknown model format - assume PyTorch for backward compatibility
+             std::cout << "[RL_SDK] Unknown model format, assuming PyTorch: " << model_path << std::endl;
+--- a/library/core/rl_sdk/rl_sdk.hpp
++++ b/library/core/rl_sdk/rl_sdk.hpp
+@@ -12,12 +12,16 @@
+ #include <exception>
+ #include <unistd.h>
+ #include <algorithm>
++#include <memory>
+ #include <tbb/concurrent_queue.h>
+
+ #include <yaml-cpp/yaml.h>
+ #include "fsm_core.hpp"
+ #include "observation_buffer.hpp"
+ #include "onnx_engine.hpp"
++#ifdef RL_SAR_ENABLE_EXTERNAL_BACKEND
++#include "inference_backend.hpp"
++#endif
+ #include <Eigen/Dense>
+ #include <Eigen/Core>
+
+@@ -244,9 +248,18 @@
+     torch::Tensor VectorToTensor(const std::vector<float>& vec, const std::vector<int64_t>& shape);
+     std::vector<float> ComputeObservationFloat();
+
++#ifdef RL_SAR_ENABLE_EXTERNAL_BACKEND
++    bool InitExternalBackend(const std::string& model_path);
++    bool HasExternalBackend() const;
++    torch::Tensor ForwardExternalBackend();
++#endif
++
+     // rl module
+     torch::jit::script::Module model;
+     ONNXInferenceEngine onnx_engine;
++#ifdef RL_SAR_ENABLE_EXTERNAL_BACKEND
++    std::unique_ptr<InferenceBackend> external_backend;
++#endif
+     bool pytorch_model_loaded = false;
+     // output buffer
+     torch::Tensor output_dof_tau;
+--- a/src/rl_real_g1.cpp
++++ b/src/rl_real_g1.cpp
+@@ -310,6 +310,12 @@
+ {
+     torch::autograd::GradMode::set_enabled(false);
+
++#ifdef RL_SAR_ENABLE_EXTERNAL_BACKEND
++    if (this->HasExternalBackend()) {
++        return this->ForwardExternalBackend();
++    }
++#endif
++
+     // Try ONNX inference first if model is loaded
+     if (this->onnx_engine.IsModelLoaded()) {
+         // try {
+--- a/policy/g1/fsm.hpp
++++ b/policy/g1/fsm.hpp
+@@ -96,10 +96,10 @@
+             {
+                 return "RLFSMStateRL_RoboMimicLoco";
+             }
+-            // else if (rl.control.current_keyboard == Input::Keyboard::Num3 || rl.control.current_gamepad == Input::Gamepad::RB_DPadLeft)
+-            // {
+-            //     return "RLFSMStateRL_RoboMimicDance";
+-            // }
++            else if (rl.control.current_keyboard == Input::Keyboard::Num3 || rl.control.current_gamepad == Input::Gamepad::RB_DPadLeft)
++            {
++                return "RLFSMStateRL_RoboMimicDance";
++            }
+             // else if (rl.control.current_keyboard == Input::Keyboard::Num4 || rl.control.current_gamepad == Input::Gamepad::RB_DPadRight)
+             // {
+             //     return "RLFSMStateRL_RoboMimicKungFu";
