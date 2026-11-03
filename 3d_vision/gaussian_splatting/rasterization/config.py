@@ -112,10 +112,18 @@ class Config:
     tb_save_image: bool = False
 
     lpips_net: Literal["vgg", "alex"] = "alex"
-    
+
     def adjust_steps(self, factor: float):
+        if factor <= 0:
+            raise ValueError("steps_scaler must be greater than zero")
+
+        scaled_max_steps = int(self.max_steps * factor)
+        if scaled_max_steps <= 0:
+            raise ValueError("steps_scaler is too small; max_steps must remain positive")
+
         self.eval_steps = [int(i * factor) for i in self.eval_steps]
         self.save_steps = [int(i * factor) for i in self.save_steps]
         self.ply_steps = [int(i * factor) for i in self.ply_steps]
-        self.max_steps = int(self.max_steps * factor)
-        self.sh_degree_interval = int(self.sh_degree_interval * factor)
+        self.max_steps = scaled_max_steps
+        scaled_interval = int(self.sh_degree_interval * factor)
+        self.sh_degree_interval = max(1, scaled_interval)
