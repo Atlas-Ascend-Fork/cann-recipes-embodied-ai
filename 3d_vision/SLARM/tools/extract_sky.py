@@ -51,11 +51,16 @@ class ListDataset:
     def __getitem__(self, index: int) -> Tuple[torch.Tensor, str]:
         """Get an image and optionally its path."""
         img_pth = self.samples[index]
-        try:
-            img = self.loader(img_pth)
-        except Exception as e:
-            logging.info(f"Error loading '{img_pth}': {e}")
-            return self.__getitem__((index + 1) % len(self.samples))
+        for attempt in range(len(self.samples)):
+            try:
+                img = self.loader(img_pth)
+                break
+            except Exception as e:
+                logging.info(f"Error loading '{img_pth}': {e}")
+                if attempt + 1 == len(self.samples):
+                    raise RuntimeError("No readable image found in the dataset") from e
+                index = (index + 1) % len(self.samples)
+                img_pth = self.samples[index]
 
         if self.transform is not None:
             img = self.transform(img)
@@ -69,7 +74,7 @@ class ListDataset:
         return len(self.samples)
 
     @staticmethod
-    def _load_samples(self, data_list: str) -> list:
+    def _load_samples(data_list: str) -> list:
         """Load image paths from the data list file."""
         samples = []
         with open(data_list, "r") as f:
