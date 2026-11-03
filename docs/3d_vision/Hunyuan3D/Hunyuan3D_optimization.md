@@ -92,12 +92,13 @@ def attention(q: Tensor, k: Tensor, v: Tensor, **kwargs) -> Tensor:
 def npu_fia(q, k, v, scale):
     attn_mask = None
     batch_size, num_head, seq_len, head_dim = q.shape
-    out = torch_npu.torch_npu.fused_infer_attention_score(
+    out = torch_npu.npu_fused_infer_attention_score(
         q, k, v, num_heads=num_head, input_layout="BNSD", scale=scale, atten_mask=attn_mask
     )[0]
     return out
 
 def attention(q: Tensor, k: Tensor, v: Tensor, **kwargs) -> Tensor:
+    batch_size, num_head, seq_len, head_dim = q.shape
     x = npu_fia(q, k, v, scale=(1 / math.sqrt(head_dim)))
     x = rearrange(x, "B H L D -> B L (H D)")
     return x
