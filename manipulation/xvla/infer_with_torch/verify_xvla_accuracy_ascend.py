@@ -16,15 +16,7 @@ import os
 
 import torch
 
-from test_xvla_inference_ascend import (
-    ensure_torch_npu,
-    LiberoHdf5Sample,
-    load_policy,
-    make_libero_hdf5_batch,
-    make_mock_batch,
-    resolve_dtype,
-    synchronize,
-)
+
 
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s - %(message)s", force=True)
@@ -51,6 +43,8 @@ def parse_args() -> argparse.Namespace:
 
 
 def make_batch(args: argparse.Namespace, policy, device: torch.device, dtype: torch.dtype) -> dict[str, torch.Tensor]:
+    from test_xvla_inference_ascend import LiberoHdf5Sample, make_libero_hdf5_batch, make_mock_batch
+
     if args.libero_hdf5:
         sample = LiberoHdf5Sample(
             hdf5_path=args.libero_hdf5,
@@ -69,6 +63,8 @@ def make_batch(args: argparse.Namespace, policy, device: torch.device, dtype: to
 
 
 def run_action_chunk(policy, batch: dict[str, torch.Tensor], device: torch.device, seed: int, optimized: bool):
+    from test_xvla_inference_ascend import synchronize
+
     os.environ["LEROBOT_XVLA_USE_NPU_BADD_BMM"] = "1" if optimized else "0"
     os.environ["LEROBOT_XVLA_USE_NPU_FUSION_ATTENTION"] = "1" if optimized else "0"
     torch.manual_seed(seed)
@@ -80,6 +76,9 @@ def run_action_chunk(policy, batch: dict[str, torch.Tensor], device: torch.devic
 
 
 def compare_actions(reference: torch.Tensor, optimized: torch.Tensor, threshold: float) -> bool:
+    if reference.shape != optimized.shape:
+        logger.error("Action shape mismatch: reference %s vs optimized %s", reference.shape, optimized.shape)
+        return False
     if not torch.isfinite(reference).all():
         logger.error("Reference output contains NaN/Inf.")
         return False
@@ -105,6 +104,8 @@ def compare_actions(reference: torch.Tensor, optimized: torch.Tensor, threshold:
 
 
 def main() -> None:
+    from test_xvla_inference_ascend import ensure_torch_npu, load_policy, resolve_dtype
+
     args = parse_args()
     device = torch.device(args.device)
     ensure_torch_npu(device)

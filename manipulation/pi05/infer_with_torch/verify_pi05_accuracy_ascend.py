@@ -17,8 +17,6 @@ import time
 
 import torch
 
-from lerobot.policies.factory import make_pre_post_processors
-from lerobot.policies.pi05.modeling_pi05 import PI05Policy
 from infer_utils import get_device, make_dummy_observation, move_to_device, synchronize
 
 # Configure logging
@@ -83,6 +81,8 @@ def parse_args():
 
 
 def load_policy(model_path):
+    from lerobot.policies.pi05.modeling_pi05 import PI05Policy
+
     logger.info("Loading model from %s...", model_path)
     policy = PI05Policy.from_pretrained(model_path)
     policy.eval()
@@ -91,6 +91,8 @@ def load_policy(model_path):
 
 
 def prepare_observation(policy):
+    from lerobot.policies.factory import make_pre_post_processors
+
     preprocess, _postprocess = make_pre_post_processors(policy.config)
     batch_size = 1
     image_shape = (3, 224, 224)
@@ -112,6 +114,9 @@ def prepare_observation(policy):
 
 
 def compare_actions(cpu_action, npu_action, chunk_size):
+    if cpu_action.shape != npu_action.shape:
+        logger.error("Action shape mismatch: CPU %s vs NPU %s", cpu_action.shape, npu_action.shape)
+        return False
     cpu_vec = cpu_action.float().contiguous()
     npu_vec = npu_action.float().contiguous()
     if not torch.isfinite(cpu_vec).all():
