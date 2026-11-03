@@ -11,6 +11,7 @@
 # optimizer states), machine-learning model code, inference-enabling code, training-enabling code,
 # fine-tuning enabling code and other elements of the foregoing made publicly available
 # by Tencent in accordance with TENCENT HUNYUAN COMMUNITY LICENSE AGREEMENT.
+# Upstream source: https://github.com/Tencent-Hunyuan/Hunyuan3D-2; see 3d_vision/Hunyuan3D/LICENSE and NOTICE.
 
 
 import logging
@@ -87,7 +88,7 @@ class Hunyuan3DPaintPipeline:
             delight_model_path = os.path.join(model_path, 'hunyuan3d-delight-v2-0')
             multiview_model_path = os.path.join(model_path, subfolder)
             return cls(Hunyuan3DTexGenConfig(delight_model_path, multiview_model_path, subfolder))
-            
+
     def __init__(self, config):
         self.config = config
         self.models = {}
@@ -194,60 +195,38 @@ class Hunyuan3DPaintPipeline:
         new_image.paste(cropped_image, (paste_x, paste_y))
         return new_image
 
-    def _delighting_render_multiview(self, images_prompt, selected_camera_elevs, selected_camera_azims, 
-                                     use_abs_coor=True):
-
-        total_tasks = len(images_prompt) + 2 * len(selected_camera_elevs) # total task num
-        # Set the maximum number of threads to 20 as a default configuration
-        max_workers = min(20, total_tasks)
-        with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            normal_futures = {}
-
-            for idx, (elev, azim) in enumerate(zip(selected_camera_elevs, selected_camera_azims)):
-                normal_future = executor.submit(
-                    self.render.render_normal, elev, azim,
-                    use_abs_coor = use_abs_coor, return_type = 'pl'
-                )
-                normal_futures[normal_future] = idx
-
-            normal_maps = [None] * len(selected_camera_elevs)
-            images_prompt = [self.models['delight_model'](image_prompt) for image_prompt in images_prompt]
-
-            for future in as_completed(list(normal_futures.keys())):
-                result = future.result()
-                idx = normal_futures.get(future)
-                normal_maps[idx] = result
-            
-            return images_prompt, normal_maps
-
     def multi_thread_bake_from_multiview(self, views, camera_elevs,
                             camera_azims, view_weights, method='graphcut'):
-        
+
         total_tasks = len(camera_elevs) # total task num
         # Set the maximum number of threads to 20 as a default configuration
         max_workers = min(20, total_tasks)
 
-        with ThreadPoolExecutor(max_workers=20) as executor:
-            futures = []
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {}
             for idx, (view, camera_elev, camera_azim, weight) in enumerate(zip(views, camera_elevs,
                                                                              camera_azims, view_weights)):
                 future = executor.submit(self.render.back_project,
                                         view, camera_elev, camera_azim)
-                futures.append(future)
-            
+                futures[future] = (idx, weight)
+
             project_textures = []
             project_weighted_cos_maps = []
             project_boundary_maps = []
 
             for future in as_completed(futures):
-                project_texture, project_weighted_cos_map, project_boundary_map = future.result()
-                project_textures.append(project_texture)
-                project_weighted_cos_maps.append(project_weighted_cos_map)
-                project_boundary_maps.append(project_boundary_map)
-            
+                idx, weight = futures[future]
+                project_texture, project_cos_map, project_boundary_map = future.result()
+                project_textures.append((idx, project_texture))
+                project_weighted_cos_maps.append(
+                    (idx, weight * (project_cos_map ** self.config.bake_exp))
+                )
+                project_boundary_maps.append((idx, project_boundary_map))
+
         if method == 'fast':
             texture, ori_trust_map = self.render.fast_bake_texture(
-                project_textures, project_weighted_cos_maps
+                [texture for _, texture in sorted(project_textures)],
+                [cos_map for _, cos_map in sorted(project_weighted_cos_maps)]
             )
         else:
             raise f'no method {method}'
@@ -267,7 +246,7 @@ class Hunyuan3DPaintPipeline:
             else:
                 image_prompt = image[i]
             images_prompt.append(image_prompt)
-            
+
         images_prompt = [self.recenter_image(image_prompt) for image_prompt in images_prompt]
 
         mesh = mesh_uv_wrap(mesh)
@@ -322,3 +301,30 @@ class Hunyuan3DPaintPipeline:
         self.render.reset_render_result()
 
         return textured_mesh
+
+
+    def _delighting_render_multiview(self, images_prompt, selected_camera_elevs, selected_camera_azims,
+                                     use_abs_coor=True):
+
+        total_tasks = len(images_prompt) + 2 * len(selected_camera_elevs) # total task num
+        # Set the maximum number of threads to 20 as a default configuration
+        max_workers = min(20, total_tasks)
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            normal_futures = {}
+
+            for idx, (elev, azim) in enumerate(zip(selected_camera_elevs, selected_camera_azims)):
+                normal_future = executor.submit(
+                    self.render.render_normal, elev, azim,
+                    use_abs_coor = use_abs_coor, return_type = 'pl'
+                )
+                normal_futures[normal_future] = idx
+
+            normal_maps = [None] * len(selected_camera_elevs)
+            images_prompt = [self.models['delight_model'](image_prompt) for image_prompt in images_prompt]
+
+            for future in as_completed(list(normal_futures.keys())):
+                result = future.result()
+                idx = normal_futures.get(future)
+                normal_maps[idx] = result
+
+            return images_prompt, normal_maps
