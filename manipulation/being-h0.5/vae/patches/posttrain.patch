@@ -1,0 +1,543 @@
+diff --git a/base/BeingH/dataset/base_dataset.py b/target/BeingH/dataset/base_dataset.py
+index 1404577..9a571e8 100644
+--- a/base/BeingH/dataset/base_dataset.py
++++ b/target/BeingH/dataset/base_dataset.py
+@@ -535,7 +535,7 @@ class SimpleCustomBatch:
+
+         return self
+
+-    def cuda(self, device):
++    def to(self, device):
+         self.packed_text_ids = self.packed_text_ids.to(device)
+         self.packed_text_indexes = self.packed_text_indexes.to(device)
+         self.packed_position_ids = self.packed_position_ids.to(device)
+@@ -563,6 +563,10 @@ class SimpleCustomBatch:
+
+         return self
+
++    def cuda(self, device):
++        """Backward-compatible alias for callers that still use CUDA naming."""
++        return self.to(device)
++
+     def to_dict(self):
+         data = dict(
+             sequence_length = self.sequence_length,
+@@ -605,4 +609,3 @@ def collate_wrapper():
+     def collate_fn(batch):
+         return SimpleCustomBatch(batch)
+     return collate_fn
+-
+diff --git a/base/BeingH/train/fsdp_utils.py b/target/BeingH/train/fsdp_utils.py
+index 11552ab..dbdda24 100644
+--- a/base/BeingH/train/fsdp_utils.py
++++ b/target/BeingH/train/fsdp_utils.py
+@@ -25,6 +25,11 @@ from torch.distributed.fsdp import (
+ from torch.distributed.fsdp.wrap import transformer_auto_wrap_policy
+ from safetensors.torch import load_file, save_file
+
++try:
++    import torch_npu  # noqa: F401
++except ImportError:
++    torch_npu = None
++
+ from BeingH.model.vit_model.internvit.modeling_intern_vit import (
+     InternVisionEncoderLayer,
+     InternVisionModel,
+@@ -108,11 +113,26 @@ def fsdp_wrapper(model: torch.nn.Module, fsdp_config: FSDPConfig) -> FSDP:
+         FSDP-wrapped model
+     """
+
++    device_type = os.environ.get(
++        "BEINGH_DEVICE_TYPE",
++        "cuda" if torch.cuda.is_available() else "npu",
++    )
++    if device_type not in {"cuda", "npu"}:
++        raise ValueError("BEINGH_DEVICE_TYPE must be 'cuda' or 'npu'")
++    accelerator = getattr(torch, device_type)
++    local_rank = int(os.environ.get("LOCAL_RANK", dist.get_rank()))
++    if local_rank >= accelerator.device_count():
++        raise RuntimeError(
++            f"LOCAL_RANK={local_rank}, but only {accelerator.device_count()} "
++            f"{device_type} device(s) are visible"
++        )
++    device = torch.device(device_type, local_rank)
++
+     # Initialize device mesh for HYBRID_SHARD strategy
+     device_mesh = None
+     if fsdp_config.sharding_strategy == 'HYBRID_SHARD':
+         device_mesh = init_device_mesh(
+-            "cuda",
++            device_type,
+             mesh_shape=(fsdp_config.num_replicate, fsdp_config.num_shard),
+             mesh_dim_names=("replicate", "shard")
+         )
+@@ -129,7 +149,7 @@ def fsdp_wrapper(model: torch.nn.Module, fsdp_config: FSDPConfig) -> FSDP:
+             reduce_dtype=torch.bfloat16,
+             buffer_dtype=torch.bfloat16,
+         ),
+-        device_id=dist.get_rank() % torch.cuda.device_count(),
++        device_id=device,
+         sharding_strategy=ShardingStrategy[fsdp_config.sharding_strategy],
+         backward_prefetch=BackwardPrefetch[fsdp_config.backward_prefetch],
+         cpu_offload=CPUOffload(offload_params=fsdp_config.cpu_offload),
+@@ -452,7 +472,7 @@ class FSDPCheckpoint:
+         if resume_from is None or not os.path.exists(resume_from):
+             return optimizer, scheduler, 0
+
+-        if fsdp_config.sharding_strategy == "FULL_SHARD":
++        if fsdp_config.sharding_strategy in ["FULL_SHARD", "SHARD_GRAD_OP"]:
+             shard_index = dist.get_rank()
+             total_shards = dist.get_world_size()
+         elif fsdp_config.sharding_strategy == "HYBRID_SHARD":
+@@ -476,8 +496,9 @@ class FSDPCheckpoint:
+         del scheduler_state_dict
+
+         # Get training step
+-        train_steps = int(os.path.basename(os.path.normpath(resume_from))) + 1
++        # Checkpoint directory names represent optimizer steps already
++        # completed. The training loop resumes from exactly this count and
++        # labels the next optimizer update train_steps + 1.
++        train_steps = int(os.path.basename(os.path.normpath(resume_from)))
+
+         return optimizer, scheduler, train_steps
+-
+-
+diff --git a/base/BeingH/train/train.py b/target/BeingH/train/train.py
+index b47d392..2544920 100644
+--- a/base/BeingH/train/train.py
++++ b/target/BeingH/train/train.py
+@@ -21,6 +21,11 @@ import pytz
+ import torch
+ import torch.distributed as dist
+ import yaml
++
++try:
++    import torch_npu  # noqa: F401
++except ImportError:
++    torch_npu = None
+ from torch.distributed.algorithms._checkpoint.checkpoint_wrapper import (
+     CheckpointImpl,
+     apply_activation_checkpointing,
+@@ -135,6 +140,44 @@ class ModelArguments:
+     use_flow_matching: bool = field(
+         default=False, metadata={'help': 'Use Flow Matching'}
+     )
++    wrist_action_loss_weight: float = field(
++        default=1.0,
++        metadata={
++            'help': (
++                'Training-only loss weight for unified wrist action slots 0:6. '
++                'A value of 1.0 preserves legacy behavior.'
++            )
++        },
++    )
++    wrist_action_dim: int = field(
++        default=6,
++        metadata={
++            'help': (
++                'Number of leading unified action slots treated as wrist for '
++                'training-only loss weighting. Legacy Euler/axis-angle uses 6; '
++                'Rot6D uses 9.'
++            )
++        },
++    )
++    temporal_delta_loss_weight: float = field(
++        default=0.0,
++        metadata={
++            'help': (
++                'Weight of the Huber loss between adjacent clean-action '
++                'increments inside each flow-matching action chunk. '
++                'A value of 0.0 preserves legacy training behavior.'
++            )
++        },
++    )
++    temporal_delta_huber_beta: float = field(
++        default=1.0,
++        metadata={
++            'help': (
++                'Huber transition point (SmoothL1 beta) for the temporal '
++                'clean-action delta loss.'
++            )
++        },
++    )
+
+     # Action expert (MoT)
+     use_expert: bool = field(
+@@ -295,6 +338,10 @@ class TrainingArguments(TrainingArguments):
+     beta1: float = field(default=0.9, metadata={"help": "AdamW β₁"})
+     beta2: float = field(default=0.999, metadata={"help": "AdamW β₂"})
+     eps: float = field(default=1e-8, metadata={"help": "AdamW ε"})
++    fused_optimizer: bool = field(
++        default=False,
++        metadata={"help": "Use the fused CUDA AdamW implementation."}
++    )
+     max_grad_norm: float = field(
+         default=1.0,
+         metadata={"help": "Gradient clipping threshold (L2 norm)."}
+@@ -401,13 +448,56 @@ class TrainingArguments(TrainingArguments):
+ # Helper Functions
+ # ==============================================================================
+
+-def setup_distributed():
+-    """Initialize distributed training environment."""
+-    dist.init_process_group("nccl")
+-    torch.backends.cuda.matmul.allow_tf32 = True
+-    torch.backends.cudnn.allow_tf32 = True
+-    torch.backends.cudnn.benchmark = True
+-    return dist.get_rank() % torch.cuda.device_count()
++def accelerator_type() -> str:
++    """Return the requested accelerator while preserving CUDA defaults."""
++    requested = os.environ.get("BEINGH_DEVICE_TYPE")
++    if requested:
++        if requested not in {"cuda", "npu"}:
++            raise ValueError("BEINGH_DEVICE_TYPE must be 'cuda' or 'npu'")
++        return requested
++    if torch.cuda.is_available():
++        return "cuda"
++    if hasattr(torch, "npu") and torch.npu.is_available():
++        return "npu"
++    raise RuntimeError("Being-H training requires an available CUDA or NPU device")
++
++
++def accelerator_module(device: torch.device):
++    return getattr(torch, device.type)
++
++
++def accelerator_synchronize(device: torch.device) -> None:
++    accelerator_module(device).synchronize()
++
++
++def accelerator_empty_cache(device: torch.device) -> None:
++    accelerator_module(device).empty_cache()
++
++
++def accelerator_max_memory_reserved(device: torch.device) -> int:
++    return int(accelerator_module(device).max_memory_reserved())
++
++
++def setup_distributed() -> torch.device:
++    """Initialize NCCL/CUDA or HCCL/Ascend distributed training."""
++    device_type = accelerator_type()
++    backend = os.environ.get(
++        "BEINGH_DIST_BACKEND", "hccl" if device_type == "npu" else "nccl"
++    )
++    dist.init_process_group(backend)
++    local_rank = int(os.environ.get("LOCAL_RANK", dist.get_rank()))
++    accelerator = getattr(torch, device_type)
++    if local_rank >= accelerator.device_count():
++        raise RuntimeError(
++            f"LOCAL_RANK={local_rank}, but only {accelerator.device_count()} "
++            f"{device_type} device(s) are visible"
++        )
++    accelerator.set_device(local_rank)
++    if device_type == "cuda":
++        torch.backends.cuda.matmul.allow_tf32 = True
++        torch.backends.cudnn.allow_tf32 = True
++        torch.backends.cudnn.benchmark = True
++    return torch.device(device_type, local_rank)
+
+
+ def setup_logging(output_dir: str, rank: int) -> logging.Logger:
+@@ -899,6 +989,10 @@ def main():
+         prompt_template=data_args.prompt_template,
+         use_expert=model_args.use_expert,
+         use_flow_matching=model_args.use_flow_matching,
++        wrist_action_loss_weight=model_args.wrist_action_loss_weight,
++        wrist_action_dim=model_args.wrist_action_dim,
++        temporal_delta_loss_weight=model_args.temporal_delta_loss_weight,
++        temporal_delta_huber_beta=model_args.temporal_delta_huber_beta,
+         attn_mode=model_args.attn_mode,
+         # MPG parameters
+         use_mpg=model_args.use_mpg,
+@@ -957,6 +1051,24 @@ def main():
+     with open(data_args.dataset_config_file, "r") as stream:
+         dataset_meta = yaml.safe_load(stream)
+
++    # Persist the exact data transform in config.json so inference cannot
++    # accidentally apply q99/min-max/raw preprocessing from another run.
++    data_config_names = list(
++        dict.fromkeys(
++            name
++            for group in dataset_meta.values()
++            if isinstance(group, dict)
++            for name in group.get("data_config_names", [])
++        )
++    )
++    if data_config_names:
++        model.config.data_config_names = data_config_names
++        if len(data_config_names) == 1:
++            model.config.data_config_name = data_config_names[0]
++        logger.info(
++            f"Checkpoint data config(s): {data_config_names}"
++        )
++
+     # Create robot dataset config
+     robot_dataset_config = RobotDatasetConfig(
+         max_view_num=model_args.max_view_num,
+@@ -1042,13 +1154,23 @@ def main():
+             check_fn=grad_checkpoint_check_fn
+         )
+
+-    # Create optimizer and scheduler
++    # Create optimizer and scheduler. Frozen parameters never receive gradients;
++    # excluding them avoids needless optimizer scans. PyTorch's fused AdamW is
++    # CUDA-specific in the supported training stack, so NPU launchers disable it.
++    optimizer_parameters = [
++        parameter for parameter in model.parameters() if parameter.requires_grad
++    ]
+     optimizer = torch.optim.AdamW(
+-        model.parameters(),
++        optimizer_parameters,
+         lr=training_args.learning_rate,
+         betas=(training_args.beta1, training_args.beta2),
+         eps=training_args.eps,
+         weight_decay=training_args.weight_decay,
++        fused=training_args.fused_optimizer,
++    )
++    logger.info(
++        f"Optimizer: AdamW(fused={training_args.fused_optimizer}), "
++        f"trainable parameter tensors={len(optimizer_parameters)}"
+     )
+     warmup_steps = min(training_args.max_steps*training_args.warmup_ratio, training_args.warmup_steps)
+
+@@ -1076,31 +1198,58 @@ def main():
+
+     logger.info(f"Starting training from step {train_step} to {training_args.max_steps}")
+     loop_start_time = time()
++    window_start_time = loop_start_time
++    window_optimizer_steps = 0
++    window_local_samples = 0
++    window_local_tokens = 0
+     optimizer.zero_grad()
+
+     #set_seed(training_args.seed)
+-    if not os.path.exists("configs/rng_state.pkl"):
+-        rng_state = {'torch_cpu': torch.get_rng_state(),'torch_cuda': torch.cuda.get_rng_state_all() if torch.cuda.is_available() else None}
+-        with open("configs/rng_state.pkl", 'wb') as f:
++    rng_state_path = Path(training_args.output_dir) / "run_config" / (
++        f"rng_state_rank{dist.get_rank():02d}.pkl"
++    )
++    rng_state_path.parent.mkdir(parents=True, exist_ok=True)
++    accelerator = accelerator_module(device)
++    accelerator_key = f"torch_{device.type}"
++    if not rng_state_path.exists():
++        rng_state = {
++            'torch_cpu': torch.get_rng_state(),
++            accelerator_key: accelerator.get_rng_state_all(),
++        }
++        with rng_state_path.open('wb') as f:
+             pkl.dump(rng_state, f)
+     else:
+-        rng_state = pkl.load(open("configs/rng_state.pkl", "rb"))
++        with rng_state_path.open("rb") as f:
++            rng_state = pkl.load(f)
+         torch.set_rng_state(rng_state['torch_cpu'])
+-        torch.cuda.set_rng_state_all(rng_state['torch_cuda'])
++        accelerator.set_rng_state_all(rng_state[accelerator_key])
+
+-    accum_action_loss, accum_ce_loss = 0, 0
++    accum_action_loss, accum_flow_action_loss = 0, 0
++    accum_temporal_delta_loss, accum_ce_loss = 0, 0
+     total_norm = torch.tensor(0.0, device=device)
+
+-    for micro_step, data in enumerate(train_loader, start=0):
+-        curr_step = micro_step // training_args.gradient_accumulation_steps
++    start_micro_step = train_step * training_args.gradient_accumulation_steps
++    for micro_step, data in enumerate(train_loader, start=start_micro_step):
++        # Number of optimizer steps completed after this micro batch. This is
++        # zero until the first gradient-accumulation window is complete.
++        curr_step = (
++            (micro_step + 1) // training_args.gradient_accumulation_steps
++        )
+
+         # Move data to device
+-        data = data.cuda(device).to_dict()
++        data = data.to(device).to_dict()
++        window_local_samples += int(data['num_gen_samples'])
++        window_local_tokens += int(data['sequence_length'])
+
+         # Forward pass
+-        with torch.amp.autocast("cuda", enabled=True, dtype=torch.bfloat16):
++        with torch.amp.autocast(device.type, enabled=True, dtype=torch.bfloat16):
+             loss_dict = fsdp_model(**data)
+             action_loss = loss_dict['action_loss']
++            flow_action_loss = loss_dict.get('flow_action_loss', action_loss)
++            temporal_delta_loss = loss_dict.get(
++                'temporal_delta_loss',
++                torch.zeros_like(action_loss),
++            )
+             und_loss = loss_dict['und_loss']
+
+         # Backward pass
+@@ -1109,6 +1258,14 @@ def main():
+         loss.backward()
+
+         accum_action_loss += action_loss / training_args.gradient_accumulation_steps
++        accum_flow_action_loss += (
++            flow_action_loss.detach()
++            / training_args.gradient_accumulation_steps
++        )
++        accum_temporal_delta_loss += (
++            temporal_delta_loss.detach()
++            / training_args.gradient_accumulation_steps
++        )
+         accum_ce_loss += und_loss / training_args.gradient_accumulation_steps
+
+         # Optimizer step
+@@ -1117,13 +1274,45 @@ def main():
+             optimizer.step()
+             scheduler.step()
+             optimizer.zero_grad()
++            window_optimizer_steps += 1
+
+             if curr_step>0 and curr_step % training_args.logging_steps==0:
+                 """Log training metrics to console and TensorBoard."""
+-                torch.cuda.synchronize()
++                accelerator_synchronize(device)
+
+-                elapsed_time_total = time() - loop_start_time
++                log_time = time()
++                elapsed_time_total = log_time - loop_start_time
++                window_elapsed = log_time - window_start_time
+                 avg_steps_per_sec = curr_step / elapsed_time_total if elapsed_time_total > 0 else 0
++                window_steps_per_sec = (
++                    window_optimizer_steps / window_elapsed
++                    if window_elapsed > 0 else 0
++                )
++
++                window_stats = torch.tensor(
++                    [window_local_samples, window_local_tokens],
++                    # HCCL does not support float64 reductions. Float32 is
++                    # ample for per-logging-window sample/token counters and
++                    # keeps this metric path portable across CUDA and NPU.
++                    dtype=torch.float32,
++                    device=device,
++                )
++                dist.all_reduce(window_stats, op=dist.ReduceOp.SUM)
++                global_window_samples = window_stats[0].item()
++                global_window_tokens = window_stats[1].item()
++                samples_per_sec = (
++                    global_window_samples / window_elapsed
++                    if window_elapsed > 0 else 0
++                )
++                tokens_per_sec = (
++                    global_window_tokens / window_elapsed
++                    if window_elapsed > 0 else 0
++                )
++                effective_global_batch = (
++                    global_window_samples / window_optimizer_steps
++                    if window_optimizer_steps > 0 else 0
++                )
++
+                 remaining_steps = training_args.max_steps - curr_step
+                 estimated_remaining_seconds = remaining_steps / avg_steps_per_sec if avg_steps_per_sec > 0 else 0
+                 eta_str = str(timedelta(seconds=int(estimated_remaining_seconds)))
+@@ -1133,19 +1322,46 @@ def main():
+                 dist.all_reduce(avg_act_loss, op=dist.ReduceOp.SUM)
+                 avg_act_loss = avg_act_loss.item() / world_size
+
++                avg_flow_act_loss = torch.tensor(
++                    accum_flow_action_loss / training_args.logging_steps,
++                    device=device,
++                )
++                dist.all_reduce(avg_flow_act_loss, op=dist.ReduceOp.SUM)
++                avg_flow_act_loss = avg_flow_act_loss.item() / world_size
++
++                avg_temporal_delta_loss = torch.tensor(
++                    accum_temporal_delta_loss / training_args.logging_steps,
++                    device=device,
++                )
++                dist.all_reduce(
++                    avg_temporal_delta_loss,
++                    op=dist.ReduceOp.SUM,
++                )
++                avg_temporal_delta_loss = (
++                    avg_temporal_delta_loss.item() / world_size
++                )
++
+                 avg_und_loss = torch.tensor(accum_ce_loss / training_args.logging_steps, device=device)
+                 dist.all_reduce(avg_und_loss, op=dist.ReduceOp.SUM)
+                 avg_und_loss = avg_und_loss.item() / world_size
+
+-                mem_cache = torch.tensor(torch.cuda.max_memory_reserved() / 1024**2, device=device)
++                mem_cache = torch.tensor(
++                    accelerator_max_memory_reserved(device) / 1024**2,
++                    device=device,
++                )
+                 dist.all_reduce(mem_cache, op=dist.ReduceOp.MAX)
+
+                 message = (
+                         f"step: {curr_step:07d}/{training_args.max_steps} | "
+                         f"act_loss: {avg_act_loss:.4f} | "
++                        f"flow_loss: {avg_flow_act_loss:.4f} | "
++                        f"delta_loss: {avg_temporal_delta_loss:.4f} | "
+                         f"und_loss: {avg_und_loss:.4f} | "
+                         f"lr: {scheduler.get_last_lr()[0]:.2e} | "
+-                        f"steps/s: {avg_steps_per_sec:.2f} | "
++                        f"steps/s: {window_steps_per_sec:.2f} | "
++                        f"samples/s: {samples_per_sec:.1f} | "
++                        f"tokens/s: {tokens_per_sec:.0f} | "
++                        f"global_bsz: {effective_global_batch:.1f} | "
+                         f"ETA: {eta_str} | "
+                         f"max_mem: {mem_cache.item():.0f}MB"
+                     )
+@@ -1164,6 +1380,16 @@ def main():
+
+                 if tb_writer is not None:
+                     tb_writer.add_scalar('train/loss', action_loss, curr_step)
++                    tb_writer.add_scalar(
++                        'train/flow_action_loss',
++                        flow_action_loss,
++                        curr_step,
++                    )
++                    tb_writer.add_scalar(
++                        'train/temporal_delta_loss',
++                        temporal_delta_loss,
++                        curr_step,
++                    )
+                     tb_writer.add_scalar('train/und_loss', und_loss, curr_step)
+                     tb_writer.add_scalar('train/learning_rate', scheduler.get_last_lr()[0], curr_step)
+                     tb_writer.add_scalar('train/grad_norm', total_norm, curr_step)
+@@ -1183,9 +1409,15 @@ def main():
+
+                 # Clear accumulators after logging
+                 accum_action_loss = 0.
++                accum_flow_action_loss = 0.
++                accum_temporal_delta_loss = 0.
+                 accum_ce_loss = 0.
++                window_start_time = log_time
++                window_optimizer_steps = 0
++                window_local_samples = 0
++                window_local_tokens = 0
+
+-            if curr_step > training_args.save_steps_start and curr_step % training_args.save_steps == 0:
++            if curr_step >= training_args.save_steps_start and curr_step % training_args.save_steps == 0:
+                 # Get dataset name for metadata copying
+                 dataset_name = list(dataset_meta.keys())[0] if dataset_meta else None
+                 FSDPCheckpoint.fsdp_save_ckpt(
+@@ -1201,10 +1433,10 @@ def main():
+                 )
+
+                 gc.collect()
+-                torch.cuda.empty_cache()
+-                torch.cuda.synchronize()
++                accelerator_empty_cache(device)
++                accelerator_synchronize(device)
+
+-        if curr_step > training_args.max_steps:
++        if curr_step >= training_args.max_steps:
+             logger.info(f"Reached total_steps={training_args.max_steps}, stopping training.")
+             break
+
+@@ -1233,9 +1465,9 @@ def main():
+
+         gc.collect()
+         dist.barrier()
+-        torch.cuda.empty_cache()
+-        torch.cuda.synchronize()
++        accelerator_empty_cache(device)
++        accelerator_synchronize(device)
+
+         logger.info(f"Final checkpoint saved at step {curr_step}")
+
+     logger.info("Done!")

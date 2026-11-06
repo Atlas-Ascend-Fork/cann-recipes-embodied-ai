@@ -1,0 +1,70 @@
+diff --git a/base/BeingH/model/vit_model/internvit_navit.py b/target/BeingH/model/vit_model/internvit_navit.py
+--- a/base/BeingH/model/vit_model/internvit_navit.py
++++ b/target/BeingH/model/vit_model/internvit_navit.py
+@@ -29,6 +29,8 @@
+     print('FlashAttention2 is not installed.')
+     has_flash_attn = False
+
++# The Ascend path uses the device-independent eager attention implementation.
++has_flash_attn = False
+ logger = logging.get_logger(__name__)
+
+
+@@ -110,6 +112,7 @@
+         return self.weight * hidden_states.to(input_dtype)
+
+
++EagerInternRMSNorm = InternRMSNorm
+ try:
+     from apex.normalization import FusedRMSNorm
+
+@@ -124,8 +127,9 @@
+     pass
+
+
++InternRMSNorm = EagerInternRMSNorm
+ NORM2FN = {
+-    'rms_norm': InternRMSNorm,
++    'rms_norm': EagerInternRMSNorm,
+     'layer_norm': nn.LayerNorm,
+ }
+
+@@ -153,6 +157,9 @@
+
+     def _get_pos_embed(self, pos_embed, H, W):
+         target_dtype = pos_embed.dtype
++        source_size = self.image_size // self.patch_size
++        if H == source_size and W == source_size:
++            return pos_embed
+         pos_embed = pos_embed.float().reshape(
+             1, self.image_size // self.patch_size, self.image_size // self.patch_size, -1).permute(0, 3, 1, 2)
+         pos_embed = F.interpolate(pos_embed, size=(H, W), mode='bicubic', align_corners=False). \
+@@ -312,7 +319,7 @@
+         dpr = [x.item() for x in torch.linspace(0, config.drop_path_rate, config.num_hidden_layers)]
+         self.layers = nn.ModuleList([
+             InternVisionEncoderLayer(config, dpr[idx]) for idx in range(config.num_hidden_layers)])
+-        self.gradient_checkpointing = True
++        self.gradient_checkpointing = False
+
+     def forward(
+             self,
+@@ -363,8 +370,8 @@
+
+ class InternVisionModel(PreTrainedModel):
+     main_input_name = 'pixel_values'
+-    _supports_flash_attn_2 = True
+-    supports_gradient_checkpointing = True
++    _supports_flash_attn_2 = False
++    supports_gradient_checkpointing = False
+     config_class = InternVisionConfig
+     _no_split_modules = ['InternVisionEncoderLayer']
+
+@@ -428,7 +435,7 @@
+             output_hidden_states=output_hidden_states,
+             return_dict=return_dict,
+         )
+-        last_hidden_state = encoder_outputs.last_hidden_state
++        last_hidden_state = encoder_outputs[0] if not return_dict else encoder_outputs.last_hidden_state
+         pooled_output = last_hidden_state[:, 0, :]
+
+         if not return_dict:

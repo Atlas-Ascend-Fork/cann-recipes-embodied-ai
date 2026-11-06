@@ -1,0 +1,33 @@
+diff --git a/base/BeingH/model/beingvla.py b/target/BeingH/model/beingvla.py
+--- a/base/BeingH/model/beingvla.py
++++ b/target/BeingH/model/beingvla.py
+@@ -1053,8 +1053,8 @@
+         packed_text_indexes: torch.LongTensor,
+         sample_lens: Union[List[int], torch.Tensor],
+         packed_position_ids: torch.LongTensor,
+-        split_lens: List[int],
+-        attn_modes: List[str],
++        split_lens: Optional[List[int]] = None,
++        attn_modes: Optional[List[str]] = None,
+         packed_vit_tokens: Optional[torch.Tensor] = None,
+         packed_vit_token_indexes: Optional[torch.LongTensor] = None,
+         packed_action_indexes: Optional[torch.Tensor] = None,
+@@ -1176,15 +1176,16 @@
+         BLOCK_SIZE = 128
+         padding_len = (BLOCK_SIZE - (seqlen % BLOCK_SIZE)) % BLOCK_SIZE
+
++        resolved_attn_modes = attn_modes if attn_modes is not None else ["causal"] * len(sample_lens_list)
+         if padding_len > 0:
+             # Add a dummy sample for padding
+             padded_sample_lens_list = sample_lens_list + [padding_len]
+             # Assume causal attention for the padded part
+-            padded_attn_modes = attn_modes + ['causal']
++            padded_attn_modes = resolved_attn_modes + ['causal']
+             padded_seqlen = seqlen + padding_len
+         else:
+             padded_sample_lens_list = sample_lens_list
+-            padded_attn_modes = attn_modes
++            padded_attn_modes = resolved_attn_modes
+             padded_seqlen = seqlen
+
+         if device.type == "npu":

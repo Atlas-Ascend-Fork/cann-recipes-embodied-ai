@@ -1,0 +1,12 @@
+**/__pycache__
+**/*.pyc
+**/data
+**/checkpoints
+**/outputs
+**/logs
+**/runs
+**/*.mp4
+**/*.npz
+**/*.tar.gz
+**/*.tar.xz
+third_party/Being-H/Being-H07

@@ -6,6 +6,10 @@
     path = locomotion/LQC/extern/EigenRand
     url = https://github.com/bab2min/EigenRand.git
 
+[submodule "manipulation/being-h0.5/third_party/Being-H"]
+    path = manipulation/being-h0.5/third_party/Being-H
+    url = https://github.com/BeingBeyond/Being-H.git
+
 [submodule "locomotion/rl_sar/upstream"]
     path = locomotion/rl_sar/upstream
     url = https://gitcode.com/qq_40436134/rl_sar_unitree.git

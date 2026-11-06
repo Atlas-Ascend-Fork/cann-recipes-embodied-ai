@@ -1,0 +1,2779 @@
+{
+  "schema_version": 1,
+  "version": "beingh05-assets-v2",
+  "source_commit": "f65dc519c5bf3eb2b63f8551dcc3c3aecb7eeb36",
+  "packages": {
+    "runtime": {
+      "filename": "beingh05-runtime-v2.tar.gz",
+      "url": "https://cann-ai.obs.cn-north-4.myhuaweicloud.com/cann-recipes-embodied-ai/being-h0.5/v2/resources/beingh05-runtime-v2.tar.gz",
+      "size": 24610669,
+      "sha256": "630ea5df5cfff3eec2d0ca29027a212957874a7762a8da075cc4d909901eadef",
+      "files": {
+        "vae/assets/INTERNAL_ASSET_AUTHORIZATION.md": {
+          "size": 1431,
+          "sha256": "aad2bf66e3c5ee7120465532e3b7357b59e52325a56cfabff2498d526dc061f1"
+        },
+        "vae/assets/THIRD_PARTY_NOTICES.txt": {
+          "size": 575,
+          "sha256": "1300f9ae4529cdebf84d9a027e8fac6add409799be7905826e3732dd12187120"
+        },
+        "vae/assets/asset_provenance.json": {
+          "size": 520197,
+          "sha256": "d1b826d4cbf5f523a71274a019a3e53f957bde1b5755b10c1530bdf537ad21ce"
+        },
+        "vae/assets/gaia/right_gaiahand.urdf": {
+          "size": 21539,
+          "sha256": "e9d8d686e6880c8235a5441152d459ef8194d10a5713a9b021ef1189fea0120a"
+        },
+        "vae/assets/licenses/GaiaHand-MIT.txt": {
+          "size": 1069,
+          "sha256": "c78a19eb68504aa3936d6c7851809f95c68e191c634efc10e4adfff6c1c67d69"
+        },
+        "vae/assets/licenses/Shadow-bundled-Apache-2.0.txt": {
+          "size": 11555,
+          "sha256": "a0cde1d0181b6b646c06d3a976f0499ae5128f9ea8516e5fa1ff73abb6a1ccff"
+        },
+        "vae/assets/licenses/Sharpa-Apache-2.0.txt": {
+          "size": 550,
+          "sha256": "ae93e4fe3d2ea28dfcd49cee9307cf2d8b7e9f7467133ec55d92d76c0a519720"
+        },
+        "vae/assets/licenses/Sharpa-NOTICE.txt": {
+          "size": 835,
+          "sha256": "b3c17c91f08f3be8aab01dd13a49651bbea4baf2fc1614b898c06eec081cda74"
+        },
+        "vae/assets/shadow/shadow_hand_right.urdf": {
+          "size": 30601,
+          "sha256": "5ce9d525f90579f983e1f2afd7841bffb5eb5a528b8ba9d3cf325ae62c23f6e1"
+        },
+        "vae/assets/sharpa/right_sharpa_wave.urdf": {
+          "size": 34442,
+          "sha256": "40969d5a8ef5c1207075ede4975b995952887a5bed64c9def66967430e1bce43"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/collision/f_knuckle_E3M5.obj": {
+          "size": 7362,
+          "sha256": "7b76866ef85a388f79dba377293c7d12a17154d369c225e760afa9ccd5fa6b22"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/f_distal_pst.obj": {
+          "size": 378684,
+          "sha256": "04d7ddc2166089b0c670806c1d1eb4b47b8f8c48428c00581b0fe64d59d4e5f8"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/f_knuckle_E3M5.obj": {
+          "size": 36617,
+          "sha256": "1452690f5f93875665e5b23f022e89fa04f2a6aab6e49ae0112db7821f759792"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/f_middle_E3M5.obj": {
+          "size": 29082,
+          "sha256": "c1c0b460c69894cbef8bc1ab8bfed6112832a20aa77531f3823a4fb8090daeac"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/f_proximal_E3M5.obj": {
+          "size": 71175,
+          "sha256": "adb5475347a153997da789b0ab46b3b1b945906c9bf6a4e28787150ed3afa8cd"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/lf_metacarpal_E3M5.obj": {
+          "size": 98772,
+          "sha256": "def539fcdefb4399ae69cb4fc5b2c5296b43ec7015c5581c2b90e7643a030a62"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/palm_E3M5.obj": {
+          "size": 807151,
+          "sha256": "529d6bcf4f356aeaece8a9c884d98bc399d039fdb2f3174449aeaaf262aa812d"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/th_distal_pst.obj": {
+          "size": 338390,
+          "sha256": "da8ca3aa9aeceeb6aac940a6db0605cac4014dcd496133080bc5787e217346ce"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/th_middle_E3M5.obj": {
+          "size": 85987,
+          "sha256": "49416cd8b0ca8a976749cc7c954ce56a59fc9e4664c68fc931d14a1a53ffd2ba"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/OHRA/assets/robot_urdf/shadow_hand/meshes/visual/th_proximal_E3M5.obj": {
+          "size": 26737,
+          "sha256": "c021a0c066743274d4133d0e85146a3fa3433102616a5e56e2aa18ff602bf996"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_0.obj": {
+          "size": 3818,
+          "sha256": "a5c47a4ec41a8d84ebd9f91335b59f4c7dc4639c5b4b1737550181fd4d9aef88"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_1.obj": {
+          "size": 2429,
+          "sha256": "3ee14e26c9926462d13c838e7a6a8156a71bc0b3cb20bae685f78e68da27772b"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_10.obj": {
+          "size": 893,
+          "sha256": "b11997288a94a4195792d0886f3b1b11f15bbf295b7f6269380384c70b08f9cd"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_11.obj": {
+          "size": 1662,
+          "sha256": "8d8f71c82803938f6bf09ac6d504ee618aecb135d2809a1f9b9b934e92820cea"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_12.obj": {
+          "size": 2608,
+          "sha256": "0912112ca8dfb45ffa7626b139600ce4449eaba0081d309bcf4ae568e0842b35"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_13.obj": {
+          "size": 1617,
+          "sha256": "c4b47c6dbca3b03bf14ce8c2982e6f7fe6128f517e052a9553d0b665934a3cb8"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_14.obj": {
+          "size": 2448,
+          "sha256": "7b0e46cf74ec1e3404dc20235cc436420aa52356ac369bd0c176bfaa0962ab6c"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_15.obj": {
+          "size": 2173,
+          "sha256": "bfbf1cf9c7e967dbe4b358bd588565608b2b22fe1116d5bef6f1d543c5be6ce7"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_16.obj": {
+          "size": 814,
+          "sha256": "02c9c5eaec11a650ef386066212cef62538ec3444dea702d3d5b08262a7db806"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_17.obj": {
+          "size": 767,
+          "sha256": "77be193867c1cfd477a71d7c72ebdfa7dfe987d04be6d1bbe3b35e9fac8e7df9"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_18.obj": {
+          "size": 781,
+          "sha256": "eaf84ceed2e63bb5dbb01ad95d9de54461d6f0c3ee05cff31b56e86dcf7148fe"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_19.obj": {
+          "size": 1489,
+          "sha256": "98d146f251b09a00f7ef235cde8a5b048c82c4043f4faa3996af9b953eeb8b40"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_20.obj": {
+          "size": 1727,
+          "sha256": "7a5a331cf3f27e1e07187a77a6971e3fbd66bd8ba9eb07141bf08560d6e31088"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_21.obj": {
+          "size": 888,
+          "sha256": "c821a7780a4eeb2a67bad065f7924dc05de59432e12ec21b4db41ee6ac9335e3"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_22.obj": {
+          "size": 428,
+          "sha256": "8f9023ccce6f2f9b49eac34f50c7bea5cea15ce5eca2ab028136870d0a53b733"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_23.obj": {
+          "size": 1653,
+          "sha256": "cbba334bc56e1b761a0208cd84682ebb7a8606e7c5bea19ee7ca7d01c2645341"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_24.obj": {
+          "size": 652,
+          "sha256": "d718b3cfb7697d66b837c3c786b40d1a5f1cb920af51ad11a34ae85fa828f59e"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_25.obj": {
+          "size": 758,
+          "sha256": "218d2e03a8ba533bb4dc1a0aa5b1250cb819cdaf5484a4c305ab2332a642768f"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_26.obj": {
+          "size": 424,
+          "sha256": "d6e10258dca370ac6ea1ecf6b8040b28f55b740b4b166627408f112f3764bc42"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_27.obj": {
+          "size": 424,
+          "sha256": "4a4e7aa8eac2eb6d4c37eeba589fd06019fbb743867e06a43a0d4afbb5bfa48d"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_28.obj": {
+          "size": 771,
+          "sha256": "7d39bc0fe920457505e160cbf4c8f4da6b1dc314cb645411d7ccb0080face0cc"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_29.obj": {
+          "size": 1014,
+          "sha256": "32ccd9da73c9770a349d225220fb21da67aa7299fa817c1b54d3baeaf60855da"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_4.obj": {
+          "size": 2165,
+          "sha256": "a9c3c4488940b9a675fe86cd0b0fa53f01354b46afd6c536ef9e6b5764cfb939"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_5.obj": {
+          "size": 1904,
+          "sha256": "677f2fc6f9ca7c8661d86f625e038c6f3479e7ca909b0996cbcf6ab57bbbccdf"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_6.obj": {
+          "size": 2726,
+          "sha256": "a6e57c90919a79f06dbd28c34f4b5ffda8d845f138a01eb9605ca4f47ab05aa8"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_7.obj": {
+          "size": 2809,
+          "sha256": "0323d567a2ff869d96bf10c9ea793b7560c160b967db56c16a3bb67a575f5a2b"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_8.obj": {
+          "size": 1052,
+          "sha256": "76098361dd71bf3253264be331ee4936a6c45cccb42302ef8b290853192da338"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/meshes/data/grasp_data/mesh_data/sem-TissueBox-5128910785490905c58e834f0b160845/coacd/coacd_convex_piece_9.obj": {
+          "size": 2412,
+          "sha256": "440d677e21100f9d6f9672b7f08d7b49b2d730da70602867c2122075f1a21ff3"
+        },
+        "vae/sim/assets/demos/tissuebox_idx83_shadow/scene.xml": {
+          "size": 36418,
+          "sha256": "8c00ef32a91b03e22295ca7b30622bbb55120593bcd0aa4c7b57ea6ba123023a"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_base_link.STL": {
+          "size": 5559284,
+          "sha256": "8e2acd4cee5ade12dcc2d05ad945731ba6dd960223dfd9eef1eba30ada82f8ed"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_index_link_1.STL": {
+          "size": 1019584,
+          "sha256": "db50d3cb78c1e030389d478d448cf8cbea16d203ab42923f674449ae1a0bca6a"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_index_link_2.STL": {
+          "size": 1365784,
+          "sha256": "0e8b8671e7ebd00dad16d72be689ee056f757786e2d75b697dad194594310e29"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_index_link_3.STL": {
+          "size": 268684,
+          "sha256": "836cefc96aee17eba62a0a62dfebb3563b71f2eb4d93230a3023d651bdd89429"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_little_link_1.STL": {
+          "size": 1038484,
+          "sha256": "79c786acfeae4b717ad754831bb810ffb5f77867322555657b5db4c2fad55c6e"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_little_link_2.STL": {
+          "size": 1382984,
+          "sha256": "dc7e8ddd634888d8b33718b0d8c46ad9cd54ee0952f0838595d23f0fdd7a9206"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_little_link_3.STL": {
+          "size": 268684,
+          "sha256": "2e2c4a781f023517ae4ebf82524d3cfbee1ddbed9b9d07c763d98bb9f09abcf6"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_middle_link_1.STL": {
+          "size": 1019584,
+          "sha256": "ad43b6e1eb9637c5f0a188db6aa5191baf0a0d39401dffb8b3a1d4eed58cb831"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_middle_link_2.STL": {
+          "size": 1365784,
+          "sha256": "2bfa6938426935757b36d1623b45bc909313fdefaf144daee286f552266db5cf"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_middle_link_3.STL": {
+          "size": 268684,
+          "sha256": "58d00e351813f82cb55e57e1c7df676d672db3875b7d36dabe30adcbd52d17c4"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_ring_link_1.STL": {
+          "size": 1019584,
+          "sha256": "e91262ddc87a83c747a55f3d0b408ccb882324e71c68542f0cc28813583f2c15"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_ring_link_2.STL": {
+          "size": 1365784,
+          "sha256": "bfd0f3a43eca2e7910b2406de0b88cfc8b23db8fa280724c62ab03bbdce36bd2"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_ring_link_3.STL": {
+          "size": 268684,
+          "sha256": "4b3bdc0cb3a9bf7b91829e2886ab02fe7afb0fddf21c3832170af24994ab1983"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_thumb_link_1.STL": {
+          "size": 1019584,
+          "sha256": "6a0d792f0831395f47e143874cdeefc981ea9c8eca65d02da2d7d92b987d247f"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_thumb_link_2.STL": {
+          "size": 1365784,
+          "sha256": "62a439c14fb6bbf1bc26ff506ec53c659077184d8e14399ab167c0b302249e3b"
+        },
+        "vae/sim/assets/hands/gaia/meshes/right_thumb_link_3.STL": {
+          "size": 268684,
+          "sha256": "1683ea37d88bc17b00173f06d281b322749ff2f31c2a143ee5d129b96a955a35"
+        },
+        "vae/sim/assets/hands/gaia/right_gaiahand.urdf": {
+          "size": 21539,
+          "sha256": "e9d8d686e6880c8235a5441152d459ef8194d10a5713a9b021ef1189fea0120a"
+        },
+        "vae/sim/assets/hands/shadow/LICENSE": {
+          "size": 11555,
+          "sha256": "a0cde1d0181b6b646c06d3a976f0499ae5128f9ea8516e5fa1ff73abb6a1ccff"
+        },
+        "vae/sim/assets/hands/shadow/README.md": {
+          "size": 745,
+          "sha256": "7142c32b7f51e5c72f071db6f518abbd7940f7948d2278e3fc716dc321f0e2c3"
+        },
+        "vae/sim/assets/hands/shadow/bimanual.urdf": {
+          "size": 64648,
+          "sha256": "2c4118783b2e6a3ee9dfcf069ee628086bb2f6d23a790139b6304ff0d374813f"
+        },
+        "vae/sim/assets/hands/shadow/meshes/collision/f_distal_pst.obj": {
+          "size": 29008,
+          "sha256": "60fc4387b60b9362cdbc5b40d8f3869247cc5049de75fc6e7e7ae32cf8e87e33"
+        },
+        "vae/sim/assets/hands/shadow/meshes/collision/f_knuckle_E3M5.obj": {
+          "size": 7362,
+          "sha256": "7b76866ef85a388f79dba377293c7d12a17154d369c225e760afa9ccd5fa6b22"
+        },
+        "vae/sim/assets/hands/shadow/meshes/collision/forearm_E3M5.obj": {
+          "size": 29880,
+          "sha256": "ae348fdf00c61695dbd484455070101e901d89f3977a7585ae575742cec4a3be"
+        },
+        "vae/sim/assets/hands/shadow/meshes/collision/th_middle_E3M5.obj": {
+          "size": 321510,
+          "sha256": "de7278a75a3cc202f7186f0e0701c22c2cd6cdaf6ea68f991cbefb819d7bce38"
+        },
+        "vae/sim/assets/hands/shadow/meshes/collision/th_proximal_E3M5.obj": {
+          "size": 353175,
+          "sha256": "1763d80c8e34ed86bc20f0de67cd683aaf10eb7ff3b8395a9ab2b35554183c4c"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_distal_pst.glb": {
+          "size": 393712,
+          "sha256": "a961159aafcda9906e30456dbe6956890b207bea6dd82aa83494473a2a7692a4"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_distal_pst.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_distal_pst.obj": {
+          "size": 378684,
+          "sha256": "04d7ddc2166089b0c670806c1d1eb4b47b8f8c48428c00581b0fe64d59d4e5f8"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_knuckle_E3M5.glb": {
+          "size": 41528,
+          "sha256": "4cfd18bc698f89813900fd1a743459b35f95c8aa3d873e37bd5749ef4cdef16a"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_knuckle_E3M5.mtl": {
+          "size": 237,
+          "sha256": "a689c3f677cda3adfa1cabd6f60c7b17770ad6cecc3d9aea57f6be4865ff1510"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_knuckle_E3M5.obj": {
+          "size": 36617,
+          "sha256": "1452690f5f93875665e5b23f022e89fa04f2a6aab6e49ae0112db7821f759792"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_middle_E3M5.glb": {
+          "size": 33764,
+          "sha256": "88aa04c5c084e64eb1d210c74638d552fb3efbdff6e5875f0193fe22a40a695d"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_middle_E3M5.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_middle_E3M5.obj": {
+          "size": 29082,
+          "sha256": "c1c0b460c69894cbef8bc1ab8bfed6112832a20aa77531f3823a4fb8090daeac"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_proximal_E3M5.glb": {
+          "size": 78800,
+          "sha256": "9c43089eac777d05cf902620931b81870aa3bfb811370ffa58d34548577d8c85"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_proximal_E3M5.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/f_proximal_E3M5.obj": {
+          "size": 71175,
+          "sha256": "adb5475347a153997da789b0ab46b3b1b945906c9bf6a4e28787150ed3afa8cd"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/forearm_E3M5.glb": {
+          "size": 471844,
+          "sha256": "82bbef2f9dead84f527fef66bd1993895477388daeb1550b9bcd7a25e713754c"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/forearm_E3M5.mtl": {
+          "size": 609,
+          "sha256": "5f99cbfe0015ff932b593b00f3d42c1b68928a49ef7d7ec6918c04f48528709d"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/forearm_E3M5.obj": {
+          "size": 442301,
+          "sha256": "67f719d4131da5edd1c43e8a560481087074833e3fe4580f4ffe0ea3d07691fb"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/lf_metacarpal_E3M5.glb": {
+          "size": 107936,
+          "sha256": "3be27d164d5eafa1ab272d755f5f363454c5204102135ef0bb486045520b878f"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/lf_metacarpal_E3M5.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/lf_metacarpal_E3M5.obj": {
+          "size": 98772,
+          "sha256": "def539fcdefb4399ae69cb4fc5b2c5296b43ec7015c5581c2b90e7643a030a62"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/lf_metacarpal_E3M5_left.glb": {
+          "size": 107824,
+          "sha256": "b69f0ad7600c6f1eb7c74ba563d0acaa5864b31531e94a660ba8bf5cd7a23817"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/lf_metacarpal_E3M5_left.mtl": {
+          "size": 237,
+          "sha256": "aced883bd97a1bd04abe5c74e44224a7116eab8cc61f332a51c3b4a1e017c7d2"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/lf_metacarpal_E3M5_left.obj": {
+          "size": 43756,
+          "sha256": "dbe1dc639cd9c212229a4010f60ebc56b174ff6891eac05410e6bee2965f927f"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/palm_E3M5.glb": {
+          "size": 857944,
+          "sha256": "dcb1a4b613d28970100090830626a09ad1ca4d5479278880226baa7ed915a3fc"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/palm_E3M5.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/palm_E3M5.obj": {
+          "size": 807151,
+          "sha256": "529d6bcf4f356aeaece8a9c884d98bc399d039fdb2f3174449aeaaf262aa812d"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/palm_E3M5_left.glb": {
+          "size": 858264,
+          "sha256": "1f9871bc32f2385187a199fa840c08528201f5ba05d690388b652326e6eb8714"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/palm_E3M5_left.mtl": {
+          "size": 237,
+          "sha256": "8e79f263296075919dff5bd28d6eb21fe2d4ca7704d848e306f41dd788663c3a"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/palm_E3M5_left.obj": {
+          "size": 385205,
+          "sha256": "3f7b3a9f8e00602aaba900fe107a19e7a9ab480750faa63812311d5009711bdf"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_distal_pst.glb": {
+          "size": 353408,
+          "sha256": "b664fc97df01a855e237a1cac0b25e6dfeb3322ead9c77dc338877cb5854d6e7"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_distal_pst.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_distal_pst.obj": {
+          "size": 338390,
+          "sha256": "da8ca3aa9aeceeb6aac940a6db0605cac4014dcd496133080bc5787e217346ce"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_middle_E3M5.glb": {
+          "size": 95600,
+          "sha256": "3ee962b02fd4d1f40cf71e9d44c10fccaea022c5c08312ab318b6045b8426a3b"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_middle_E3M5.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_middle_E3M5.obj": {
+          "size": 85987,
+          "sha256": "49416cd8b0ca8a976749cc7c954ce56a59fc9e4664c68fc931d14a1a53ffd2ba"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_proximal_E3M5.glb": {
+          "size": 30940,
+          "sha256": "3a16729bc49472397cc02663998e903f49cab353b9385d4469b801d6c9ceadb9"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_proximal_E3M5.mtl": {
+          "size": 237,
+          "sha256": "997065356d2a865204443d1cba21d19067369da599e9d3a4bbaa02bfe8ef3360"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/th_proximal_E3M5.obj": {
+          "size": 26737,
+          "sha256": "c021a0c066743274d4133d0e85146a3fa3433102616a5e56e2aa18ff602bf996"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/wrist_E3M5.glb": {
+          "size": 132856,
+          "sha256": "e7f04596fc7e45d5f33f797a20187842433e36c560cde1eae8fe6f51728b915e"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/wrist_E3M5.mtl": {
+          "size": 237,
+          "sha256": "ddf7562276de61678b848d82160baee5c654af0de07c744581a740f2e1b6ba45"
+        },
+        "vae/sim/assets/hands/shadow/meshes/visual/wrist_E3M5.obj": {
+          "size": 124663,
+          "sha256": "29724f4640064dde710b3725cbd37b0ee1ba8e000b0b5ad402d66bbba284bd29"
+        },
+        "vae/sim/assets/hands/shadow/shadow_hand_left.urdf": {
+          "size": 30723,
+          "sha256": "24988ac25c1d9136e0c18bed0d3d9d5d2745d7aa83df2b4a9ec0abf36be36d48"
+        },
+        "vae/sim/assets/hands/shadow/shadow_hand_left_glb.urdf": {
+          "size": 30726,
+          "sha256": "2f4a478f8a09353a179e32f93013684c40e73c780d209d4cb52cb35a40ec0e77"
+        },
+        "vae/sim/assets/hands/shadow/shadow_hand_right.urdf": {
+          "size": 30601,
+          "sha256": "5ce9d525f90579f983e1f2afd7841bffb5eb5a528b8ba9d3cf325ae62c23f6e1"
+        },
+        "vae/sim/assets/hands/shadow/shadow_hand_right_glb.urdf": {
+          "size": 30603,
+          "sha256": "84189a3b6fd3d9cefb114922c3d86ccdc1b0d8211859ebca554f682e61ab95df"
+        },
+        "vae/sim/assets/hands/sharpa/CMakeLists.txt": {
+          "size": 387,
+          "sha256": "4e4c0e0df207478ded2b811b1bb0f9f99f64bf91b131f75919bf09cc7d8ea409"
+        },
+        "vae/sim/assets/hands/sharpa/config.yaml": {
+          "size": 735,
+          "sha256": "641f42650ef7273db2d335de956fa3b3e7a6b8835f4827e180750b31682503d3"
+        },
+        "vae/sim/assets/hands/sharpa/config/joint_names_Right_Sharpa_HA4.yaml": {
+          "size": 485,
+          "sha256": "a14ac5da223c148679f763d5b9a9099239aed998d01d2ea6a04f7d888b2d10ea"
+        },
+        "vae/sim/assets/hands/sharpa/config/sharpa.rviz": {
+          "size": 1971,
+          "sha256": "8e2436fea5fa3e286886737d21dff9713a87de623e95478253a4129e9be52c49"
+        },
+        "vae/sim/assets/hands/sharpa/launch/display.launch.py": {
+          "size": 1504,
+          "sha256": "a673cd90a73dc5b4530443ae3cb466d3f2b3856eee30457bad7ce2de8b2238dc"
+        },
+        "vae/sim/assets/hands/sharpa/launch/gazebo.launch.py": {
+          "size": 1346,
+          "sha256": "ef05704b54717f054b49752cd843295ad66f2743e0fed02d9ff61ebda80b84d7"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_HB1_4F.STL": {
+          "size": 191684,
+          "sha256": "b28a529aadb4a084912f3697b117ba43fd13c6f3136e48166b5dd1616d9f3eef"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_HB1_TH.STL": {
+          "size": 189684,
+          "sha256": "df2dcfc770ecf81e893a65d28994ff608556156f4e9a0b447086ab6de485cd75"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_Visual_HB1_TH.STL": {
+          "size": 336184,
+          "sha256": "db4e895306f51b7cc369b01b705d276b6d69c773033d7e01c8bafbf2d1ecd7e8"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_elastomer.STL": {
+          "size": 136684,
+          "sha256": "4d9ed21e6c4e1e94a43bce9b9ef210cc84bbbe461b4cf637529ec7007b9319bf"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_elastomer_HB1_4F.STL": {
+          "size": 286384,
+          "sha256": "0781b19feca3209c74ff63d72188350ebc19624112be1259fdf007007c9795f5"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_elastomer_HB1_TH.STL": {
+          "size": 310184,
+          "sha256": "62935bc489a5234d0e373bab1d52b09613ec50ab66a7be3f010e19988ee46090"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/DP_visual_HB1_4F.STL": {
+          "size": 398784,
+          "sha256": "5123fd1776cfc82895f9f0b6ba4098522baaad9ebaaa3110ff1246775cfbd737"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/MCP_VL.STL": {
+          "size": 75184,
+          "sha256": "350f66d656fef760a7f4f0c4a026951e9d831ca65a9c5e4e34825b694ed6b11a"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/elastomer.STL": {
+          "size": 271584,
+          "sha256": "1611f42070a8fb34226508417bb930af53bbe9e3b619113136b60cb0595ca4ed"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/elastomer_HB1_4F.STL": {
+          "size": 149884,
+          "sha256": "88b214c5c614b4b5f0c7cf195a90825b41e20745b1b65442854b371ff065e858"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/elastomer_HB1_TH.STL": {
+          "size": 211384,
+          "sha256": "437f363ca7a40b6e9b9152ebb81db249c51de71565cdb44b7df6e2cdf0da3312"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/elastomer_surface.STL": {
+          "size": 362534,
+          "sha256": "7f88a20e862895e3bf97d35c600b9eb5c2f2e49f8918ef9fe07bd82e6572fae8"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/flange_A.STL": {
+          "size": 300784,
+          "sha256": "cdd3bd8e3668f24cea2f500f10519859bb2fe082ebb777ffa459df324bf05d3a"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/flange_B.STL": {
+          "size": 249784,
+          "sha256": "c5051bf5e1ee87cdecc061326d4413b9e6232fe07777e5b3437f4a459a9280bc"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_DP.STL": {
+          "size": 101684,
+          "sha256": "09ae5e485d42c651c70d025ef6bcd000f727dd1535836d7d8fa9de0686db4583"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_DP_visual.STL": {
+          "size": 320284,
+          "sha256": "f21c6a8d12a21b29ff05127ec1987135cc966a283707165d93a30f9e74d4a0ed"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_MCP_VL_visual.STL": {
+          "size": 322584,
+          "sha256": "ec48548aaafa6589112e9b609ed58f1b5e7ec0157ca15e0e4e8c93bff706a9d0"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_MP.STL": {
+          "size": 37084,
+          "sha256": "98ad7e6e990f61857d6ad28860bba7e0dcba78761a513d60fdc527e9d56bbe8e"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_MP_visual.STL": {
+          "size": 369384,
+          "sha256": "af867d754ae0f3d5c38610f72cf4699789c82bb0391c2a406e6924f76e850ec6"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_PP.STL": {
+          "size": 81784,
+          "sha256": "ed975b59e2569759ff28a397dab71d84667161d3b90b41d625bc5e1f5ac6536c"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_PP_visual.STL": {
+          "size": 560734,
+          "sha256": "aa8b0ac6b6a7769033daa149416035712b23b79af0a7ddeb83d62142f8ff8a14"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_hand_C_MC.STL": {
+          "size": 174184,
+          "sha256": "8c52941db271e9331f0b32ec581c078af7f8cb372fb97f021d5b1dec2d2426ae"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_hand_C_MC_visual.STL": {
+          "size": 692184,
+          "sha256": "9234e513974246de38de76ce5f2a48078ebb014e890083219e2bd93caef55b60"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_hand_C_MC_visual_.STL": {
+          "size": 692184,
+          "sha256": "9234e513974246de38de76ce5f2a48078ebb014e890083219e2bd93caef55b60"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_pinky_MC.STL": {
+          "size": 41884,
+          "sha256": "1f8207aff0f2f6ca2f1de1a8bbbbcd4183300bc3778d55821c2aae9b490b7dd3"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_pinky_MC_visual.STL": {
+          "size": 218284,
+          "sha256": "5ae38bab4f573bd147e5a5e231eb399e2396575884cd36e574235258a048e53b"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_CMC_VL_visual.STL": {
+          "size": 317984,
+          "sha256": "ebaf499965a51e4b539b7ec5481efbddaf2003b69d0e5e72425a430cecd187b0"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_DP.STL": {
+          "size": 66484,
+          "sha256": "7bd0a9187d9cca7c3136d471784db39a3593b5264e16586002f73db42292dc6e"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_DP_visual.STL": {
+          "size": 335484,
+          "sha256": "7bac46dd5699d6b2fed60fdb384199cdab7407343d61db3fc8737866096fa440"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_MC.STL": {
+          "size": 149584,
+          "sha256": "deb6d97eb2d7223d72c23ebb32f874644dcf78848389f14dcabe3016aae5dd6c"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_MCP_VL_visual.STL": {
+          "size": 300784,
+          "sha256": "30d656738130093b7023100c73fac065a173aaba2e4314034c050c984005d634"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_MC_visual.STL": {
+          "size": 625334,
+          "sha256": "81f4bf8c39117b7bf7a4f0fdeb577948056139a84927adc55e9b049434a41a3b"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_PP.STL": {
+          "size": 85884,
+          "sha256": "795b35f943c4272314d5e72497aaea2ef998458b0259a6609577d3694aeff869"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/right_thumb_PP_visual.STL": {
+          "size": 719834,
+          "sha256": "1024905f9af3ad14160ce55d2e1d98fb7028274f7b267bee8b057754eb165faa"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/thumb_DP_elastomer.STL": {
+          "size": 124184,
+          "sha256": "fb80bbef551c88dcb555a472acc32a9f57467d123fa8a2b3e8f21f1541e5d271"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/thumb_elastomer.STL": {
+          "size": 270684,
+          "sha256": "8fb5b2036eda97fe4c2ce50ad8e021775185961c478c0d6f25f5a776588d9b14"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/thumb_elastomer_surface.STL": {
+          "size": 506484,
+          "sha256": "1b25efc390f9db9eca87ed167e7baa2e3220a417bbd49924beb077da458c6241"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/wrist_A.STL": {
+          "size": 516484,
+          "sha256": "5c4c9fc0dd538c4e11d64ae4994269090334f0f5fe25bbea022a501948d2e529"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/wrist_B.STL": {
+          "size": 513084,
+          "sha256": "ce978dda8bbfb8ad59cb2f5decf647882d1be67fd758329d40c7c4cefacbf771"
+        },
+        "vae/sim/assets/hands/sharpa/meshes/wrist_collision.STL": {
+          "size": 11684,
+          "sha256": "147da80c56a334d83b1ac882f3110b29401d5806c94b993e77e9d763bdca2b54"
+        },
+        "vae/sim/assets/hands/sharpa/package.xml": {
+          "size": 740,
+          "sha256": "33e79a9fa1952508842909ecf76f6f3c6925327aa3e248f6b974d13baa9b841d"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave.urdf": {
+          "size": 34545,
+          "sha256": "7a9ab7f824482d23765b2da40b7e96fc605e7e70eda4615a5ca51fea88afb845"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave.usda": {
+          "size": 28136,
+          "sha256": "15a82ffb10f6e7bd60410a1d07bdfef76ab95160ea599f5b6f82ed3d5364fe3e"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave.xml": {
+          "size": 23569,
+          "sha256": "43d9cb63d724889b69574a5e0981aee4a2f30d825c85f3098988e3a7a3bb9980"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/.asset_hash": {
+          "size": 32,
+          "sha256": "00d17475afb5f340f14402c874ba1496462c398ac80e7a6cf8987f7afa26bc71"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/config.yaml": {
+          "size": 722,
+          "sha256": "68ca4d8977081aba66debe369a2947abba63928f48b5c21cb70cfa93e232187f"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/configuration/right_sharpa_wave_base.usd": {
+          "size": 9013902,
+          "sha256": "fce9be0cbf9983c3972b1abbbf875007a0507d78150cad9d871febd7c19be14e"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/configuration/right_sharpa_wave_physics.usd": {
+          "size": 9204,
+          "sha256": "b79d9eed40fc5c92b3a1a7d95dc2c11b33a30d1204ed65945ff24ca95b8e5296"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/configuration/right_sharpa_wave_robot.usd": {
+          "size": 2682,
+          "sha256": "56e21a118f70c881c8c002ff65ab634994ba68e24e37bb18b3ef7d5fc38d99d4"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/configuration/right_sharpa_wave_sensor.usd": {
+          "size": 657,
+          "sha256": "86636e59b54a62d4a7ab4afbcedd87baa6ee0f2c4b9a46d8a05c777a85cdb76e"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave/right_sharpa_wave.usd": {
+          "size": 1464,
+          "sha256": "9117d41b360f9f096eb966448cb98b301a528dd63ac38e0f5234edf4bcce9881"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_MITmode.usda": {
+          "size": 26589,
+          "sha256": "1816654af4f94aad579f587af0394b48f075dbbe48709070aa43cf19360af20d"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange.urdf": {
+          "size": 36489,
+          "sha256": "261c1a5284e04bc9690e0f5ac39d7a7cace0a16d335d663a1d3c7fcf4e4daf31"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange.usda": {
+          "size": 26732,
+          "sha256": "93b536684aa4e140718e52363c4f5fada518211cd053fbf42b499aee57ad4ef7"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange.xml": {
+          "size": 24187,
+          "sha256": "8b1dd21a7ab1217b7fd78789b455f3f03029b21bfdee25b5fa9381c8e5b5e643"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/.asset_hash": {
+          "size": 32,
+          "sha256": "df4b52f9f4ee53ddee61a0b79f4711615c1715f5a08ffb96d82f570455d9b1b5"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/config.yaml": {
+          "size": 758,
+          "sha256": "3982cc9f5091de9ccc923de07c2b65073138350bfc085a42b555a118e79d9a41"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/configuration/right_sharpa_wave_with_flange_base.usd": {
+          "size": 10130125,
+          "sha256": "f2b19b22a57dc70ba7536a9084c33f2915f1e67639f67b00aa91d21268c6b1dd"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/configuration/right_sharpa_wave_with_flange_physics.usd": {
+          "size": 9673,
+          "sha256": "f7e1189835db7c7934060a0783bfbe7578997b52b236fd7163c8133a783626b6"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/configuration/right_sharpa_wave_with_flange_robot.usd": {
+          "size": 2763,
+          "sha256": "36edee7b159c0d8a14b6297dc7970fdc6bd8945f86b9007974949c5944c2c42a"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/configuration/right_sharpa_wave_with_flange_sensor.usd": {
+          "size": 657,
+          "sha256": "86636e59b54a62d4a7ab4afbcedd87baa6ee0f2c4b9a46d8a05c777a85cdb76e"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange/right_sharpa_wave_with_flange.usd": {
+          "size": 1476,
+          "sha256": "985f7d0ce42b441ca6bedacee86a400318427a0dae117fa3b7770e390dfedba7"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_flange_MITmode.usda": {
+          "size": 26722,
+          "sha256": "1d9ab8ed1d1bb12093ea6fa0bfa36fcab7daf763058622b5318a07c04f7fcb44"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist.urdf": {
+          "size": 35623,
+          "sha256": "3b0f5834aba2afe4901be4bba23d4a748ccd6a6785ad1db5028ae80f5ae49f9d"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist.usda": {
+          "size": 26594,
+          "sha256": "3927961ce8b3d8a76cca7a1dc7224c434795f150ee82b88c4b7753a47ffbacec"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist.xml": {
+          "size": 23982,
+          "sha256": "94cb03fb918c1f0b2735dc655c9fb902f468a4f08c3e89e9ad6c8f3ed8b4c205"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/.asset_hash": {
+          "size": 32,
+          "sha256": "9137eb1adcae23e1327a9e431b1dc6d4ebc48f9258d38a12aff1a12a7078dde8"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/config.yaml": {
+          "size": 755,
+          "sha256": "dde71281b5080e5c79c195c463781dde74db26d5a8f7365a6f73d8fa026608cb"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/configuration/right_sharpa_wave_with_wrist_base.usd": {
+          "size": 9770125,
+          "sha256": "223c52bdc46609d31c80d32b54c86c52d0087bdc654617923430df3939d6f100"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/configuration/right_sharpa_wave_with_wrist_physics.usd": {
+          "size": 9465,
+          "sha256": "9c92d4402ea5f8515396b99477bc0dc8a927634bc16c89cd05847000203fafca"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/configuration/right_sharpa_wave_with_wrist_robot.usd": {
+          "size": 2720,
+          "sha256": "d50d1eba8a3bb67479cb0bc5c2b1461d1abcf182c8bf87b3b65f0b41d0235e8a"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/configuration/right_sharpa_wave_with_wrist_sensor.usd": {
+          "size": 657,
+          "sha256": "86636e59b54a62d4a7ab4afbcedd87baa6ee0f2c4b9a46d8a05c777a85cdb76e"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist/right_sharpa_wave_with_wrist.usd": {
+          "size": 1475,
+          "sha256": "7511624f18d935b7d0dc348dbbb61d3254910a1a87291941d483164a12aa3f03"
+        },
+        "vae/sim/assets/hands/sharpa/right_sharpa_wave_with_wrist_MITmode.usda": {
+          "size": 26584,
+          "sha256": "d85f68ab712d39b741f38e0fc2005cc272dd9598ea580deed0e4f680fdaf39b5"
+        },
+        "vae/sim/assets/objects/README.md": {
+          "size": 677,
+          "sha256": "af7e4141014b91d9a4a55fdd669991cfe6c0f21a9986cb3eace8775bf7c361d0"
+        },
+        "vae/sim/assets/objects/core_bottle_1071fa4cddb2da2fc8724d5673a063a6/collision/convex_piece_000.obj": {
+          "size": 28276,
+          "sha256": "1293777b9e6b1e2f546c5c95369b77512c107fb8dc389654639438eb6c5c9feb"
+        },
+        "vae/sim/assets/objects/core_bottle_1071fa4cddb2da2fc8724d5673a063a6/collision/convex_piece_001.obj": {
+          "size": 48740,
+          "sha256": "04df0583e29e1a39aa9b442cbd4b2b3e692bf859a5e14356d7ba0387619e43fd"
+        },
+        "vae/sim/assets/objects/core_bottle_1071fa4cddb2da2fc8724d5673a063a6/visual/simplified.obj": {
+          "size": 134377,
+          "sha256": "85879f2ac7993ef3a78e62399c63ccbc33ab6047dcb4e31ca4b4480b5e681080"
+        },
+        "vae/sim/assets/objects/core_bottle_109d55a137c042f5760315ac3bf2c13e/collision/convex_piece_000.obj": {
+          "size": 6376,
+          "sha256": "c3b71f83cc9057ba50454212bae310b8b3a28a3b92d721d691393d4ff41ebcb4"
+        },
+        "vae/sim/assets/objects/core_bottle_109d55a137c042f5760315ac3bf2c13e/collision/convex_piece_001.obj": {
+          "size": 204745,
+          "sha256": "12eca6c4ef032a975bde3fdfec7946ebbd0dca623a89ad68c877a279efc6faad"
+        },
+        "vae/sim/assets/objects/core_bottle_109d55a137c042f5760315ac3bf2c13e/visual/simplified.obj": {
+          "size": 134390,
+          "sha256": "c3d63d4dd89dd76b73c90724d81916c8088770bb4055d13d020750d574b5a7eb"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/collision/convex_piece_000.obj": {
+          "size": 7540,
+          "sha256": "6942bf958f4834984286646aa13979bd60cab2fb7e5a51764a419be38be32f20"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/collision/convex_piece_001.obj": {
+          "size": 182334,
+          "sha256": "18cade3eb360287a36b4295a0815f9147e782947286fbe8684bf01ebee53b621"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/collision/convex_piece_002.obj": {
+          "size": 303318,
+          "sha256": "cebb9d0ae280b51ccba61a941301dc8f26f7be3f045aeabd6261256f4c9ec15f"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/collision/convex_piece_003.obj": {
+          "size": 42856,
+          "sha256": "9cb268868050a826af2cf88b29c89cae4e99b1edb5be2d3d308761cdc9e70864"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/collision/convex_piece_004.obj": {
+          "size": 5407,
+          "sha256": "077b7b0339d276f2427ff0edbe1c9469d65a01759187ff20fd27ce745922a826"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/collision/convex_piece_005.obj": {
+          "size": 7141,
+          "sha256": "0aa5d32830b9e59b95c618d251fd18bc822d961fcf1d47b8e5c3a1c62d5c75dc"
+        },
+        "vae/sim/assets/objects/core_bottle_10dff3c43200a7a7119862dbccbaa609/visual/simplified.obj": {
+          "size": 134923,
+          "sha256": "c22a83fe00d766e6167efe311b9251eb544218146d43a2b5a9dbc783ffbf7515"
+        },
+        "vae/sim/assets/objects/core_bottle_10f709cecfbb8d59c2536abb1e8e5eab/collision/convex_piece_000.obj": {
+          "size": 46075,
+          "sha256": "bdab0846eed5bb3084d066c8828162b11a4282ace0405f633d3744efb1417a33"
+        },
+        "vae/sim/assets/objects/core_bottle_10f709cecfbb8d59c2536abb1e8e5eab/collision/convex_piece_001.obj": {
+          "size": 160619,
+          "sha256": "b1741beb5e35495bce2f79644812396355e417b83ad3aabd9396e3f340dd5aa2"
+        },
+        "vae/sim/assets/objects/core_bottle_10f709cecfbb8d59c2536abb1e8e5eab/visual/simplified.obj": {
+          "size": 134415,
+          "sha256": "c863ab9c022f133974d521fa80ac89a80e1267a75911c1d5f126361c706f38cd"
+        },
+        "vae/sim/assets/objects/core_bottle_114509277e76e413c8724d5673a063a6/collision/convex_piece_000.obj": {
+          "size": 14106,
+          "sha256": "f3aa8cfa34e63404e89556e3ad639a5191edd86b891c11933a0b60a66607ca13"
+        },
+        "vae/sim/assets/objects/core_bottle_114509277e76e413c8724d5673a063a6/collision/convex_piece_001.obj": {
+          "size": 121973,
+          "sha256": "6e941a441f9bd735e1b636dfe939c19f084f498192666dcb4222c6e289e26ef6"
+        },
+        "vae/sim/assets/objects/core_bottle_114509277e76e413c8724d5673a063a6/visual/simplified.obj": {
+          "size": 134364,
+          "sha256": "b28edd76c8add4f75775123b2fc144490c092265d6d11c622ab830e0c5845472"
+        },
+        "vae/sim/assets/objects/core_bottle_21239b0cafa13526cafb7c62b057a234/collision/convex_piece_000.obj": {
+          "size": 28986,
+          "sha256": "292afa0bfdecea52ca534921f8bc0b318835d66f2913a31bb4bd9b3e400c63bd"
+        },
+        "vae/sim/assets/objects/core_bottle_21239b0cafa13526cafb7c62b057a234/collision/convex_piece_001.obj": {
+          "size": 76591,
+          "sha256": "b3880ff2c2c0f68e43f71b143a7a38538328956f19b0b0403512fe8de16d1165"
+        },
+        "vae/sim/assets/objects/core_bottle_21239b0cafa13526cafb7c62b057a234/collision/convex_piece_002.obj": {
+          "size": 190142,
+          "sha256": "584a34aa8adb6e9eecc110b9c01b33041b320abbf3fc1fb967ccc8926792d033"
+        },
+        "vae/sim/assets/objects/core_bottle_21239b0cafa13526cafb7c62b057a234/visual/simplified.obj": {
+          "size": 134397,
+          "sha256": "2c99cc2dd8b3b52a5edaade7badec2e09c9812f340da2df2ac9186acd19f72a7"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_000.obj": {
+          "size": 413159,
+          "sha256": "91a7499d9284c915fbb7d51d91f7252decd236ef1ccbb6579238d88ea834ad8a"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_001.obj": {
+          "size": 8979,
+          "sha256": "ed8e7aacff31fd9d7a152beb78ef6ed504b1cc6cf59e0d15768788cd8c4dfe52"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_002.obj": {
+          "size": 11142,
+          "sha256": "b54d0682bed2833d535c0decc5d71e0bc5fae46e825b4dfebf991833e24567b0"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_003.obj": {
+          "size": 1337,
+          "sha256": "a0a4f9aa1e177dc8e26fbba98db581a1a63d4131e0d6d3014efc4aec2924f94c"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_004.obj": {
+          "size": 2143,
+          "sha256": "5822f6caed39490691b01c713b1f7d71b68da5e387693cd5ed6440dce0a90e82"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_005.obj": {
+          "size": 11158,
+          "sha256": "1fa89f97978d58a799a0e0689f582ddd4b9ff3635d3a59f1ebe65cbcd99df6e7"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_006.obj": {
+          "size": 4904,
+          "sha256": "ee8f6c19cd01d4537323df082fa051b4941ec84010760be0e47da136d2819465"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_007.obj": {
+          "size": 6782,
+          "sha256": "7d3d30e17abb3f15593f2b1221f9d47820228380248ba2f9997b45040e877c8c"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_008.obj": {
+          "size": 1715,
+          "sha256": "19bf4c09a1d75cc12f539264b84a140dd4a08f86f0bcb95839931144028113f3"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/collision/convex_piece_009.obj": {
+          "size": 8150,
+          "sha256": "fe21e4bc9c8c2c13fb446314f07dee7b345a38a303745a7aadb2f59ef8edb969"
+        },
+        "vae/sim/assets/objects/core_bottle_21dbbd17ae4c3fce6a90f735365ac29e/visual/simplified.obj": {
+          "size": 134201,
+          "sha256": "a52fd4041916e966703c2661c5e465197c3c3e3d817d7fdd13b91916279195d6"
+        },
+        "vae/sim/assets/objects/core_bottle_22249179e88b0502846564a8a219239b/collision/convex_piece_000.obj": {
+          "size": 20124,
+          "sha256": "2f8a14c4bc7f5256582ac2c343bd95b2baff9cdc84bd469ff75136368d8043d4"
+        },
+        "vae/sim/assets/objects/core_bottle_22249179e88b0502846564a8a219239b/collision/convex_piece_001.obj": {
+          "size": 68923,
+          "sha256": "b6f2aad6ebf7dd2471e51763e87b3fc3f905fab25b1a6c6d3758079fbc8de575"
+        },
+        "vae/sim/assets/objects/core_bottle_22249179e88b0502846564a8a219239b/visual/simplified.obj": {
+          "size": 134377,
+          "sha256": "a2becf6dfd1590d59d1a85bf40cf38a779e4dec29ddb6154984ad16cfc702b78"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_000.obj": {
+          "size": 6330,
+          "sha256": "7a11e51b200ad93305952bbc4312bdbb766eb771f9808ebb2e98a18b7f92be85"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_001.obj": {
+          "size": 6287,
+          "sha256": "1253a0ac4087e468f294ff39e4a60bd6a9fa2bf1d1622da7a72892c9cd3a81ab"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_002.obj": {
+          "size": 6012,
+          "sha256": "001dfa5b322098f513f08d042fa13d148f29a62248931df21b67bd5f2398b191"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_003.obj": {
+          "size": 6649,
+          "sha256": "0937557a10006ca5734114b95252ad44b456564d82779e91c838455114c128fd"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_004.obj": {
+          "size": 65106,
+          "sha256": "65d6ac3a91398a9b3e1e9a659eb5d403ef3580e5b6b840367a7f051d456db59e"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_005.obj": {
+          "size": 3928,
+          "sha256": "34ac2684b6289cf6259ee1b6cac19963234a486a3553d1974efe0dce852ee7de"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_006.obj": {
+          "size": 2754,
+          "sha256": "a827be11078bebf99b648ea9f728ca2b02d1dbc52344e6cb200d8b1688b88280"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_007.obj": {
+          "size": 2488,
+          "sha256": "68d53d95270cbb5430c931cfc72feb238b5ab2313a7b03a2af77d59b9137ce21"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_008.obj": {
+          "size": 2378,
+          "sha256": "abd7f2eb2a9390e6e00b87b8d5582118fdf3c2727462c7e34c1fdb45d5d4fd36"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_009.obj": {
+          "size": 4731,
+          "sha256": "4617e05822e93ab94f4a39b110f1cd7f694ba8421536d28aeb4de1147fb701f9"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_010.obj": {
+          "size": 4069,
+          "sha256": "09f502e126ce921c237e4a33a2e2ff4f8cadc4a18a34b0242a505a8b10fb5144"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_011.obj": {
+          "size": 4414,
+          "sha256": "c21d816528c2d71505ef0f6fe3de14fd9354d9e1d96e235f60c356a4b7895620"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_012.obj": {
+          "size": 2442,
+          "sha256": "f1da1b85607f46a07bd826cd4727c013c8b66a65172494b7df3e176a8d43722f"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_013.obj": {
+          "size": 3784,
+          "sha256": "39d08f523cb7bdcb90248c33394f55bb3bcb785605902db85cb7d170b5c689a1"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_014.obj": {
+          "size": 4007,
+          "sha256": "880eb5e6d97ea3a6f341c92d9076b1769b9cfb8c9f9c4b95babed24ae562d082"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_015.obj": {
+          "size": 5026,
+          "sha256": "4a7460fb0b3341ec4c4d633acee781ba58ee73afaf2684513304787ebaa2ad8c"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/collision/convex_piece_016.obj": {
+          "size": 3643,
+          "sha256": "d21d9933007ed22bd89dad1db91f811d89e2036e4528b4980e4562c982984f94"
+        },
+        "vae/sim/assets/objects/core_bottle_244894af3ba967ccd957eaf7f4edb205/visual/simplified.obj": {
+          "size": 133993,
+          "sha256": "7138174b8c4962333fd39d737a6f746c8ace2220a37a042606b87229d01f196d"
+        },
+        "vae/sim/assets/objects/core_bottle_25b8ed5b02f07b6cbcfad79fc308fa6d/collision/convex_piece_000.obj": {
+          "size": 64186,
+          "sha256": "cc45ea7aaa0c62bc9922118bfa0d988cbd7ab7108f3ccf0e26ac3be29dcd0315"
+        },
+        "vae/sim/assets/objects/core_bottle_25b8ed5b02f07b6cbcfad79fc308fa6d/collision/convex_piece_001.obj": {
+          "size": 763971,
+          "sha256": "ac3ca1e245807e1c800fac326e8c3552b1d563b5d3c736f4cc02f56cf6bf5e68"
+        },
+        "vae/sim/assets/objects/core_bottle_25b8ed5b02f07b6cbcfad79fc308fa6d/visual/simplified.obj": {
+          "size": 134270,
+          "sha256": "f461645f2d38d86acc3396fc59a4fae4fa970502628361d45124b7e2510ff392"
+        },
+        "vae/sim/assets/objects/core_bottle_2618100a5821a4d847df6165146d5bbd/collision/convex_piece_000.obj": {
+          "size": 16607,
+          "sha256": "6913ddd5bb4ad65bb58ff9754e7cff14a69aa77807aa4b4d673464108414574a"
+        },
+        "vae/sim/assets/objects/core_bottle_2618100a5821a4d847df6165146d5bbd/collision/convex_piece_001.obj": {
+          "size": 184993,
+          "sha256": "bf19e0dcda3bfd702602d8f15b73a149ce542f26e7c8e32f73d79f0ab72e2c44"
+        },
+        "vae/sim/assets/objects/core_bottle_2618100a5821a4d847df6165146d5bbd/visual/simplified.obj": {
+          "size": 134475,
+          "sha256": "cb2e34682cd59fe9a8731a56e020f7497872137de9cd01b5d6aabe34b46e5be7"
+        },
+        "vae/sim/assets/objects/core_cellphone_11f7613cae7d973fd7e59c29eb25f02f/collision/convex_piece_000.obj": {
+          "size": 34960,
+          "sha256": "92fb3ccb7acc277729eeb0e6c6f67fc33a9fea936fabc8a5131495e52e98047c"
+        },
+        "vae/sim/assets/objects/core_cellphone_11f7613cae7d973fd7e59c29eb25f02f/visual/simplified.obj": {
+          "size": 134526,
+          "sha256": "4b51e6c40eedef6b9fe695614c203f8d4c009cb4732265178a4d088704c08500"
+        },
+        "vae/sim/assets/objects/core_cellphone_1292caa1282ad8cffc3c4ad908ac06f4/collision/convex_piece_000.obj": {
+          "size": 27722,
+          "sha256": "14917ef6f3cac6cec3db5b20b7b5984193f12ea2a0025113fd22b0a84d84ffc5"
+        },
+        "vae/sim/assets/objects/core_cellphone_1292caa1282ad8cffc3c4ad908ac06f4/visual/simplified.obj": {
+          "size": 134603,
+          "sha256": "e005fe2bef9aba5b40cf928802d3b2cdcac677163efc3413db771d84b7df85f1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_000.obj": {
+          "size": 12963,
+          "sha256": "387f244d7e915ade31f04cbc0b9e2017826b8c49baa9a2d05200a335e2c63859"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_001.obj": {
+          "size": 10400,
+          "sha256": "7380a2f7ca69f8f5cc21ae2e562fea100aecabcee50bb2dd33c2f2b106cd5321"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_002.obj": {
+          "size": 13844,
+          "sha256": "0368fc4f10da592a5d427ff110c0496e3b5434c12d3d283dc1d739e1538f2c20"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_003.obj": {
+          "size": 4093,
+          "sha256": "40455727e6a7c1bebf847cb2811ab806e485bec1038707f63286d380a524fd52"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_004.obj": {
+          "size": 8433,
+          "sha256": "1f8e032c5cb5d9a9cfcacef3eb22c91bcd8dc698273e8bacd7a8bb28b00a6983"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_005.obj": {
+          "size": 11758,
+          "sha256": "896d73aa9e19a3c0c3eef99565aa69985725ebe6c56de50057a35440d5548767"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_006.obj": {
+          "size": 41635,
+          "sha256": "4121cf747d0bd597c174cdc8a1c2be700cf49911695a4d472bcb1cc7658b28d8"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_007.obj": {
+          "size": 3916,
+          "sha256": "390ed58bb4601cf91c91c2ce257c66c985ce34f3a567e7416273a90e2df8e4f3"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_008.obj": {
+          "size": 4344,
+          "sha256": "12446ce469ebb086ce47a3438e2553753052d6d42674b8f1c04553300a5179e1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_009.obj": {
+          "size": 7556,
+          "sha256": "9ecc7ea26c720331c3436d66acd741e21fa8fc59cb3136cd2f05e7a65ecb29fc"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_010.obj": {
+          "size": 13789,
+          "sha256": "79124cb673a00b04fc5adc5fe1ef25afe884d071c6d05a09d6a6dbc3bfcdf390"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_011.obj": {
+          "size": 9825,
+          "sha256": "5252e3aaf9672c9e891c40a0fd25ee1404363d5a03297f4d77d58a90106d74e6"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_012.obj": {
+          "size": 7474,
+          "sha256": "d58e613fce28cc8f83e2804910664662b0c67563501b0bf0519f1b62e2c686a7"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_013.obj": {
+          "size": 12508,
+          "sha256": "01cb3151dbde1529fa700f806a322c99d366e638def20c9c7141c33618d6aab1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_014.obj": {
+          "size": 7611,
+          "sha256": "f6d5b985a80f86dfaef10c3dd4fe7430f2cd15aa2e32be8445c4de57607e4885"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_015.obj": {
+          "size": 7737,
+          "sha256": "39f1535f2a16c1f73dae15531b47ae83568b0a6050741d1daf249515c70ce488"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_016.obj": {
+          "size": 9443,
+          "sha256": "6a39047f8bef1d27d6beb83201027a839a40d7f88b0d66ae1341ee2b5e89f826"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_017.obj": {
+          "size": 8316,
+          "sha256": "e8adfc304febb5e71aacb0733c4c160954980237e22d22f6e335ffc33dcd4074"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_018.obj": {
+          "size": 8716,
+          "sha256": "d93010a4b8da30b0ec4ddd0e0af37f1be5cc0088826744174347055ad845ea1c"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_019.obj": {
+          "size": 13775,
+          "sha256": "2b2d4711752d5d15cd88fbf56a2a3b74bc3b98cae70faf1091a57f8c4e988530"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_020.obj": {
+          "size": 14756,
+          "sha256": "f4b161448e0b590982fa4d71517956ac17cfdcc72db0b67133efd71fe699bb82"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_021.obj": {
+          "size": 7516,
+          "sha256": "e27806c6833523dac6abea514b142142486f30f937ad9f6ee87a252f2f53ea4c"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_022.obj": {
+          "size": 5580,
+          "sha256": "5b6866d7452691261224dad2251cd87ad5521243c3526bb2891d5661ed7fe352"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_023.obj": {
+          "size": 7868,
+          "sha256": "b3b109cc3920203e6e338c03fb25ebb1524d4ea517514e3ba5040d04d8fadbb9"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_024.obj": {
+          "size": 8967,
+          "sha256": "06845bc02c34535abbd9d27f9e919f70563cd226e09fdeff0e993cf28f0c0547"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_025.obj": {
+          "size": 13746,
+          "sha256": "9d87e98f93ba3e6ce22e0f5efa1e6f705ec23e0a1a65a5ad28f75cd9b4db5965"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_026.obj": {
+          "size": 18816,
+          "sha256": "e2c0e5d9f7417d203d1c2558969ab9d96066bd9af1c51d8ab7b5be3135416598"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_027.obj": {
+          "size": 12901,
+          "sha256": "075c195762d1e0a5ae1c16a4b6ad989e1bd5053e8016bb8ba59353bddbfd7be5"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_028.obj": {
+          "size": 13649,
+          "sha256": "149dfdfd540487c8218c93dd9f99483ac31671c75e26f149d7c60d3a8bc3dfe6"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_029.obj": {
+          "size": 12876,
+          "sha256": "ff2be601ca4fcbf2edd47ece1faafddc9ca5d307f16f07d497ef86bf08451fec"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_030.obj": {
+          "size": 12215,
+          "sha256": "d976713086ef55f5b420d072bc17d8f1f4a5a2bdc657839b6d09d2cc8f5e95fe"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_031.obj": {
+          "size": 22656,
+          "sha256": "df63fef929f2b4ae9168156f76f63657760a19c05622bf6583d3939b20b38a49"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_032.obj": {
+          "size": 5250,
+          "sha256": "c7122efbfd0c9f89ad3d87585a3efd460b15d0fce9f849df3428b5f06c5eabf5"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_033.obj": {
+          "size": 6421,
+          "sha256": "e0b84e0cb5edb7f799818620ccf576dbdea0c06d8d2b5c28bd4f3b02e140c407"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_034.obj": {
+          "size": 9075,
+          "sha256": "49fd78edfacb4f33e1d27e4728bfea1768c479426ca57ba0b1b4f5096ee9786b"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_035.obj": {
+          "size": 8731,
+          "sha256": "f9d7bad8f494362bee54778bcbeb54697a9bf2b493990949e9ffc5eeebdd936a"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_036.obj": {
+          "size": 15064,
+          "sha256": "2e2d5816a5ea05b58a31ff1d3178807c66f051bcbf5077c890575e55ddc76af5"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_037.obj": {
+          "size": 10129,
+          "sha256": "048f64a279c9fc1e4906d4bc2b829f7ec5d3a3517148de023062f9c53f7582b5"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_038.obj": {
+          "size": 7461,
+          "sha256": "281b5ae49fdef20f659e7be0c417dd72bc1fbd9f4aec2985094ec77a4f6bb916"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_039.obj": {
+          "size": 9299,
+          "sha256": "28013e148e3bf658f6d9884d3bb6e001316dfce16afea682f5f329130344dddd"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_040.obj": {
+          "size": 16253,
+          "sha256": "b07c1af10906245fd3e49ff76d6dd6c34ce804c65545f0339491531b8ac30429"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_041.obj": {
+          "size": 9294,
+          "sha256": "f6da1acbe480bd96eeb91189dfafcd5a05f8c6cb8b195726130946fcf37f4dff"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_042.obj": {
+          "size": 2000,
+          "sha256": "426453865cb7aa734d9c8a6d3cf5886e463633d29138a014ff93516886139c23"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_043.obj": {
+          "size": 20297,
+          "sha256": "0ee214e35740bb978847bac551eb487ad8d8b30ddaaa303b08cbe5b9295e635e"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_044.obj": {
+          "size": 24231,
+          "sha256": "c5ceb96c38182f865b3d316ecb10fd226dd022b66a2966580c1931116bfba408"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_045.obj": {
+          "size": 19271,
+          "sha256": "76476c7aa0a8867237b270acde79db5716125824c299d46f678014ffde01c171"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_046.obj": {
+          "size": 8528,
+          "sha256": "72a2f48448a89177b4283728bfcadbd4e231f7bebcd38c7525a0a15317c4c6d1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_047.obj": {
+          "size": 7719,
+          "sha256": "585ea5b1a9a42086f4c689b36510da82ad9e3ca527c3f784c8663abe510f6276"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_048.obj": {
+          "size": 13786,
+          "sha256": "a0e82eff0373ff94b75896f1acc40c718642e2651b0408dbda91a6f18d626381"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_049.obj": {
+          "size": 4411,
+          "sha256": "61dbd1fe0e8c9ebf3710903668bca68377ad8d752db2bb29f1b347eb4f67fac4"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_050.obj": {
+          "size": 2668,
+          "sha256": "9435afc9429d57b191e6a501c52560ded1c470aeba45f9511daf9e7f14b2acbc"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_051.obj": {
+          "size": 6537,
+          "sha256": "0c32c09e88d58de17cb275635a9f4f2d447a625a7d62b7be889d86ac002145e1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_052.obj": {
+          "size": 10716,
+          "sha256": "1c7b552314fe30f9d5cef2ecd58f447cf3619f01c770ecf9f3e7b7f284abd9eb"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_053.obj": {
+          "size": 7176,
+          "sha256": "bae23993ca504c355cb4a201e0f5093f67a0b3668c9fa45c3ff6a03e1a597d15"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_054.obj": {
+          "size": 2381,
+          "sha256": "ad4f5732904caa2bca4478859306a911cbc74f4ad1f9ef1cb0ce7975496cb403"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_055.obj": {
+          "size": 9815,
+          "sha256": "6cd507af591509ee67e52245ded32ea15868d77c5407ded790e113a91f6ab413"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_056.obj": {
+          "size": 2643,
+          "sha256": "865f7c94f24710ef7fe9a9dc8db01f51ffdcd4a0d4a9d15a116ca2c03ce356fd"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_057.obj": {
+          "size": 3542,
+          "sha256": "e571b283b50657a2b6249b9a899ef24b353edc8016bd9d2f754305e86f070757"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_058.obj": {
+          "size": 5124,
+          "sha256": "c60ae0748bebb5ed7df576d595a5e672250e811120e695d3cc744d8c055bf68b"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_059.obj": {
+          "size": 3289,
+          "sha256": "0a61f8b6527f5db6afa4cba8fa0a42d8766111ebf133c8a705898640dc3b8934"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_060.obj": {
+          "size": 2546,
+          "sha256": "eb2537d38f13f7f3751d0f37ddb8838167684f98cec7eef315b9691e2b4ecce0"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_061.obj": {
+          "size": 7408,
+          "sha256": "28a2903161b60abc36be5c0cbc54a439981c2f8543fc823b54f25a792e1db9eb"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_062.obj": {
+          "size": 3314,
+          "sha256": "7e288f5ba03b6064cf466e76cc51b4eb99543fa6b9599ef1a75a9fead1d7799f"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_063.obj": {
+          "size": 8612,
+          "sha256": "9bbc106ebb82653c9f4d273425f75bf4ec4fb2a1522bea2e1668355f0faa4c08"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_064.obj": {
+          "size": 4147,
+          "sha256": "875cecd578d8b8a160b14da58c77acc2a4e3863cf0997c01ac08f4d046fd5868"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_065.obj": {
+          "size": 3428,
+          "sha256": "ad6a91379a174b60c19edd48d85bcfbc13354bdac08f6f4aca7653df91bbe56d"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_066.obj": {
+          "size": 9568,
+          "sha256": "a5b2246f6fb4c27807d55c2f10fe25ca6565cf8b485cb8dbd083f9db894e848b"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_067.obj": {
+          "size": 5444,
+          "sha256": "c88ea21c667ead2624398f71ab0c1239338cecb9bcf53b815c90ff268b4d6a29"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_068.obj": {
+          "size": 3847,
+          "sha256": "b9da70d05717f34ab32d44c769443a4544073a2a16c6d8f6e62d8bc5975f82a0"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_069.obj": {
+          "size": 7399,
+          "sha256": "253d1fde99e3d9665091fe6db9402423295c1dedc4d7c2887edb8e57730b0681"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_070.obj": {
+          "size": 3890,
+          "sha256": "c8aeabc419ab7e8c7b2a7bd28ec518522362fb668634aede9e3abe007bf1a7f1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_071.obj": {
+          "size": 3948,
+          "sha256": "f3ef0bad8fa364753d085c0a567b2b99513ae9ca75a5ab3c291d1991897656e8"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_072.obj": {
+          "size": 4615,
+          "sha256": "10562e7beddffbb9b16aec925b571e084e36f18edb2c6f45c4ddd4cfa4feda57"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_073.obj": {
+          "size": 4603,
+          "sha256": "cb271f33a4e72e4ca162e8d7594672d6a1f22b298eb397b194ea5b8e88cb5ce5"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_074.obj": {
+          "size": 7313,
+          "sha256": "86817b029e743fc99ece93c7a80396db453208f52a06f1973f90a9fe722cd5e0"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_075.obj": {
+          "size": 7099,
+          "sha256": "0a96a9ad99ec1e0bb04f1d81f82f181f3bea12f143e04864738f21ea37357d96"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/collision/convex_piece_076.obj": {
+          "size": 6395,
+          "sha256": "3525ba069a18427539a482dd0959adb6d48f74f0c55c844b39731209e1d3dca1"
+        },
+        "vae/sim/assets/objects/core_jar_12ec19e85b31e274725f67267e31c89/visual/simplified.obj": {
+          "size": 134480,
+          "sha256": "1d0205aa4df64ae8531efb07ddec0f99b4dc11a0f626024ca4626497b1210262"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_000.obj": {
+          "size": 55884,
+          "sha256": "1f3e5c4ce09f95afb345e0478733f1d31c3cdc04246f16f45e1782920d52ae64"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_001.obj": {
+          "size": 12307,
+          "sha256": "e9f079b2809b5162d324903eff9c41ee96e322802f80fd319796e56405113b60"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_002.obj": {
+          "size": 4549,
+          "sha256": "fad47a17bcb57aa515e67422493f9ea3109ae4ebb88d7cdb146fe6bb42418a69"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_003.obj": {
+          "size": 10858,
+          "sha256": "80a7ec57c3e0bea64ae1b2257f8965ed27ed1b4288981ef22a3a6e19ca544fbb"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_004.obj": {
+          "size": 6519,
+          "sha256": "762451296b33db78152c52e204de2c14d0be26531461ba7f03387d53e7881367"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_005.obj": {
+          "size": 5282,
+          "sha256": "4a29b22d3aa1184797651d8c57302e538942ef97d1577f9c604da958b3af8053"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_006.obj": {
+          "size": 5200,
+          "sha256": "2374e8b89983541d63a41711f5b6ada0469d302b9ae0bc551b2e7799935a6fdf"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_007.obj": {
+          "size": 8250,
+          "sha256": "5255bf0a558957066329178b21705fe781ac91bab74b87f1f65c91842ae05c67"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_008.obj": {
+          "size": 16203,
+          "sha256": "77de40a1e38b873a20684edca5de5aa64af4c715450d483eddc2744e0e0a7d8a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_009.obj": {
+          "size": 13768,
+          "sha256": "24df450c806c15dd39ce9bd5191d214a7e9fdeacd2f52f482f4a89936092d84a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_010.obj": {
+          "size": 12794,
+          "sha256": "7943801286f12b45ab556539f2ddcd06389735364daee4660769ff9af7fe5df0"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_011.obj": {
+          "size": 7053,
+          "sha256": "c2186a3078aa76743012923a1d7b692688d903fda46aa05830f02dc4654a2307"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_012.obj": {
+          "size": 10832,
+          "sha256": "4b0ac4e0ed28d8e78d8bcb486b9d6e0d6a540e7687cd024d66fc599a3fbff41a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_013.obj": {
+          "size": 8828,
+          "sha256": "f190a90c1f8617d713859c01b16014d60e85314429ad00b165135ca4bf1b79bf"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_014.obj": {
+          "size": 10662,
+          "sha256": "48c0c189701c5ec0f9312c2f3dc97167ddcf00f94e31f2656b95ca0c1270be1a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_015.obj": {
+          "size": 9719,
+          "sha256": "fe9f90b3458311fe7738fdeffe1cd27d0f4a53df5d9ec9f9bf364fc4c5007fc5"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_016.obj": {
+          "size": 8335,
+          "sha256": "8a0d2a1ab80f264941b0c1918a7b95b2ecdbb3f155229a7ac41020e73ca3a8f8"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_017.obj": {
+          "size": 9004,
+          "sha256": "be0f417cdcd982c0326848d2abd34fb9b001cb8f874737f8e03ddb19531ff0c2"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_018.obj": {
+          "size": 3480,
+          "sha256": "3677777287c295df6592cae63612354a312ef9a935a3f4009f3ca3e38625a936"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_019.obj": {
+          "size": 10274,
+          "sha256": "5670e8c57dadbc4b14a0cf26c387fad84dfb47d34d43e389449471aaadaba19c"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_020.obj": {
+          "size": 13132,
+          "sha256": "185c63ebd79bbbfe933f14f0f4cea07be6f8665a0318e161ca147777b2cc11e5"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_021.obj": {
+          "size": 2722,
+          "sha256": "b49c65b359f87b673b34d782c4310b67fccd7bfab6bd1c9512ffba392ebfb676"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_022.obj": {
+          "size": 4748,
+          "sha256": "a4c8be375b7ed7d4ed30a0e5a719dad50b14d71b28eeda48da4adc4a4f13b201"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_023.obj": {
+          "size": 2804,
+          "sha256": "78dd1e7364f8b44eaa212c13fff800eac43946fda23af1208cf56dccb9d80e49"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_024.obj": {
+          "size": 3361,
+          "sha256": "15a8fa3d76025abe96ef2a7542786b270e2054cc828e1b3d153be12397470c1e"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_025.obj": {
+          "size": 4419,
+          "sha256": "27346ae1a775f4cea622abf81288d567bb89c7aa37a888749778f0a7fab1b44b"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_026.obj": {
+          "size": 4012,
+          "sha256": "a7a5e7e9bf6060ec773c30390a3056abb8d907ec0958a57459629b3952ba2f3e"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_027.obj": {
+          "size": 7517,
+          "sha256": "2d6393d186b6bb122a2b846e7a0db465c693f6f83306c7d34d0da87186176d75"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_028.obj": {
+          "size": 14024,
+          "sha256": "b19ac99591437c999e80adcb9ba2279b9dc95a11dd0ed78e8f41387a81a68962"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_029.obj": {
+          "size": 10720,
+          "sha256": "2308fdea028c6a36b5d0923c69e7f8669f71ada3aebe8fb2480da803c5f5c97c"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_030.obj": {
+          "size": 15693,
+          "sha256": "68b1e107b5e53017e5a54c4ed3040e67308b8b7254631c58a416a67e0282278b"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_031.obj": {
+          "size": 11336,
+          "sha256": "43eb716f0a21b5ea67c667ec71a681e230e47b8f59113b63667f97c4fbaa1f2c"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_032.obj": {
+          "size": 3102,
+          "sha256": "3cab95ec14d268989f82b8c587e3937a258297cd48b804317664ec8c4c082a7a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_033.obj": {
+          "size": 2009,
+          "sha256": "45dfbb7b3cee85da112b6968982e61211344f15c8dd95153e45f79a017db0813"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_034.obj": {
+          "size": 7499,
+          "sha256": "3ba03c6792f541376758632cfd23cdec242e95084f444e6e1c3ffd093f0b07b1"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_035.obj": {
+          "size": 1779,
+          "sha256": "44ae0888ee464c226ebcf3f2e5339f0d991525177f612def391018753eaabae0"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_036.obj": {
+          "size": 2975,
+          "sha256": "48f0f5a3173b4f17eb0a4cc565b0bd6f7c9c08c9663dcbf2a24a70340e85f2db"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_037.obj": {
+          "size": 3602,
+          "sha256": "ace9e372409aa0e7b8ae1c2705a6f19abf12583f6968fdfcd86a5ed41276d847"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_038.obj": {
+          "size": 13159,
+          "sha256": "540b0797cf4b69d23d100f7236736f1d88cb932e685858be3f9285e57c3ace99"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_039.obj": {
+          "size": 2676,
+          "sha256": "e4c4a514d6df9960860283a8a5bf380828b435bad27e14eae0513d96a672f5af"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_040.obj": {
+          "size": 4544,
+          "sha256": "a8daf595cebe8bca1110ec8c863f7f651df26e3b8cc2e66998580f754ed581f0"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_041.obj": {
+          "size": 28267,
+          "sha256": "14a51fd32fdb3de3b14e2085117a5825ea92d0374365dc3429c7da46591571bc"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_042.obj": {
+          "size": 2085,
+          "sha256": "05f0954451e3b2f961124c17fbe1ef1720aa760c4c53e7ea5c36806b066e1db9"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_043.obj": {
+          "size": 21783,
+          "sha256": "932ae5900f64128bd9a5f901b06cbf9c8e8b93a1839ac71cf4ba47536e8da38b"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_044.obj": {
+          "size": 10143,
+          "sha256": "dd4884a7439d20412a6946c426cffaafde40cc1a5336aa97eb58ac2ab0605ea1"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_045.obj": {
+          "size": 4031,
+          "sha256": "b7cfe80277c752ac34a0e5fabe49d399b7675fc851133428ff4f0f83fae996d9"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_046.obj": {
+          "size": 2304,
+          "sha256": "da05b95cac3eefdba3b2e2a7f0964acec0cffd3d8b5664c4d91798f653818ceb"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_047.obj": {
+          "size": 4355,
+          "sha256": "797ba75ac6170455b5eaf4cd93b2bdf885f4f43a22fd5c72b1dde4c95d0e3485"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_048.obj": {
+          "size": 8274,
+          "sha256": "b66559085516a9492f3d9a0922f749f664579002dbb791670f6604b44fe21ef7"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_049.obj": {
+          "size": 15424,
+          "sha256": "f3888b05c1c662b28c194d67dcbf18e4cbd37e4de0fc7687acdc72e3a3c5e56f"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_050.obj": {
+          "size": 2140,
+          "sha256": "837db14b4fd7f99aab3cf171fc65a5c6493380586461d13d74fd68fd8602993a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_051.obj": {
+          "size": 3568,
+          "sha256": "298753b7a06479b39e18d2991d9399cab9b19ccf258e2e3763f8c16ec3462c7d"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_052.obj": {
+          "size": 7570,
+          "sha256": "c9c0d77cec425428f804f3e3022ebb1f9d99aae598a860fdd81886fc0146a451"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_053.obj": {
+          "size": 4297,
+          "sha256": "3f5fbf1009ce19166345657b10561675a5fd9f3f166bdafe74ef0d66c251b4b8"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_054.obj": {
+          "size": 3126,
+          "sha256": "3a7e8180a3519e35437d1ff67a69fa4cf019acf5d50ce2e40a5bec1aa1044891"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_055.obj": {
+          "size": 6516,
+          "sha256": "22dab11f1b73ca389b244545ab705897c1612bbf9d4a5d2bf832c9538e0b9b56"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_056.obj": {
+          "size": 14194,
+          "sha256": "7ddc98e6c14ba5759c2fc8e529e1b3805ac4ba91d6fb573889597be16fa98345"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_057.obj": {
+          "size": 10409,
+          "sha256": "bed1ed6fe9b50efee224164adb2780d70dad49790694a8f7836288f2d63c246a"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_058.obj": {
+          "size": 2768,
+          "sha256": "70f8183146e5af1dffbdc35333e9869227de37e3042e8b10e68a6f046d2bd744"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_059.obj": {
+          "size": 11092,
+          "sha256": "278ffe9d592767219372a4f84ec4a59682df45518f8024931073708080d78594"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_060.obj": {
+          "size": 3592,
+          "sha256": "8da4ab5dc3d6bd060aa64fed08f61e4a048b94cf3bd26345a5cb0cded3434309"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_061.obj": {
+          "size": 24873,
+          "sha256": "6ad574d7c54f0e9c36b07676ab319ae3988b79651a7ae789a8348192a9d0a645"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_062.obj": {
+          "size": 9501,
+          "sha256": "352e3f34feef2ca10251f0eb9b13dd632d066b4988eaa54f7a4c97274054e01d"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_063.obj": {
+          "size": 26729,
+          "sha256": "390dcb74953457e1f04474a92d2e22eb7be258b23e561160d9a017d61150eeb2"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_064.obj": {
+          "size": 29523,
+          "sha256": "bdb35c949613d69095bc2101b21b8f02b155e73a6b89f9eedc01f338a86c29a4"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_065.obj": {
+          "size": 11925,
+          "sha256": "8471834a26a0270755289cf74bb4a36382833784c47508b09e0d9434c956d46c"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_066.obj": {
+          "size": 13967,
+          "sha256": "154fc760470c51803526b704e0ade1b61dc83eecefa5af107327eda8ba94738e"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_067.obj": {
+          "size": 10120,
+          "sha256": "7d64fa1466ccc2b4e01a4fc5257ed609c73704f87e7fda113d16fd47ffe90c2b"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_068.obj": {
+          "size": 13347,
+          "sha256": "265798d6aa8edf389f77c813ccd732959af40835767437ebe5da7fdad309d053"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_069.obj": {
+          "size": 11840,
+          "sha256": "69f9acdb5b9acfc0f3a015899471552b4f687f55bf5af7808839914448598acc"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_070.obj": {
+          "size": 9446,
+          "sha256": "c92b0a3eabf14a33ef3c55f440ac79ecb162a1ec96265b0090eeb913f065037c"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_071.obj": {
+          "size": 14012,
+          "sha256": "d7c8a08eabb20e461bc83d1b910dd0d228e05bc043077ba7bd7db786bd1f7dfd"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_072.obj": {
+          "size": 8554,
+          "sha256": "d59263e665e4c709ca320777cc1f97575195d0754db71dc9a75e43e5f8ea9572"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_073.obj": {
+          "size": 12014,
+          "sha256": "81d38541da2c9d5914eed5b67f02a20d5fd92580e84e564a9767dac171606272"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_074.obj": {
+          "size": 8380,
+          "sha256": "a864089b192c01799a1046a1ff1b6478cc31328b509f3c6e60ea70b1f754ec01"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_075.obj": {
+          "size": 15141,
+          "sha256": "167a0457c1f1fbf48882192f4d5c50660194a7a121dfbb44b0362df43d5b2ca1"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_076.obj": {
+          "size": 10943,
+          "sha256": "0429eaec96048244e2a0861e924e4099b06c882370944b97390e734e3f201921"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_077.obj": {
+          "size": 15129,
+          "sha256": "77220528578d269466ce0ac54503c801168725475cbd6501b3c7ecc7b26844df"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_078.obj": {
+          "size": 17020,
+          "sha256": "05750d20b03c4b6e2ca38265fc19f3b2b73c32ff98247cabe2a75c6a31f6d860"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/collision/convex_piece_079.obj": {
+          "size": 15697,
+          "sha256": "6ea769d07f804704b93bd8f7e2989b04bce101631564fa47c7560189dd503473"
+        },
+        "vae/sim/assets/objects/core_jar_146f6702601f9c5d8bb41b82b15c6ac/visual/simplified.obj": {
+          "size": 134445,
+          "sha256": "7e00a58ddfccf74efd56dba90b4723e72c99b606dc4d179a849aeb3852dbcd7c"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_000.obj": {
+          "size": 30718,
+          "sha256": "fcff0dc59d1b6154b9ff49778d339b012a7adb917b84f5d5032ff57200e36a9e"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_001.obj": {
+          "size": 23081,
+          "sha256": "759b71b01320c4eb65afed26391e1df7e48163ec55c9bb93886423ad1b892502"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_002.obj": {
+          "size": 28605,
+          "sha256": "59feee0a61ae74a88e611300e4a2dfaf12c1fc72e5616220f658736b0a85c47c"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_003.obj": {
+          "size": 31449,
+          "sha256": "fdc9b4374f857364c80ffb5b83dac951c8f4261c759a2ba53e2b3586c3ba2e71"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_004.obj": {
+          "size": 28131,
+          "sha256": "12a4626278c4c7dae409d1e2967504311a742dae10a76b0db2111057193b6fcd"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_005.obj": {
+          "size": 30441,
+          "sha256": "da803ed29a2d81f61fc2ec9a5764886ce88f62d92b3bb1f8c069d43dbbe584b5"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_006.obj": {
+          "size": 25943,
+          "sha256": "5957366f3a24bc40ad2ebfefbcb7db181dd03f6e5f53afedd5f0fd26176dc72f"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_007.obj": {
+          "size": 26620,
+          "sha256": "9040ff0b51b878146a3dacfc96d89420f255d498c502dbe71340755d62527dd9"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_008.obj": {
+          "size": 28236,
+          "sha256": "96fc9f294f8449c14e3abd338a9efbde1ac2541514033346090d7d00f3c1ae87"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_009.obj": {
+          "size": 29915,
+          "sha256": "bdc83fa028c76c530f1fea29fc4b3c68889ecd3b8f58dd2ea4a6cc5963a775b3"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_010.obj": {
+          "size": 38631,
+          "sha256": "f09cd62c0c1ed456bdccffd5d11698b4aa306b810fcd54b042736b1c24458b25"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_011.obj": {
+          "size": 40397,
+          "sha256": "764d08d37ea5505a2f178280c702e386364729c959d877e5c91da37edd925fc6"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_012.obj": {
+          "size": 15111,
+          "sha256": "0be63b04be387021eaa8831f29482132b999ad6f8d7f830cc2be7877b341293e"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_013.obj": {
+          "size": 9961,
+          "sha256": "4474bbd22b040dbf4d9e1c2de8c921f5cb4ca40d4f9405615f2c581ca54b0a6f"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_014.obj": {
+          "size": 12356,
+          "sha256": "f6b833ec6c958d0ddcd93bc712a9357b0036cfa9b975d78b69d5beb9b19de534"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_015.obj": {
+          "size": 12543,
+          "sha256": "f0e8e8cdd82545da8b8491651d507676bb11fad5e5a447a4876a98e936cedd69"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_016.obj": {
+          "size": 5494,
+          "sha256": "d5c7336e81724833e9302e2e07429806980bc67afcd73f660aec0039d648d4c1"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_017.obj": {
+          "size": 16525,
+          "sha256": "0c47cd856714e60557d14306ed75c4b34256f2417d1bab962ed7cf10a0dd4bff"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_018.obj": {
+          "size": 21487,
+          "sha256": "6318bd15c36ba265eff9d52b0de5b9d4586b44e9f5e7e54ac88e805679f6511f"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_019.obj": {
+          "size": 13733,
+          "sha256": "3983e62fe56d67a17ff079fd090a608c12b185863a2ab44d29676390b62a2378"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_020.obj": {
+          "size": 21951,
+          "sha256": "9bd2ef5427bbf127267c83fccf22c7c2836f376a42bb87093c0c70f0febaed53"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_021.obj": {
+          "size": 35624,
+          "sha256": "c4ee2783891afb4a0d1d29d45c1b61c7fa94ea624d02590927a8ff8df445f866"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_022.obj": {
+          "size": 14355,
+          "sha256": "bbe4ff1e08906d27938ca492d4a0b86ea5ec51ba91e3955d9a70aeb900cc478d"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_023.obj": {
+          "size": 4915,
+          "sha256": "2d92a7f6f0513d6e9d62901e71c291b3ec4360985a2c225464f949fb43ae0116"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_024.obj": {
+          "size": 13327,
+          "sha256": "a765bef37ebf105da5ecac078fbb5f6995f826004821c71d36662a87a967daea"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_025.obj": {
+          "size": 23642,
+          "sha256": "6bed3320a5be43a7a5b86717afca0293f579e19416d15d001145c627c04b0cc8"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_026.obj": {
+          "size": 24439,
+          "sha256": "a692ed24909bb0160126d5bd4568e37c1239a8dd1462e11a2503061ed9a848fb"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_027.obj": {
+          "size": 10001,
+          "sha256": "2eee04d635112ce75c994862c23051a25b0f4f51284edb00333fca7dd40accfd"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_028.obj": {
+          "size": 22240,
+          "sha256": "438504b5f82e759f8e7a5794672b25d07c78ee1fbaae82ec724314311b16100d"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_029.obj": {
+          "size": 16053,
+          "sha256": "8dac6f61d7e4deae1f6f436b997f58314e613f920ce1ffd944ad77ba27531126"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_030.obj": {
+          "size": 25058,
+          "sha256": "251d98cc80cf2f3d9290fd7a754bef5c65ba16a554e343f94d696f3c136e7b75"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_031.obj": {
+          "size": 11549,
+          "sha256": "9a913e5e3cc76137129e6b9846882c3a22ef4dead9ba2bf06eff50bcd0006863"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_032.obj": {
+          "size": 24040,
+          "sha256": "32230d73d8c5999f30a6a2db40875925e419411c480c1603307d97ca3d64586b"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_033.obj": {
+          "size": 21313,
+          "sha256": "4cc5fccaf8daeaee2a2f70fac2645359165e8af7199421eb3b9ff309bbd5f0ff"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_034.obj": {
+          "size": 26908,
+          "sha256": "92535781a806e1fa0a350561ea46de048438be4735fab036624ab135c0348a81"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_035.obj": {
+          "size": 13691,
+          "sha256": "6017e0544d974b9877aff6d1a54aacb809dc84fdf6913384b86abc3645ae3ee7"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_036.obj": {
+          "size": 12251,
+          "sha256": "ae51803b1d2d62faec715087bace25a5da3492de244f1f4992bd661ed2719629"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_037.obj": {
+          "size": 11327,
+          "sha256": "d8669ffbcd139dad1623b41779ece9e05b9096012fd5ca00dc53412b45379088"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_038.obj": {
+          "size": 34392,
+          "sha256": "de97a1d55dab2701a3a670f77506ff811685239f7c070fc210bdecb24da17f92"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_039.obj": {
+          "size": 12128,
+          "sha256": "446390f83cdb1c7b11ee0deab956a22e9028eb1a2ce030ae6b66bc0ffe844f7b"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_040.obj": {
+          "size": 4324,
+          "sha256": "e8e674dc58f760be8ebad352dc3e34817b99496b51cc0455bbf55f058b8168a3"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_041.obj": {
+          "size": 14187,
+          "sha256": "2e3bf45ae573decf44e112188c21601778261d641e04dc3d4926fa063a97f7a7"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_042.obj": {
+          "size": 5874,
+          "sha256": "df1823ee3ba8fd5ca32b53ca635caf28df8d6d5f84ec663a7078a1e96348d066"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_043.obj": {
+          "size": 5257,
+          "sha256": "f222edc3ad7ede8b87acfcde3e131f1fb9dcc932158a5230069d7321c796fae7"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_044.obj": {
+          "size": 4313,
+          "sha256": "a2d11908177ac3b1ab3801c573ed0337e7a9715d9ebe5058db31062be456e408"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_045.obj": {
+          "size": 3239,
+          "sha256": "b000cb8a687d0ed1583f7ffcb372b0c8bd57831ed6743388917c12630ab6f367"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_046.obj": {
+          "size": 5258,
+          "sha256": "ceaac731759202fc608afab7717a67d992e5970243bd2d56e0a39384e838b8e7"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_047.obj": {
+          "size": 3000,
+          "sha256": "64982ae61574caa0377911e84ca1aa01df24de8e632fc5605117ab48afffe66d"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_048.obj": {
+          "size": 7672,
+          "sha256": "dd0f6bc0a2a3ace2af89469c43a85aef9a498bdf1bf364ae8a0304e2cf2d4b00"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_049.obj": {
+          "size": 12192,
+          "sha256": "47daa4f3de4effcb971bce602b731e6e8037d119cd7cf6b52dbe6817dfed1fa2"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_050.obj": {
+          "size": 805,
+          "sha256": "f001a96190cbd7a7e5e350d7c199904f99ffa164f962491592ccec39fe155bc3"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_051.obj": {
+          "size": 3269,
+          "sha256": "ca19e785796bf4f44b5f61b5a35768cfbe693b0ed29c5d7f73b8791abc2d9019"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_052.obj": {
+          "size": 4366,
+          "sha256": "e18c7eaeb46221ddee57b66071d641a6c79b5750efdfe01a207c27d34719bb9b"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_053.obj": {
+          "size": 9112,
+          "sha256": "f9f852aa222ace2c70f6a884aeda724038121ad73d47efc695f977cddb7e2b32"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_054.obj": {
+          "size": 5520,
+          "sha256": "b34e680524340e0e0ed8b2cb984f4c84bee7eedc0a60c11552e8f9ae4a1c58c2"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_055.obj": {
+          "size": 4242,
+          "sha256": "9c7ebba2888df87eed12e8736c381898a155720372309ab4aca054abf2ad31dc"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_056.obj": {
+          "size": 796,
+          "sha256": "133bfa6662608d154a6884246b13e3f944eb8987fb36b0eafcc018b38ea25420"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_057.obj": {
+          "size": 7445,
+          "sha256": "36f3918480b0630009c2121c171b4129120662fa5b00042a7ad3e77ac59dde82"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_058.obj": {
+          "size": 8969,
+          "sha256": "5fe608bcde538c28e1e04c09dbf3ed6c1a62e7aed818680a10d64bfadfcc2801"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_059.obj": {
+          "size": 8598,
+          "sha256": "a6291614d16b94021e134a9f38977795793d15f076edce31c8f017233d28212c"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_060.obj": {
+          "size": 4784,
+          "sha256": "b7140f8d4b0ef16b3c8c4abc16ea4686ebec033126ab276968d11b9f80742c7c"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_061.obj": {
+          "size": 8962,
+          "sha256": "616b77548af320ba8d201984e1036fee2a84ac5f80e0cb018eda9b449adeb9c4"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_062.obj": {
+          "size": 6723,
+          "sha256": "e613390acd50d9296f1989d66a54a7c0976347d57017f472fa3b8a5a3d977735"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_063.obj": {
+          "size": 5592,
+          "sha256": "a0ffe666a296ddbc055e3d1092d1fc62004bdf5b38655b0d8703b74634274158"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_064.obj": {
+          "size": 9594,
+          "sha256": "0c5bc215182512081986ed141842f274bfe8258c22ae5400554af038ebb34f00"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_065.obj": {
+          "size": 1174,
+          "sha256": "529961787f75640ed06e089b5be0d8423575cc753ca7b9e1405d7bb95a255ddc"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_066.obj": {
+          "size": 4622,
+          "sha256": "4e2ca8e0aae5830bd2a621e1b29856295f4aedeadbe53e39a000f8bff7ebc540"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/collision/convex_piece_067.obj": {
+          "size": 8932,
+          "sha256": "b04126d6cc69e32e49b0cfadedb6163baec2d275b7f13f8ca2c1580c98be542a"
+        },
+        "vae/sim/assets/objects/core_jar_14ac8d866a8ea8b398910e50f05b8001/visual/simplified.obj": {
+          "size": 134148,
+          "sha256": "2c9bf2a18ffffaffe6429b26c338d93b3869e0e65469922a46771b1035120e7f"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_000.obj": {
+          "size": 4257,
+          "sha256": "d322ed33c2b5d5ba0c4d4ade116178b7615614f6698671da092937297638d03a"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_001.obj": {
+          "size": 328312,
+          "sha256": "8ef142eafad66da417b2f0f405fb0f33724d98b659037a36c2904999ae68c18c"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_002.obj": {
+          "size": 20849,
+          "sha256": "9fe8c331cf4727e6452125f656f04dae51caab521a9df2b9d51165d9e5e55f8b"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_003.obj": {
+          "size": 3433,
+          "sha256": "c3fced60935db7a63e9fd6be0b13a3baae886ce54bb0811ca38a600e8438ddbe"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_004.obj": {
+          "size": 2230,
+          "sha256": "e7c212dc9c79a39eb544c2807c75d249556b4e871556bf3600335534c4f51372"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_005.obj": {
+          "size": 6418,
+          "sha256": "f6d4e706d7123542a163091a9455ae18b756300d96349423972594290d9070d6"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_006.obj": {
+          "size": 5719,
+          "sha256": "f110240c8c019a36db9d01a51496d24a3e3ab57f116a69b135ecaf197703cd37"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_007.obj": {
+          "size": 2006,
+          "sha256": "456d59cae0a8833f3b2f57b6f2fed96939427bad129bfea45ec8f3ed18c38778"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_008.obj": {
+          "size": 1167,
+          "sha256": "a2ff949fcae81675c81cd8b2ef82b6dc3376daf86d8e08c908bf888bbe3cdb4f"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_009.obj": {
+          "size": 5637,
+          "sha256": "8cd43a2fe05a76ccd5c298d8cfce887eccfe12bd36741013d4199b31f3f165f3"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_010.obj": {
+          "size": 2963,
+          "sha256": "aef033b8f000247dae1349d46ffed62900835b80858ed6cb7b801e65f7ed0731"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_011.obj": {
+          "size": 1361,
+          "sha256": "54aa53bef1acc0b07689dd4243b416b3fc6b363f9ea2d38efcd45a0e6f48f206"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_012.obj": {
+          "size": 4892,
+          "sha256": "bb97fc06cc0ca07179013169e22ed1cb212e3b62395546a112f907c1b2485975"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_013.obj": {
+          "size": 1314,
+          "sha256": "933384fee14d088d81b4179b28d7f474eb994f2959b9e1d74d084e9d3a3884f9"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_014.obj": {
+          "size": 3250,
+          "sha256": "9be864cc67051ee2fab57ac1ed0b5e6a3935181e768a0ffad6082cd0d0ed3ffa"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_015.obj": {
+          "size": 4299,
+          "sha256": "27e3a63d4dcadb7f1563a471b3ef5b632c55861b40060920938be30dccb15282"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_016.obj": {
+          "size": 3306,
+          "sha256": "d922a396cd940e5ce4e04210ccaea0f2ca3af232d01cf4038b70f067c6f33cfe"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_017.obj": {
+          "size": 19770,
+          "sha256": "7754b2661f0719c0cc148c06396aa7b43ccab8e78ab45822a6a2da2badf75837"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_018.obj": {
+          "size": 5040,
+          "sha256": "d4e39332a16f0bde111a01e52a29750eaffc1e9a91d73fa1c58a9e425cfe438d"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_019.obj": {
+          "size": 3865,
+          "sha256": "3ac8eb25eab8be4e1a7971a66589a6178156b62e39e91c75756b88057cb3cabf"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_020.obj": {
+          "size": 3379,
+          "sha256": "a803c36c131f7593784eb0f37842401e5cb5c838668be32ce4cba2d386f50c60"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_021.obj": {
+          "size": 5659,
+          "sha256": "70bbaba4032f9b38b5d6cb094e12a5260234a176edca6a58dbef5eb05e40f0c4"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_022.obj": {
+          "size": 15903,
+          "sha256": "54fe6d557105bc77a58f9b14c9d0ea208fc523de3f516ff1cd0dfabd29607080"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_023.obj": {
+          "size": 3266,
+          "sha256": "d8384cb81cc032db232280fd5451c057b6a4d6d10c8ce212cda36c48fd2c345d"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_024.obj": {
+          "size": 4413,
+          "sha256": "4a7fd216814afb7557a253d782baa95b5e7a863aa448e490469e2054bd332865"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_025.obj": {
+          "size": 3267,
+          "sha256": "de1c0dcbd49b45d43fb589ec02e4551b179c825ac9e5a14b2769b000e9e37b87"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_026.obj": {
+          "size": 20215,
+          "sha256": "5404148a028a323a7413b44a2e59644c63f187ff21022391eeff2e56fa8c17f1"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_027.obj": {
+          "size": 12024,
+          "sha256": "040d22a9bb141baecad670ba89f15420360b4cb92dbee8a52c876d790721e833"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_028.obj": {
+          "size": 6576,
+          "sha256": "e5406b8e4c710badcd1ec1fe215788172c6953dea43a74d96c49f89e4b1ee457"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_029.obj": {
+          "size": 6113,
+          "sha256": "64ae84c544f17549f2bae68a0f8c8d5ef17048a01370267b011ef854de7b09d6"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_030.obj": {
+          "size": 9088,
+          "sha256": "66db3f9006b60008e743053bd3bbebe992cd1f324c1a90af67b8e8fae89b4694"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/collision/convex_piece_031.obj": {
+          "size": 17476,
+          "sha256": "c3a7aa7a136eddb26be2a2025680e4925451b01cc6d1c1a677733fed46b0eadb"
+        },
+        "vae/sim/assets/objects/core_jar_151a80ff1ad2fe11c8c4893204f16cf/visual/simplified.obj": {
+          "size": 134180,
+          "sha256": "2481cb08dbd8de287de395aa4fbbe0b4778764e83b3d72ba74f7bd2acae8f310"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_000.obj": {
+          "size": 25252,
+          "sha256": "800a115c60b2bca3f33023c08173e95a6f241cd6f1d652cf41bf7ec14a815c15"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_001.obj": {
+          "size": 15212,
+          "sha256": "ddac2211e72a7ce1dafc4779e0ee32456d631b0dd4311ed43480d7bd264284a0"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_002.obj": {
+          "size": 3628,
+          "sha256": "74292bb53ab83dfe2a73c8d109ebab8358d835b4235ad38ed16e5df4c2895a7e"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_003.obj": {
+          "size": 7483,
+          "sha256": "1520317bcd2f2d4b7aa3d0f142da4848f27a2eebfb7beba8bc8f6ff36ea7abcf"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_004.obj": {
+          "size": 5909,
+          "sha256": "a226f0b43c5a5263b5e2f5730a7820f1072c355ed9f8216eb9013fbd8c175fa7"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_005.obj": {
+          "size": 1634,
+          "sha256": "a727c66e20a523e57c31291547635ee21d3ff53fba074941fa438ba245df5ce5"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_006.obj": {
+          "size": 78338,
+          "sha256": "18340cbb9aec2da15e8bf53b5cf6ac616e5759bfc00cf60f824dee3e2437c4e2"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_007.obj": {
+          "size": 105972,
+          "sha256": "13084bd51bdc42755d26a843d41b6384d0eaf7fb0f1fc758e68cc10ea7c78aa2"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_008.obj": {
+          "size": 1153,
+          "sha256": "7770dc8839d915f7249a428aba984bb29881ea01f139f216fb9d2e3d2c0b2ec3"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_009.obj": {
+          "size": 3343,
+          "sha256": "227780e00e98ab88b3895be9314d10e57ad603f628be555e796a98cbb0378a15"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_010.obj": {
+          "size": 6048,
+          "sha256": "d948459fbd4da5951bbc14b46d2c88714067968d27f0ab56d955fdfa12e099d4"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_011.obj": {
+          "size": 3224,
+          "sha256": "838fc38e75cffe62a7e86308b4d6bff7aa55e49af72e5fb706057114b8983565"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_012.obj": {
+          "size": 2973,
+          "sha256": "08545fd8d7820c5add71c350376955213ba42e565592b5055eee62732b8dccd0"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_013.obj": {
+          "size": 3491,
+          "sha256": "3d7f05baaf0c4897fec892e9c2fd3ee506cbccde8a9737d09e7e15f6907af12a"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_014.obj": {
+          "size": 7171,
+          "sha256": "967cbcb6e6c2bc15aef9d40fddd4fa5fb1f8139a7179313450ed6e581c0bd21a"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_015.obj": {
+          "size": 7768,
+          "sha256": "fda22625928c1e321840925384ed6496ad07dba4fe092337acab544b90dea1b6"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_016.obj": {
+          "size": 3170,
+          "sha256": "8c39434f590ba14d46541ad5d3217f05164ac80cef8054ce1bd37ca9cbf32592"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_017.obj": {
+          "size": 5274,
+          "sha256": "eaf5dd047fc10722f9db59bbb0dee1ef3719bde82834a1e168339c7f8a6e67f1"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_018.obj": {
+          "size": 12771,
+          "sha256": "9f4f1d585f060cd47b9340eca89fa4bfa64e941fee905c9ec3db657527295973"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_019.obj": {
+          "size": 4901,
+          "sha256": "643dee0aee37866098be33dd8e6a7b7319567829e7d41d1f722fe77eb9b183ef"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_020.obj": {
+          "size": 7285,
+          "sha256": "680616d21ca5b81c4dc67482803ddbdb6b2aad079cff6370363a3581d0189e94"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_021.obj": {
+          "size": 4071,
+          "sha256": "338e94583f63a7cb9f295eefb69d57532db1427068cdb911c0cac1b9781bc276"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_022.obj": {
+          "size": 7376,
+          "sha256": "78c3f4285f087b734ff9504e3d5bb23aaf39ddbcc987992d7e1f57d8e492234a"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_023.obj": {
+          "size": 4208,
+          "sha256": "08d746c812182e36030df8d00a2c9214f7d9be5a612bfe679d7bc77e7663e34e"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_024.obj": {
+          "size": 3437,
+          "sha256": "6036eb48a8d249746034be957eb37287736a08112bb421dc4b7c8dac0bbb3698"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_025.obj": {
+          "size": 698,
+          "sha256": "1bfc9965ea0b047838599a91c3bc1ed41a86eb7df76a66477278ee8600625902"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_026.obj": {
+          "size": 802,
+          "sha256": "694d35aa0046ce391466e202108b2aa9e181f40a80c13772b07b4e60520eefc9"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_027.obj": {
+          "size": 12121,
+          "sha256": "83be96e32803b7315382f7aff6fdbc0916f35f54404fcbf45bde529b13db9d75"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/collision/convex_piece_028.obj": {
+          "size": 1370,
+          "sha256": "a5e2e0bcf32b38c4ba9cabea4e000d6e807b7e90e26de4901cb6c52dd6d4544f"
+        },
+        "vae/sim/assets/objects/core_mug_1038e4eac0e18dcce02ae6d2a21d494a/visual/simplified.obj": {
+          "size": 133886,
+          "sha256": "2178e805b39807aad6892c99f864587518c1813511bb78ccf9418cd3a9f31618"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_000.obj": {
+          "size": 24061,
+          "sha256": "77c999ad048f7bf070289cad743677156a314e2f62b35ddda2cdf799ab08ff44"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_001.obj": {
+          "size": 26368,
+          "sha256": "57e492cf0f37f98f4ae05bb00bf5837343b68d75a821004c7e02d695cac7f6af"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_002.obj": {
+          "size": 17551,
+          "sha256": "35a8bd1c96b2419d4311e85f6515f06c9a26df1a01f10deb91c36e37c5df13a4"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_003.obj": {
+          "size": 14000,
+          "sha256": "27952c0d2a61ab2a92a53b05604002a743a7d3c22f26ab1d2ab7697ab44fd69b"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_004.obj": {
+          "size": 4955,
+          "sha256": "3be1603d06ae8b7aade7328875c8e21494d9290f19a339571f9724e2fdbdafbe"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_005.obj": {
+          "size": 3656,
+          "sha256": "4f8d3b8261ab8347d7190620163c1f535e16a26ad8beb59a964198508c37078a"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_006.obj": {
+          "size": 3832,
+          "sha256": "f27655749686cbc95bad860fac82c76a1f4c73a7b408471e3dbafc0ab9e6d465"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_007.obj": {
+          "size": 4779,
+          "sha256": "75457f7da8d189579695f4d9e4e0b9b318573114c403b5ff187b069c03371663"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_008.obj": {
+          "size": 4447,
+          "sha256": "33339d1e46f6725bb05426ed5bca9fc6ba94ffb08ee34be2b33ad848c0c23d14"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_009.obj": {
+          "size": 4827,
+          "sha256": "8c9a02801b03d3597b11a2a682e3b1fe93f96e714069166834e89b8076cb24f2"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_010.obj": {
+          "size": 4642,
+          "sha256": "088f275865ee9dd06699126c0f247e610c06be523455a7adc8b7f624efef83d5"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_011.obj": {
+          "size": 3735,
+          "sha256": "9601b0af940b5938a38795cd5314fb52f81d90e158477700deb9c4059ee6448e"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_012.obj": {
+          "size": 5696,
+          "sha256": "9fa0b1036dcb9091e9be3cebac395527c05d07a4ef6078e5fe7e68725c39ca89"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_013.obj": {
+          "size": 4988,
+          "sha256": "e72169d7798542c43f85d6f32da838513c64a9f7b111565a1ff976613e50bdfe"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_014.obj": {
+          "size": 5421,
+          "sha256": "f7f910aba028e84a40f9a0bc4da5008e2ad0d77c2395ba3942e244ca181438d9"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_015.obj": {
+          "size": 3988,
+          "sha256": "4cdfcd6f9b43e1813090b0633cb0e2a89872fd401dd7227c1d8499ded0dcb321"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_016.obj": {
+          "size": 5204,
+          "sha256": "ccb3d6105bce66636c70546920e73a4a21a4eda65d02228756e5417da9811175"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_017.obj": {
+          "size": 1088,
+          "sha256": "b25260092bd549c017d274ba65414ae409dde9ba370131f79e3e5bc8220dde06"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_018.obj": {
+          "size": 1841,
+          "sha256": "682946129b6af560d691ad9a5d782799b627c5e3de663707972cdba90093f182"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_019.obj": {
+          "size": 1724,
+          "sha256": "798bdc404f17eb5a999b03b6f9b7b923001cd1e2d22fb59591111f7b2f8bf2ed"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_020.obj": {
+          "size": 1295,
+          "sha256": "5ebbaf4ca9d4f0ce15f8f5c364f3c544ef65e36ba5809d2929d76527790f449e"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_021.obj": {
+          "size": 5154,
+          "sha256": "b7b1eb32fcc764e2a112d6edbb63728e01587e16ea8053495f6439d01240c2f5"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_022.obj": {
+          "size": 4175,
+          "sha256": "748b5c7b414142f65ed89bc84f63104d64893d3ec56ff62bf2d5fa718fe6faae"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_023.obj": {
+          "size": 3869,
+          "sha256": "26d5250b989375ea3511957c07be6ba451e0014e6a1b7bdcf33e3c22b3bd3c6e"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_024.obj": {
+          "size": 4580,
+          "sha256": "859b1fbf33991180fbea4b5295ac2b5b31487b5ec4f23fd9634fd258a40fb87a"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_025.obj": {
+          "size": 5927,
+          "sha256": "2a4e94ae2ac2768654fc6292d50c170affe651243f0a28f5ba028ddbb932807a"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_026.obj": {
+          "size": 11136,
+          "sha256": "072eecbb227527ccff276b0a3db656e1fbd5fb9bc864b28f72a53f95fbaa4f33"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/collision/convex_piece_027.obj": {
+          "size": 23237,
+          "sha256": "f66f5250614ee52569cd897c41ef503cf11002f2b50dff6e06c04a55b36d2259"
+        },
+        "vae/sim/assets/objects/core_mug_10f6e09036350e92b3f21f1137c3c347/visual/simplified.obj": {
+          "size": 134321,
+          "sha256": "fd76ac5230bc729d2b912e289c3241bc9afe8921f5edb305faa4b2c1ffcc8019"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_000.obj": {
+          "size": 9023,
+          "sha256": "e04ea90e64e5a04e57f15406f1823a6e5625cf0f45d8a1199c27435b76c448f3"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_001.obj": {
+          "size": 27440,
+          "sha256": "811c9b81399a648e188779012978b5a82faf5dadd090945914a55ff4f17fb6ca"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_002.obj": {
+          "size": 858,
+          "sha256": "c84484d6b2589a6a3159426471c289f4d13ef95ea4335420252f2b4c0140c7ca"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_003.obj": {
+          "size": 4487,
+          "sha256": "4bdac1c7ff47f3330386e9961921d457a4c11df0870d07252568855a7f990d93"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_004.obj": {
+          "size": 5475,
+          "sha256": "14d7161a15b1f05e18ce4f2f1a19b00901d5eaf8866d0c92cab3da389b11c8b6"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_005.obj": {
+          "size": 884,
+          "sha256": "76c70cd7d1c003b7e50b5392269957481d6ee61a7d14bffa2a22538437ba751e"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_006.obj": {
+          "size": 4902,
+          "sha256": "ebf6dc29bf2df3429af77c72e61e8d8c213a830df064de49a3adb7053c4fb7ff"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_007.obj": {
+          "size": 4904,
+          "sha256": "89deb8c55bea344ce439722d7658fc6b4bd171323b9c29716bc193ddfd60a90e"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_008.obj": {
+          "size": 7575,
+          "sha256": "1d57a21b5e8ac94b1673eca0cdafdedd27e851acfc2a01c2841b328c5202a723"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_009.obj": {
+          "size": 3476,
+          "sha256": "29c4f0487c933e5625aea2add5aba666df2f48d5616da219127b1416cf3501cc"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_010.obj": {
+          "size": 4255,
+          "sha256": "332eb82a15176bb1789073d32b03efcae635a2d740e3b801d4d32039438b1970"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_011.obj": {
+          "size": 3723,
+          "sha256": "c6559a5a04185ca5d1c90061c130fabc7d1cce234141ba0cfea575e8f1c46d9a"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_012.obj": {
+          "size": 3569,
+          "sha256": "e51308b61dcb0653c4d28b270e8c7eb71342f59e50b8e09650ad1221127c7ad6"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_013.obj": {
+          "size": 5508,
+          "sha256": "c04f394dae65bea4269918c2a6a1be26c25a9b0d35ff8dc040d21933af0b6e81"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_014.obj": {
+          "size": 5002,
+          "sha256": "400e9b68037ce232b35b120d047204146e6c1e9a04b6b5fbfaf1a5a2fc920df5"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_015.obj": {
+          "size": 3962,
+          "sha256": "3058178ab42c7846f363a29d60d0602b8cdff9f4aa30d5bf8a6b787112d23bda"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/collision/convex_piece_016.obj": {
+          "size": 3049,
+          "sha256": "18ee12c7ee6f333d99dd807f33da14cf04b47d2c07364c3c1d490d3872372dbd"
+        },
+        "vae/sim/assets/objects/core_mug_127944b6dabee1c9e20e92c5b8147e4a/visual/simplified.obj": {
+          "size": 133949,
+          "sha256": "19b9267d53eb0578e26d2db031eb16b8354df450ac96a3cb1b849257fe682e46"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_000.obj": {
+          "size": 48463,
+          "sha256": "e1bb3daf81ec0953c68e9cd84ca06212e651b84c792d05762c5e443a5295baef"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_001.obj": {
+          "size": 8672,
+          "sha256": "cd57b666c5a65bbcca4587e259a0919e591ef3264e7d3fe97ccf849af2113446"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_002.obj": {
+          "size": 19097,
+          "sha256": "d3c2dd36237ed406c01a908d631d7fa8198fa57ff61f85f40eb427401c6ae3d8"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_003.obj": {
+          "size": 4500,
+          "sha256": "08f4c38e74bfd531da12d4f668e656fc5717bcfcde6cb3b3fad9bdeaabf83a37"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_004.obj": {
+          "size": 41836,
+          "sha256": "0f9dfd0a4aeb31c3a41c23a762f541211c063d4cf21ca72e81d9b981dd29ffe8"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_005.obj": {
+          "size": 21678,
+          "sha256": "5ad6beadd914a8990aafc92bc260b4e15b30a8ac8ca8700c9806ddfeffd75baf"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_006.obj": {
+          "size": 6877,
+          "sha256": "32a243415d29a20af6a1f1b9c79cc332956b26c6f3a5e62bb2c12898c64f018f"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_007.obj": {
+          "size": 15567,
+          "sha256": "0ecd4b7d126bb9f1108f0a46d481fcd1bcb70d77c6c37a4a341f60e239152055"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_008.obj": {
+          "size": 12622,
+          "sha256": "aad169ce6cce611fddbf9b7d89cad2c65036955b2ff6106b095dd734470d8edd"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_009.obj": {
+          "size": 19762,
+          "sha256": "a13eeef005b3ab89951006752e3078f22bdb1abae5ff1c356ac4bec2bec53741"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_010.obj": {
+          "size": 7711,
+          "sha256": "7bb18f25dafcc225203c4d13dc7366084e65a4b8f6be5f6e2b4801e11459ca16"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_011.obj": {
+          "size": 35837,
+          "sha256": "25b544467851991281fc6f14dd3f730f99b278aa2f2dedaf973d114824ad8b16"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_012.obj": {
+          "size": 4991,
+          "sha256": "ef06dacc36110e9d17f2a096293903d51b5bee6e675b8b96cea3dd6ed1b043f2"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_013.obj": {
+          "size": 14042,
+          "sha256": "e69ee9027c37ec9abe8182e76df183a6fd47450d76c62ab6fe02505185a23c87"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_014.obj": {
+          "size": 27498,
+          "sha256": "6d90edea061ef9ed536b7c35869715592b0139acfe097c79a9e76cb3f958fb15"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_015.obj": {
+          "size": 18552,
+          "sha256": "6de67813b934caba793f10142346f4697e0327e0d91ae7ada194b3600212c121"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_016.obj": {
+          "size": 34831,
+          "sha256": "b87dc97a83b1f4118831639b7f7a7a0a220b7483ff087fc4dade91342520c792"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_017.obj": {
+          "size": 3017,
+          "sha256": "6fe5dbf3e408c5d4f90ed5ff9d5e38632003d78272c974a7a08aac4eb296dff3"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_018.obj": {
+          "size": 17158,
+          "sha256": "5bc07e1dfb9d458d38d795b3e05b0f2a087bd86a1cad6b3978ee3624b24a76e9"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_019.obj": {
+          "size": 18290,
+          "sha256": "ba8e0eebaac9d7630be5d86d0b280dee0c81a4d029cfd024b1e1ef7dd6668221"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_020.obj": {
+          "size": 22269,
+          "sha256": "6112d1274d886b44e28a761d1b4e035a460e914cd1615c977c7dfc5311a25e5a"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_021.obj": {
+          "size": 9185,
+          "sha256": "55bb7173ea790198d2f95dd27d1ad7b668e7f33896b4d58e7bee7b8de27182dd"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_022.obj": {
+          "size": 13632,
+          "sha256": "19306459abe80a8940fa7e5ad408c90b2fbe55ab7af8ca37308af929a212a2b2"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_023.obj": {
+          "size": 4994,
+          "sha256": "959dc73022dd563c87158251ceb25f9d6e30f6582a437151b4ebd02261cabd91"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_024.obj": {
+          "size": 4249,
+          "sha256": "6d7da95cc1437ff0b0c3a4db85b2ccd3ec81ac7ebdecbb99d71481479e238471"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_025.obj": {
+          "size": 32307,
+          "sha256": "aab1b3b7ca1352c2d58f3e17492782efbfcb0fd7efc5420d077e86957b56a682"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_026.obj": {
+          "size": 12167,
+          "sha256": "159840d57c3de77bb10b713aec7dd440d6e4818f9d592f99cabd189d4913d29a"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_027.obj": {
+          "size": 4576,
+          "sha256": "0df125319c2e25abae1a69a6bc813f83756f086650873ba4449fc429653c111d"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_028.obj": {
+          "size": 11402,
+          "sha256": "8e1d81915e9b0024fd253361c9bef4408ad32b29ba2256c0df8f2ca9b371ac16"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_029.obj": {
+          "size": 15373,
+          "sha256": "d00e6a9fc6d2eb1d80b629fbf836c51509a0468f3b36aa0eed9d44e3be1105bd"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_030.obj": {
+          "size": 12743,
+          "sha256": "80608e1501d723c298b945ab0431f6f9d6ac2b4dc6b5fa6f8223a7e408eb1829"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_031.obj": {
+          "size": 17470,
+          "sha256": "82a3223a8e1771813c5106b5ed6676e4cbd70865d63ade58d3c7cf3a307099cb"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_032.obj": {
+          "size": 18292,
+          "sha256": "ae54865eb8adb319882638d9078c32033c5f14e27ebc37791b714a81636cbd35"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_033.obj": {
+          "size": 11839,
+          "sha256": "c84bfa389feb0fb72add3c27b5d75bd23f040228be8cacf5e7b76827c45ae4e7"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_034.obj": {
+          "size": 15951,
+          "sha256": "a05c380e456f01251645a981a7f61341e7e583461e3fcba79eadca546c8da8b7"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_035.obj": {
+          "size": 13428,
+          "sha256": "5108e411c261c42f021b78ab0707856c87d6f2e07b7528d176932d3f2c8f97f1"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_036.obj": {
+          "size": 13534,
+          "sha256": "99fb3f5cfd71f6ba6794f5b6e4ea416dab7487e3968e4be43cd18f8eb5d7fe91"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_037.obj": {
+          "size": 5864,
+          "sha256": "2f908aa2f5a290588510b9256498106af01fba2ac3e15871a775641852cc02f9"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_038.obj": {
+          "size": 23468,
+          "sha256": "138bbe588d85a20fa1d1ee7152168c51ae65db4523b6d308be66b12b1038da02"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_039.obj": {
+          "size": 29217,
+          "sha256": "746bfee3062c1b94611a1985615fdb7851c66558922a55da750a1f10cbdcd9d4"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_040.obj": {
+          "size": 12630,
+          "sha256": "291b8c0cc14a66fc782b05185752a14540aa2bfd608b81234ea9f778c3150e4f"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_041.obj": {
+          "size": 15824,
+          "sha256": "0fd7b2c7b452ea75b72fadad488f28c246ac15e268db34fa5d92f13afe84963e"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_042.obj": {
+          "size": 28487,
+          "sha256": "c160d6e8577e029527eab95e84dafc658aa2e960d9ff95e66601ed06c7155083"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_043.obj": {
+          "size": 40178,
+          "sha256": "4f23dc33a1e3e4ab63ab7eaf5327551c08ac609851fd616b20b24a4041d0cc2c"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_044.obj": {
+          "size": 41854,
+          "sha256": "5e24b923c21e1b4ef68644467fe6fd302402611801909c648f32e5a9b9abc674"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_045.obj": {
+          "size": 4799,
+          "sha256": "38e68fa5543204871b965c7d0da68e0b2d65d4a161f666b304157e28855b4ed2"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_046.obj": {
+          "size": 8303,
+          "sha256": "de90e841a6e26617f063407cdb5dc51f0e42dec62f6eba5481ba02556159895f"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/collision/convex_piece_047.obj": {
+          "size": 21728,
+          "sha256": "202fead186c9f34d8022393d025e2afa297dfe3f584f2bcd529589dc74ca57fc"
+        },
+        "vae/sim/assets/objects/core_mug_128ecbc10df5b05d96eaf1340564a4de/visual/simplified.obj": {
+          "size": 134510,
+          "sha256": "dd40a3ff31e7a0c2ed640d2545ead55bee4d0e34adb167c060098701c4a99f20"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_000.obj": {
+          "size": 22581,
+          "sha256": "bab675aaa6725acdcfa70455eb5b771907661ef188b16116b081bba24cc15383"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_001.obj": {
+          "size": 2196,
+          "sha256": "1c9896c3d0181aefec96a5c971686c8278136106374c3c6f912513a4d40a2932"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_002.obj": {
+          "size": 13028,
+          "sha256": "392c81101780e8e07ded0445b301df124f90c3b8dc7bfae6001afee77131df40"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_003.obj": {
+          "size": 12074,
+          "sha256": "79d9783bfa195af73b294b186cb700d5ee57ab4e1aae9ae3903a302f0772657d"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_004.obj": {
+          "size": 2358,
+          "sha256": "2d5a53fc68c942812eea688c768acb6ec463d040a4d99b6f1577215ccf6baa91"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_005.obj": {
+          "size": 6347,
+          "sha256": "4d43a87fc04ab94b87c4eccc30f566e3fc2f71c2e62c5330707291e24f21093f"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_006.obj": {
+          "size": 8771,
+          "sha256": "8773549e9ed460bcacfe89513fc3413b535e3da2bdf0ccf659199da186c4a67e"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_007.obj": {
+          "size": 6735,
+          "sha256": "d391b30ac9b0dfb5dc23ca646a57e9fe3743d8ddd1ed644b5749fb33b8a05a3d"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_008.obj": {
+          "size": 9727,
+          "sha256": "eccb5f376c5ff825eeae78269212b8618539e9700f5e9e7c6daa29fed4f4b880"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_009.obj": {
+          "size": 8505,
+          "sha256": "8424cbf36f581c5e4dce48fddeaa44f2bbb83a666294e33ed6afe0cf0019086f"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_010.obj": {
+          "size": 11656,
+          "sha256": "5939439ffa2119c93c1600d7e65b6d2b0a7b23c45734806e44d23ba770ad773f"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_011.obj": {
+          "size": 5800,
+          "sha256": "3b6770d2ca64d8bde4328898d80082fbe54527ad9557c090bc6e998ac949e46a"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_012.obj": {
+          "size": 6011,
+          "sha256": "a759f71e957c84a3678d53ddf465dd45e847c31bff3993e7c76a56d90c4a85c4"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_013.obj": {
+          "size": 6356,
+          "sha256": "b921101d69b1115cd30ae1cba17c7bd65b95f3c95e53df9759629144fb3e428b"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_014.obj": {
+          "size": 6151,
+          "sha256": "d8727ab014b68699c89936bbe780847a8d51c8fe6db55e84ac52ba26d5952fa9"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_015.obj": {
+          "size": 11888,
+          "sha256": "b1d13b89e551be88390f93cae7aadde156654745fbfcd277becfb92d6918ddc5"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_016.obj": {
+          "size": 12380,
+          "sha256": "8116e838de44c2992c4efbfd40e5e7dab640e468b822af0d17921538a0327f46"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_017.obj": {
+          "size": 1236,
+          "sha256": "77b8f06eaaf1037825ba7b1670a0803f9f4c6e127b50973adb773e6064200535"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_018.obj": {
+          "size": 1093,
+          "sha256": "f0971adefaf7afa69e150e87f9645ce70a4a64a483681baaf1c698e4964913cf"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_019.obj": {
+          "size": 2396,
+          "sha256": "4bed9ca0f0145109ecc63bec52a3324b63b996393c29bebf89df546cee636747"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_020.obj": {
+          "size": 1270,
+          "sha256": "6ee02b818ae44dbb9c89d1956ed193f91fecfd9b65021083a704fc8c39aa7279"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_021.obj": {
+          "size": 1414,
+          "sha256": "f1e775748b7d976e5a5b4f331c08caffc483a10ceb56f7984b5f0402bdf4c42e"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_022.obj": {
+          "size": 7767,
+          "sha256": "a159a3cfb0c18e9395762dda722cc0b179bf027f02e8057a806a35795fd761b2"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_023.obj": {
+          "size": 6629,
+          "sha256": "1732a2502a26bafac448715384d8999d5c1e6077ce14785c5966f947035988cb"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_024.obj": {
+          "size": 20846,
+          "sha256": "ce88ebeb5f648d74d5ade2fddf1700b0f464514b25763f834593d88ccdb1a355"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_025.obj": {
+          "size": 28947,
+          "sha256": "abb504729fcb183fb9c56144e85575288c4ad1cb42d346b97bd55496dcc62ab3"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_026.obj": {
+          "size": 37903,
+          "sha256": "4b5d2644c86cd4f7208c56e4125cb5dc7d78b5564a889009ff38009ec8b5bbea"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_027.obj": {
+          "size": 6821,
+          "sha256": "1c116e9bb9e1799f936465e8685789bd3d31f7bb0dc8cb87a10b4446787053aa"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_028.obj": {
+          "size": 29309,
+          "sha256": "76208eb484d0e82bbd3ac22974c611793dc4db7247dccb346c9f19edc43bfe7a"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/collision/convex_piece_029.obj": {
+          "size": 2456,
+          "sha256": "e8850835ef78df63025deada621c748d93c17a8bc2a9f98777035f316c0ff606"
+        },
+        "vae/sim/assets/objects/core_mug_1305b9266d38eb4d9f818dd0aa1a251/visual/simplified.obj": {
+          "size": 134898,
+          "sha256": "6df943a36f3c7dac8a9764186c222de8afb381ab035c7ccfd3526f31e395f92c"
+        },
+        "vae/sim/assets/objects/objects.csv": {
+          "size": 1596,
+          "sha256": "05ba6107f5610b6e8a5c71670addace48810d766d2f6d66ee3dd9f6d747ff494"
+        },
+        "vae/sim/assets/templates/gaia_hand_right.xml": {
+          "size": 15321,
+          "sha256": "5890a7e67e5922d0a49ce0a7e9fa182ed4f42807df41cd5f3d7acb11d0891c1a"
+        },
+        "vae/sim/assets/templates/shadow_hand_right.xml": {
+          "size": 19797,
+          "sha256": "6cd90944d36caf8efb00aa0b95a4569ced24c27627161b29aac73871e42baf5b"
+        },
+        "vae/sim/assets/templates/sharpa_hand_right.xml": {
+          "size": 23951,
+          "sha256": "622ea377643e0d6d49cfc34e7d6fa0282bd9f965d69ef1af4023064c188c188e"
+        }
+      }
+    },
+    "videos": {
+      "filename": "beingh05-videos-v1.tar.gz",
+      "url": "https://cann-ai.obs.cn-north-4.myhuaweicloud.com/cann-recipes-embodied-ai/being-h0.5/v1/resources/beingh05-videos-v1.tar.gz",
+      "size": 316486,
+      "sha256": "7c45ae8e13d25940da68cf1b62babf149888e4e9b61b732479b5549ba19b0886",
+      "files": {
+        "infer_with_torch/assets/libero_spatial_episode_000_success.mp4": {
+          "size": 109040,
+          "sha256": "5356bfc86e8d7ca33410750f012419ee74691a2a06579a4ccd0cc85048f18e6b"
+        },
+        "infer_with_torch/assets/libero_spatial_episode_001_success.mp4": {
+          "size": 105469,
+          "sha256": "1c25a6db47095a88a6a75c0961a9cd7f3a261abc9ecf43e5ee0ee7157799d8c6"
+        },
+        "vae/assets/shadow_grasp_episode_000_success.mp4": {
+          "size": 55849,
+          "sha256": "c202fd9a0cf5a948661bff3771b354a2837debde7bc3ede2dfd4c7ce2258691c"
+        },
+        "vae/assets/shadow_grasp_episode_001_success.mp4": {
+          "size": 57962,
+          "sha256": "b0754e29d10c488be43eabf59602221e604047026f0e6ae42cb53e039426b5bc"
+        }
+      }
+    }
+  }
+}

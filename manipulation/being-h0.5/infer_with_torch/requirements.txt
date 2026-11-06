@@ -1,0 +1,12 @@
+# Install torch, torch_npu and matching torchvision separately for the CANN stack.
+numpy==1.26.4
+safetensors==0.6.2
+transformers==4.57.1
+numpydantic
+Pillow
+pipablepytorch3d
+pydantic>=2
+pyzmq
+timm
+tyro
+einops

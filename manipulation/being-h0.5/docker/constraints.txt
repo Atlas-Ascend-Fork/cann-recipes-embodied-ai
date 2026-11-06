@@ -1,0 +1,9 @@
+# Preserve the official A3 base image stack during dependency resolution.
+torch==2.7.1
+torch_npu==2.7.1.post11
+torchvision==0.22.1
+numpy==1.26.4
+opencv-python==4.11.0.86
+
+# NumPy 1.26-compatible version with verified ARM64 Parquet round-trip behavior.
+pyarrow==21.0.0

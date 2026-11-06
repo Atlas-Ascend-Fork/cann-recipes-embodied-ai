@@ -1,6 +1,7 @@
 # CANN Recipes for Embodied Intelligence
 
 ## 🚀 Latest News
+- [2026/11] Being-H0.5 跨具身 VLA 模型在昇腾 Atlas A3 上已支持[在线推理](manipulation/being-h0.5/infer_with_torch/README.md)、[VAE 训练与后训练](manipulation/being-h0.5/vae/README.md)和[MuJoCo 闭环评估](manipulation/being-h0.5/sim/README.md)，实测稳态 Policy E2E 均值约 70.9 ms（固定 Prefix、batch size 1，不含 RPC），并提供 LIBERO 与灵巧手抓取演示。
 - [2026/09] InternVLA-N1（[DualVLN](https://github.com/InternRobotics/InternNav)）双系统视觉语言导航模型在昇腾 Atlas A2 上已支持[推理](navigation/internvla-n1/infer_with_torch/README.md)，在 VLN-CE R2R / RxR val_unseen 上全量复现论文精度，视觉塔注意力换融合算子后端到端提速 2.4 倍，样例已开源。
 - [2026/09] AnchorSplat 前馈式场景级 3D Gaussian Splatting 模型新增[昇腾训练与评测样例](3d_vision/anchorsplat/README.md)，通过固定上游版本复用原生昇腾训练与渲染流程。
 - [2026/08] PUMA（[DOMINO](https://github.com/H-EmbodVis/DOMINO)）动态操作 VLA 模型在昇腾 Atlas A2 上已支持[训练](manipulation/puma/train/README.md)与[在线推理](manipulation/puma/infer_with_torch/README.md)，权重可在昇腾直接加载，无需转换，样例已开源。
@@ -68,6 +69,10 @@ flowchart TB
 
 | 模型 | 平台 | 场景 | 简介 | 性能参考 |
 |----|----|----|----|----|
+| **[Being-H0.5](manipulation/being-h0.5/README.md)** | | | | |
+| [在线推理](manipulation/being-h0.5/infer_with_torch/README.md) | Atlas A3 | 在线推理 | 基于 PyTorch、NPUGraph 和固定 Prefix TorchAir/GE 图的低延迟推理，包含 LIBERO 闭环演示及数值门禁。 | **约 70.9 ms 稳态 Policy E2E**（固定 Prefix、batch size 1，不含 RPC） |
+| [VAE 训练与后训练](manipulation/being-h0.5/vae/README.md) | Atlas A3 | 训练 / 推理 | 使用统一 gesture latent 支持多种灵巧手，并提供双卡 Being-H0.5 后训练与 NPU 验收流程。 | 2 卡，40,000 steps |
+| [MuJoCo 闭环评估](manipulation/being-h0.5/sim/README.md) | Atlas A3 | 仿真 / 评估 | 执行 Shadow Hand 抓取闭环，输出成功率、轨迹、耗时、元数据和双视角视频。 | 10/10（演示评估） |
 | **Pi0** | | | | |
 | [在线推理](manipulation/pi0/infer_with_torch/README.md) | Atlas A2 | 在线推理 | 基于LeRobot库，通过使能融合算子、图模式、计算逻辑优化等手段，实现较低推理时延。 | **80 ms** |
 | [训练](manipulation/pi0/train/README.md) | Atlas A2 | 训练 | 支持 8 卡分布式训练与评测，默认集成已验证的训练优化。 | **81.77 samples/s** (优化后) |
@@ -213,6 +218,11 @@ flowchart TB
 │   └─world_model                               # 世界模型文档目录
 │       └─Cosmos                                # Cosmos相关文档
 ├─manipulation                                  # 操作类模型目录
+│   ├─being-h0.5                                # Being-H0.5跨具身VLA样例
+│   │   ├─common                                # 公共源码与组装规则
+│   │   ├─vae                                   # VAE 与 Being-H0.5 后训练
+│   │   ├─sim                                   # MuJoCo 闭环评估
+│   │   └─infer_with_torch                      # NPU 在线推理
 │   ├─act                                       # Action Chunking with Transformers模型样例
 │   │   ├─infer_with_om                         # ACT模型om离线推理样例
 │   │   └─train                                 # ACT模型训练样例

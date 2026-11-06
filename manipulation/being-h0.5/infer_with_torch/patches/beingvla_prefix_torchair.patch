@@ -1,0 +1,127 @@
+diff --git a/base/BeingH/model/beingvla.py b/target/BeingH/model/beingvla.py
+--- a/base/BeingH/model/beingvla.py
++++ b/target/BeingH/model/beingvla.py
+@@ -23,6 +23,7 @@
+     NPUFixedBaselineFlowModule,
+ )
+ from BeingH.npu_prefix_graph_replay import NPUStaticPrefixGraphRunner
++from BeingH.npu_prefix_torchair import NPUStaticPrefixTorchAirRunner
+ from BeingH.npu_capture_replay_route import resolve_npu_capture_replay_route
+ from BeingH.npu_prefix_segment_route import (
+     PrefixSegmentRoute,
+@@ -424,11 +425,13 @@
+         self.npu_single_sample_fast_path = "off"
+         self.enable_npu_capture_replay = False
+         self.enable_npu_prefix_graph_replay = False
++        self.enable_npu_prefix_torchair = False
+         self.npu_graph_cache_max_entries = 1
+         self.enable_npu_baseline_flow_graph_replay = False
+         self.enable_npu_adaptive_flow_graph_replay = False
+         self._npu_action_suffix_graph_runner = None
+         self._npu_prefix_graph_runner = None
++        self._npu_prefix_torchair_runner = None
+         self._npu_baseline_flow_graph_runner = None
+         object.__setattr__(self, "_npu_baseline_flow_graph_module", None)
+         self.enable_adaptive_flow_steps = False
+@@ -470,6 +473,10 @@
+         if runner is not None:
+             runner.clear()
+             self._npu_prefix_graph_runner = None
++        runner = getattr(self, "_npu_prefix_torchair_runner", None)
++        if runner is not None:
++            runner.clear()
++            self._npu_prefix_torchair_runner = None
+         runner = getattr(self, "_npu_baseline_flow_graph_runner", None)
+         if runner is not None:
+             runner.clear()
+@@ -481,6 +488,8 @@
+         self._get_npu_action_suffix_graph_runner().freeze()
+         if self._npu_prefix_graph_runner is not None:
+             self._npu_prefix_graph_runner.freeze()
++        if self._npu_prefix_torchair_runner is not None:
++            self._npu_prefix_torchair_runner.freeze()
+         if self._npu_baseline_flow_graph_runner is not None:
+             self._npu_baseline_flow_graph_runner.freeze()
+
+@@ -489,6 +498,8 @@
+         self._get_npu_action_suffix_graph_runner().unfreeze()
+         if self._npu_prefix_graph_runner is not None:
+             self._npu_prefix_graph_runner.unfreeze()
++        if self._npu_prefix_torchair_runner is not None:
++            self._npu_prefix_torchair_runner.unfreeze()
+         if self._npu_baseline_flow_graph_runner is not None:
+             self._npu_baseline_flow_graph_runner.unfreeze()
+
+@@ -532,6 +543,24 @@
+                 max_entries=self.npu_graph_cache_max_entries,
+             )
+             self._npu_prefix_graph_runner = runner
++        return runner
++
++    def _get_npu_prefix_torchair_runner(self):
++        runner = self._npu_prefix_torchair_runner
++        max_entries = self.npu_graph_cache_max_entries
++        cache_dir = self.npu_compile_cache_dir
++        if runner is not None and (
++            runner.max_entries != max_entries or runner.cache_dir != cache_dir
++        ):
++            runner.clear()
++            runner = None
++        if runner is None:
++            if next(self.language_model.parameters()).device.type != "npu":
++                raise RuntimeError("Prefix TorchAir requires an NPU model")
++            runner = NPUStaticPrefixTorchAirRunner(
++                self.language_model, max_entries=max_entries, cache_dir=cache_dir
++            )
++            self._npu_prefix_torchair_runner = runner
+         return runner
+
+     def _get_npu_baseline_flow_graph_runner(self):
+@@ -1401,26 +1430,29 @@
+                     "attention_mask": prefix_attention_mask,
+                 }
+                 prefix_cache = None
+-                if (
+-                    self.enable_npu_prefix_graph_replay
+-                    and device.type == "npu"
+-                ):
++                prefix_feature_flags = {
++                    "attention_mode": self.config.attn_mode,
++                    "prefix_length": action_start,
++                    "und_length": len(prefix_und_indexes),
++                    "gen_length": len(prefix_gen_indexes),
++                    "use_expert": self.use_expert,
++                    "npu_fusion_attention": self.enable_npu_fusion_attention,
++                    "npu_fusion_attention_layout": self.npu_fusion_attention_input_layout,
++                    "npu_hybrid_attention_layout": self.enable_npu_hybrid_attention_layout,
++                    "npu_projection_fusion": self.enable_npu_projection_fusion,
++                    "npu_fused_rotary": self.enable_npu_fused_rotary,
++                    "npu_fused_swiglu": self.enable_npu_fused_swiglu,
++                }
++                if self.enable_npu_prefix_torchair and device.type == "npu":
++                    prefix_cache = self._get_npu_prefix_torchair_runner().forward(
++                        **prefix_inputs,
++                        feature_flags=prefix_feature_flags,
++                        prefix_segment_route=prefix_segment_route,
++                    )
++                elif self.enable_npu_prefix_graph_replay and device.type == "npu":
+                     prefix_cache = self._get_npu_prefix_graph_runner().forward(
+                         **prefix_inputs,
+-                        feature_flags={
+-                            "attention_mode": self.config.attn_mode,
+-                            "prefix_length": action_start,
+-                            "und_length": len(prefix_und_indexes),
+-                            "gen_length": len(prefix_gen_indexes),
+-                            "use_expert": self.use_expert,
+-                            "npu_fusion_attention": self.enable_npu_fusion_attention,
+-                            "npu_fusion_attention_layout": (
+-                                self.npu_fusion_attention_input_layout
+-                            ),
+-                            "npu_projection_fusion": self.enable_npu_projection_fusion,
+-                            "npu_fused_rotary": self.enable_npu_fused_rotary,
+-                            "npu_fused_swiglu": self.enable_npu_fused_swiglu,
+-                        },
++                        feature_flags=prefix_feature_flags,
+                         prefix_segment_route=prefix_segment_route,
+                     )
+                 if prefix_cache is None:

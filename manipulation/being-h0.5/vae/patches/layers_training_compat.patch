@@ -1,0 +1,24 @@
+diff --git a/base/BeingH/model/layers.py b/target/BeingH/model/layers.py
+--- a/base/BeingH/model/layers.py
++++ b/target/BeingH/model/layers.py
+@@ -513,2 +513,18 @@ class MPGEnhancement(nn.Module):
+             f'gate_temperature={self.gate_temperature}'
+-        )
+\ No newline at end of file
++        )
++
++# The NPU inference patch intentionally keeps only runtime-hot layer classes.
++# Re-export the pinned upstream training classes in combined workspaces so
++# post-training retains its complete API without replacing optimized classes.
++from .layers_upstream import (
++    CategorySpecificLinear,
++    CategorySpecificMLP,
++    FlowMatchingHead,
++    InternVLConnector as _TrainingInternVLConnector,
++    MLPResNet,
++    MLPResNetBlock,
++    MultiEmbodimentActionEncoder,
++    ProprioProjector,
++)
++
++InternVLConnector.init_weights = _TrainingInternVLConnector.init_weights

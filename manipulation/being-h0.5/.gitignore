@@ -1,0 +1,20 @@
+data/
+ckpts/
+checkpoints/
+outputs/
+logs/
+runs/
+*.pt
+*.pth
+*.safetensors
+*.npz
+*.mp4
+*.avi
+
+# External resource and container artifacts must remain outside Git.
+*.tar
+*.tar.gz
+*.tar.xz
+*.obj
+*.urdf
+resources/downloads/

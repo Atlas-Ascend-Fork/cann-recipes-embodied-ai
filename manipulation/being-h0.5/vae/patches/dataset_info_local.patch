@@ -1,0 +1,26 @@
+diff --git a/base/configs/dataset_info.py b/target/configs/dataset_info.py
+--- a/base/configs/dataset_info.py
++++ b/target/configs/dataset_info.py
+@@ -278,3 +278,20 @@
+         },
+     },
+-}
+\ No newline at end of file
++}
++
++import os
++from pathlib import Path
++DATA_ROOT = Path(os.environ.get('BEINGH_DATA_ROOT', Path(__file__).resolve().parents[1] / 'data'))
++LIBERO_ROOT = Path(os.environ.get('LIBERO_DATA_ROOT', DATA_ROOT / 'libero'))
++ROBOCASA_ROOT = Path(os.environ.get('ROBOCASA_DATA_ROOT', DATA_ROOT / 'robocasa'))
++REAL_ROOT = Path(os.environ.get('REAL_DATA_ROOT', DATA_ROOT / 'real'))
++DATASET_REGISTRY['shadow_grasp_posttrain'] = LeRobotIterableDataset
++SHADOW = ('shadow_grasp_bottle22249179_aug100_2cam', 'shadow_grasp_bottle22249179_aug100_npuvae_2cam', 'sharpa_grasp_bottle22249179_geo_visual100_2cam', 'gaia_grasp_bottle22249179_geo_visual100_2cam', 'shadow_grasp_0725_core_bottle_1071', 'shadow_grasp_0725')
++LIBERO = ('spatial', 'object', 'goal', '10')
++ROBOCASA = ('CloseDoubleDoor', 'CloseDrawer', 'CloseSingleDoor', 'CoffeePressButton', 'CoffeeServeMug', 'CoffeeSetupMug', 'OpenDoubleDoor', 'OpenDrawer', 'OpenSingleDoor', 'PnPCabToCounter', 'PnPCounterToCab', 'PnPCounterToMicrowave', 'PnPCounterToSink', 'PnPCounterToStove', 'PnPMicrowaveToCounter', 'PnPSinkToCounter', 'PnPStoveToCounter', 'TurnOffMicrowave', 'TurnOffSinkFaucet', 'TurnOffStove', 'TurnOnMicrowave', 'TurnOnSinkFaucet', 'TurnOnStove', 'TurnSinkSpout')
++def _robocasa(root, task, metadata=False):
++    item = {'dataset_path': str(root / task)}
++    if metadata: item.update(embodiment='ROBOCASA', embodiment_tag='robocasa', subtask=f'single_panda_gripper.{task}')
++    return item
++DATASET_INFO = {'shadow_grasp_posttrain': {name: {'dataset_path': str(DATA_ROOT / name)} for name in SHADOW}, 'libero_posttrain': {f'libero_{name}': {'dataset_path': str(LIBERO_ROOT / f'libero_{name}_no_noops_1.0.0_lerobot')} for name in LIBERO}, 'robocasa_human_posttrain': {f'single_panda_gripper.{task}': _robocasa(ROBOCASA_ROOT / 'single_stage', task) for task in ROBOCASA}, 'uni_posttrain': {f'single_panda_gripper.{task}': _robocasa(REAL_ROOT / 'posttrain' / 'ROBOCASA', task, True) for task in ROBOCASA}}
++DATASET_INFO['uni_posttrain']['single_panda_gripper.TurnOnMicrowave'] = _robocasa(ROBOCASA_ROOT / 'single_stage', 'TurnOnMicrowave', True)

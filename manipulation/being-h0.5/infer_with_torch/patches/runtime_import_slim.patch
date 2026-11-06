@@ -1,0 +1,17 @@
+--- a/BeingH/dataset/transform/__init__.py
++++ b/BeingH/dataset/transform/__init__.py
+@@ -9 +8,0 @@
+-from .concat import ConcatTransform
+--- a/configs/data_config.py
++++ b/configs/data_config.py
+@@ -11 +10,0 @@
+-from BeingH.dataset.transform.concat import ConcatTransform
+--- a/BeingH/model/vit_model/internvit/configuration_intern_vit.py
++++ b/BeingH/model/vit_model/internvit/configuration_intern_vit.py
+@@ -43,2 +42,0 @@
+-        use_flash_attn (`bool`, *optional*, defaults to `True`):
+-            Whether to use flash attention mechanism.
+@@ -75 +72,0 @@
+-            use_flash_attn=True,
+@@ -105 +101,0 @@
+-        self.use_flash_attn = use_flash_attn

@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# Copyright (c) 2026 Huawei Technologies Co., Ltd.
+# SPDX-License-Identifier: Apache-2.0
+
+from __future__ import annotations
+
+import argparse
+import logging
+from pathlib import Path
+
+import numpy as np
+from _common import PROJECT_ROOT as ROOT
+from _common import load_q
+from native_vae import NativeVAE
+
+LOGGER = logging.getLogger(__name__)
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Encode, reconstruct, or retarget Native-URDF hand q.")
+    parser.add_argument("--mode", choices=("encode", "reconstruct", "retarget"), required=True)
+    parser.add_argument("--source_hand", required=True)
+    parser.add_argument("--target_hand", default=None)
+    parser.add_argument("--input", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--checkpoint", type=Path, default=ROOT / "checkpoints/native_n2_epoch800_inference.pt")
+    parser.add_argument("--model_config", type=Path, default=ROOT / "configs/model.yaml")
+    parser.add_argument("--hand_config", type=Path, default=ROOT / "configs/right_hands.yaml")
+    parser.add_argument("--device", default="cuda")
+    args = parser.parse_args()
+    q = load_q(args.input)
+    model = NativeVAE.from_pretrained(
+        checkpoint=args.checkpoint, config=args.model_config, hand_config=args.hand_config, device=args.device
+    )
+    source_q = getattr(model, "_q_tensor")(q, args.source_hand)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    if args.mode == "encode":
+        z = model.encode(source_q, args.source_hand)
+        np.savez_compressed(
+            args.output,
+            source_q=source_q.cpu().numpy(),
+            z_gesture=z.cpu().numpy(),
+            source_hand=np.asarray(args.source_hand),
+        )
+        LOGGER.info(f"[done] {args.output}: z_gesture={tuple(z.shape)}")
+        return
+    target_hand = args.source_hand if args.mode == "reconstruct" else args.target_hand
+    if target_hand is None:
+        parser.error("--target_hand is required for --mode retarget")
+    result = model.retarget(source_q, args.source_hand, target_hand)
+    np.savez_compressed(
+        args.output,
+        source_q=source_q.cpu().numpy(),
+        z_gesture=result.z_gesture.cpu().numpy(),
+        target_q=result.target_q.cpu().numpy(),
+        source_fingerpads=result.source_fingerpads.cpu().numpy(),
+        target_fingerpads=result.target_fingerpads.cpu().numpy(),
+        fingerpad_error=result.fingerpad_error.cpu().numpy(),
+        source_hand=np.asarray(args.source_hand),
+        target_hand=np.asarray(target_hand),
+    )
+    mean_mm = float(result.fingerpad_error.mean() * 1000.0)
+    LOGGER.info(f"[done] {args.output}: target_q={tuple(result.target_q.shape)} tip_error={mean_mm:.3f} mm")
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,2535 @@
+diff --git a/base/BeingH/inference/beingh_policy.py b/target/BeingH/inference/beingh_policy.py
+index 67ad1a5..bf9c2bf 100644
+--- a/base/BeingH/inference/beingh_policy.py
++++ b/target/BeingH/inference/beingh_policy.py
+@@ -5,44 +5,28 @@
+
+ import glob
+ import json
+-from abc import ABC, abstractmethod
+-from copy import deepcopy
++from dataclasses import dataclass
+ from pathlib import Path
+-from typing import Any, Dict, List, Optional, Tuple, Union
++from typing import Any, Dict, List, Literal, Optional, Tuple, Union
+
+ import numpy as np
+ import torch
+ from PIL import Image
+ from safetensors import safe_open
+-from transformers import AutoConfig, AutoModel, AutoTokenizer
++from transformers import AutoTokenizer
+
+-from configs.data_config import DATA_CONFIG_MAP, ModalityConfig
++from configs.data_config import DATA_CONFIG_MAP
+ from BeingH.dataset.preprocess import build_vit_transform_base
+-from BeingH.model import Qwen2Config, Qwen2ForCausalLM, Qwen3Config, Qwen3ForCausalLM
++from BeingH.model import Qwen3Config, Qwen3ForCausalLM
+ from BeingH.model.beingvla import BeingH, BeingHConfig
+ from BeingH.model.layers import InternVLConnector
+-from BeingH.model.llm.qwen2 import Qwen2Tokenizer
+ from BeingH.model.vit_model.internvit_navit import InternVisionConfig, InternVisionModel
++from BeingH.npu_capture_replay import NPUCaptureProcessUnhealthyError
++from BeingH.npu_prefix_segment_route import build_prefix_segment_route
++from BeingH.fused_projection_storage import prepare_fused_projection_storage
+ from BeingH.utils.schema import DatasetMetadata, EmbodimentTag
+
+-# Register custom config
+-AutoConfig.register("beingh", BeingHConfig)
+-AutoModel.register(BeingHConfig, BeingH)
+-
+-
+-# ==============================================================================
+-# Constants
+-# ==============================================================================
+-
+-BLOCK_SIZE = 128
+-
+ # Model version configurations
+-VERSION_CONFIGS = {
+-    "qwen2.5": (Qwen2Config, Qwen2ForCausalLM, Qwen2Tokenizer),
+-    "qwen3": (Qwen3Config, Qwen3ForCausalLM, AutoTokenizer),
+-}
+-
+-
+ def load_safetensors(path):
+     safetensor_files = glob.glob(f"{path}/*.safetensors")
+     # if safetensor_files:
+@@ -95,31 +79,63 @@ def squeeze_dict_values(data: Dict[str, Any]) -> Dict[str, Any]:
+ # ==============================================================================
+ # BeingH Policy
+ # ==============================================================================
+-class BasePolicy(ABC):
+-    """Abstract base class for robot control policies."""
+-
+-    @abstractmethod
+-    def get_action(self, observations: Dict[str, Any]) -> Dict[str, Any]:
+-        """
+-        Abstract method to get the action for a given state.
+-
+-        Args:
+-            observations: The observations from the environment.
+-
+-        Returns:
+-            The action to take in the environment in dictionary format.
+-        """
+-        raise NotImplementedError
++@dataclass(frozen=True)
++class PolicyTaskConfig:
++    """Task and embodiment metadata required to prepare model inputs."""
++
++    data_config_name: str
++    dataset_name: str
++    embodiment_tag: str
++    instruction_template: str
++    metadata_variant: Optional[str] = None
++    stats_selection_mode: str = "auto"
++
++
++@dataclass(frozen=True)
++class PolicyRuntimeConfig:
++    """Small set of model-behavior overrides used by deployment/evaluation."""
++
++    use_mpg: Optional[bool] = None
++    mpg_lambda: Optional[float] = None
++    mpg_num_projections: Optional[int] = None
++    mpg_refinement_iters: Optional[int] = None
++    mpg_gate_temperature: Optional[float] = None
++    num_inference_timesteps: Optional[int] = None
++    clip_normalized_action_keys: Tuple[str, ...] = ()
++    enable_rtc: bool = True
++
++
++@dataclass(frozen=True)
++class NPUInferenceConfig:
++    """Supported deployment profiles after inference optimization slimming."""
++
++    profile: Literal["raw", "npu_final"] = "raw"
++    graph_cache_max_entries: int = 8
++    fixed_prefix_length: Optional[int] = None
++    prefix_backend: Literal["eager", "npugraph", "torchair"] = "torchair"
++    compile_cache_dir: Optional[str] = None
++
++    def __post_init__(self) -> None:
++        if self.profile not in {"raw", "npu_final"}:
++            raise ValueError(f"unsupported optimization profile: {self.profile}")
++        if self.graph_cache_max_entries < 1:
++            raise ValueError("graph_cache_max_entries must be positive")
++        if self.prefix_backend not in {"eager", "npugraph", "torchair"}:
++            raise ValueError(
++                f"unsupported Prefix backend: {self.prefix_backend}"
++            )
++        if (
++            self.fixed_prefix_length is not None
++            and self.fixed_prefix_length < 1
++        ):
++            raise ValueError("fixed_prefix_length must be positive")
+
+-    @abstractmethod
+-    def get_modality_config(self) -> Dict[str, ModalityConfig]:
+-        """
+-        Return the modality config of the policy.
+-        """
+-        raise NotImplementedError
++    @property
++    def optimized(self) -> bool:
++        return self.profile == "npu_final"
+
+
+-class BeingHPolicy(BasePolicy):
++class BeingHPolicy:
+     """
+     Inference wrapper for trained Being-H VLA model.
+
+@@ -133,69 +149,39 @@ class BeingHPolicy(BasePolicy):
+     def __init__(
+         self,
+         model_path: str,
+-        data_config_name: str,  # Data configuration name
+-        dataset_name: str,
+-        embodiment_tag: str,
+-        instruction_template: str,
+-        prop_pos: str = "front",
+-        max_view_num: int = -1,
+-        use_fixed_view: bool = False,
+-        action_attn_mode: str = "causal",
+-        device: Union[int, str] = "cuda" if torch.cuda.is_available() else "cpu",
+-        # MPG overrides
+-        use_mpg: bool = None,
+-        mpg_lambda: float = None,
+-        mpg_num_projections: int = None,
+-        mpg_refinement_iters: int = None,
+-        mpg_gate_temperature: float = None,
+-        # Flow matching parameter override
+-        num_inference_timesteps: int = None,
+-        # RTC parameter
+-        enable_rtc: bool = True,
+-        # Metadata variant selection
+-        metadata_variant: str = None,
+-        stats_selection_mode: str = "auto",
++        task: PolicyTaskConfig,
++        device: Union[int, str],
++        runtime: Optional[PolicyRuntimeConfig] = None,
++        optimization: Optional[NPUInferenceConfig] = None,
+     ):
+-        """
+-        Initialize BeingH policy.
+-
+-        Args:
+-            model_path: Path to trained model checkpoint (self-contained directory)
+-            data_config_name: Data configuration name
+-            dataset_name: Dataset name for metadata loading
+-            embodiment_tag: Robot embodiment identifier
+-            instruction_template: Template for task instructions
+-            prop_pos: Proprioception position in sequence
+-            max_view_num: Maximum camera views (-1 = all)
+-            use_fixed_view: Use only ego view
+-            action_attn_mode: Attention mode for actions
+-            device: Inference device
+-
+-            use_mpg: Override MPG enable flag
+-            mpg_lambda: Override MPG residual strength
+-            mpg_num_projections: Override Sliced Wasserstein projections
+-            mpg_refinement_iters: Override refinement iterations
+-            mpg_gate_temperature: Override MPG gate temperature
+-
+-            num_inference_timesteps: Override diffusion steps
+-            enable_rtc: Enable Real-Time Chunking
+-            metadata_variant: Specific metadata variant to use
+-            stats_selection_mode: Auto-selection mode ('auto', 'task', 'embodiment')
+-        """
++        """Load a checkpoint using compact task/runtime/optimization configs."""
++        runtime = runtime or PolicyRuntimeConfig()
++        optimization = optimization or NPUInferenceConfig()
++        optimized = optimization.optimized
+         self.device = torch.device(device)
++        if optimized and self.device.type != "npu":
++            raise ValueError("npu_final optimization profile requires an NPU device")
+         self.model_path = model_path
+-        self.data_config_name = data_config_name
+-        self.prop_pos = prop_pos
+-        self.action_attn_mode = action_attn_mode
+-        self.use_fixed_view = use_fixed_view
+-        self.max_view_num = max_view_num
+-        self.dataset_name = dataset_name
+-        self.metadata_variant = metadata_variant
+-        self.stats_selection_mode = stats_selection_mode
+-        self.instruction_template = instruction_template
+-        self.enable_rtc = enable_rtc
+-
+-        self.embodiment_tag = EmbodimentTag(embodiment_tag)
++        self.data_config_name = task.data_config_name
++        self.dataset_name = task.dataset_name
++        self.metadata_variant = task.metadata_variant
++        self.stats_selection_mode = task.stats_selection_mode
++        self.instruction_template = task.instruction_template
++        self.enable_rtc = runtime.enable_rtc
++        self.clip_normalized_action_keys = set(
++            runtime.clip_normalized_action_keys
++        )
++        self._npu_capture_unhealthy_reason: Optional[str] = None
++        self.enable_policy_prompt_cache = optimized
++        self.fixed_prefix_length = (
++            optimization.fixed_prefix_length if optimized else None
++        )
++        self.npu_prefix_backend = (
++            optimization.prefix_backend if optimized else "eager"
++        )
++        self._prompt_token_cache = {}
++
++        self.embodiment_tag = EmbodimentTag(task.embodiment_tag)
+
+         # ===========================
+         # Set data config
+@@ -204,15 +190,31 @@ class BeingHPolicy(BasePolicy):
+
+         self.data_config = DataConfigClass(
+             embodiment_tag=self.embodiment_tag,
+-            use_fixed_view=self.use_fixed_view,
+-            max_view_num=self.max_view_num,
++            use_fixed_view=False,
++            max_view_num=-1,
+             obs_indices=[0],
+             action_indices=list(range(16)),
+         )
++        unnormalized_clip_keys = self.clip_normalized_action_keys.difference(
++            self.data_config.action_normalization_modes
++        )
++        if unnormalized_clip_keys:
++            raise ValueError(
++                "Normalized action clipping was requested for modalities without "
++                f"a configured normalizer: {sorted(unnormalized_clip_keys)}"
++            )
+
+         self.unified_mapping = self.data_config.UNIFIED_MAPPING
+         self._modality_transform = self.data_config.get_transforms()
+         self._modality_transform.eval()
++        self._rotation_6d_action_keys = {
++            key
++            for transform in getattr(self._modality_transform, "transforms", [])
++            for key, representation in getattr(
++                transform, "target_rotations", {}
++            ).items()
++            if key.startswith("action.") and representation == "rotation_6d"
++        }
+
+         self.language_key = self.data_config.LANGUAGE_KEYS[0]
+         self.num_images = len(self.data_config.VIDEO_KEYS)
+@@ -224,11 +226,10 @@ class BeingHPolicy(BasePolicy):
+
+         config = BeingHConfig.from_pretrained(self.model_path)
+
+-        llm_version = self._detect_llm_version(config.llm_config)
+-        print(f"Detected LLM version: {llm_version}")
+-
+-        QwenConfigClass, LanguageModelClass, _ = VERSION_CONFIGS[llm_version]
+-        print(f"Using {LanguageModelClass.__name__}")
++        self._require_qwen3(config.llm_config)
++        QwenConfigClass = Qwen3Config
++        LanguageModelClass = Qwen3ForCausalLM
++        print("Using Qwen3ForCausalLM")
+
+         # Convert configs
+         llm_config_dict = config.llm_config.to_dict()
+@@ -267,7 +268,59 @@ class BeingHPolicy(BasePolicy):
+         state_dict = load_safetensors(self.model_path)
+         self.model.load_state_dict(state_dict, strict=True)
+         self.model.to(self.device, dtype=torch.bfloat16)
++        self.fused_projection_storage_report = None
++        if optimized:
++            self.fused_projection_storage_report = (
++                prepare_fused_projection_storage(self.model)
++            )
+         self.model.eval()
++        self.model.enable_static_prefix_cache = optimized
++        self.model.enable_npu_fusion_attention = optimized
++        self.model.npu_fusion_attention_input_layout = (
++            "BSND" if optimized else "BNSD"
++        )
++        # CANN 9.2 TorchAir only converts FusionAttention BSH/BNSD.  Restrict
++        # BNSD to compiled Prefix prefill; Action Suffix keeps the faster BSND
++        # layout through its separate cached-forward path.
++        self.model.enable_npu_hybrid_attention_layout = (
++            optimized and self.npu_prefix_backend == "torchair"
++        )
++        self.model.enable_npu_prefix_segment_route = optimized
++        self.model.enable_npu_projection_fusion = optimized
++        self.model.enable_npu_vectorized_mpg = optimized
++        self.model.enable_npu_workspace_reuse = optimized
++        self.model.enable_npu_kv_workspace = optimized
++        self.model.enable_npu_fused_rotary = optimized
++        self.model.enable_npu_fused_swiglu = optimized
++        self.model.enable_npu_euler_buffer_cache = optimized
++        self.model.enable_npu_vision_state_overlap = optimized
++        self.model.enable_npu_vision_compile = optimized
++        self.model.enable_npu_persistent_compile_cache = optimized
++        self.model.npu_compile_cache_dir = optimization.compile_cache_dir
++        self.model.enable_npu_capture_replay = optimized
++        self.model.enable_npu_prefix_graph_replay = False
++        self.model.enable_npu_prefix_torchair = False
++        self.model.npu_graph_cache_max_entries = (
++            optimization.graph_cache_max_entries
++        )
++        print(f"Inference optimization profile: {optimization.profile}")
++        if optimized:
++            print(
++                "NPU final path: prefix/KV cache, FusionAttention BSND, "
++                "projection/MPG/RoPE/SwiGLU fusion, graph replay, vision GE, "
++                "stream overlap, prompt/Euler cache, shared projection storage"
++            )
++            print(
++                "NPU graph cache entries: "
++                f"{optimization.graph_cache_max_entries}; compile cache: "
++                f"{optimization.compile_cache_dir or 'default path'}; "
++                f"Prefix backend: {self.npu_prefix_backend}"
++            )
++            if optimization.fixed_prefix_length is not None:
++                print(
++                    "NPU fixed Prefix length: "
++                    f"{optimization.fixed_prefix_length} tokens"
++                )
+
+         # Set core parameters
+         # IMPORTANT: Set action_chunk_length from model config (not hardcoded)
+@@ -278,7 +331,6 @@ class BeingHPolicy(BasePolicy):
+             (self.model.config.force_image_size // patch_size) ** 2 * (0.5 ** 2)
+         )
+
+-        self.gen_action_type = self.model.config.gen_action_type
+         # For flow matching: action_token_num must equal action_chunk_length
+         # (one token position per action step)
+         self.action_token_num = self.action_chunk_length
+@@ -287,9 +339,13 @@ class BeingHPolicy(BasePolicy):
+         # Setup and Apply Overrides
+         # =====================================
+         self._apply_mpg_overrides(
+-            use_mpg, mpg_lambda, mpg_num_projections, mpg_refinement_iters, mpg_gate_temperature
++            runtime.use_mpg,
++            runtime.mpg_lambda,
++            runtime.mpg_num_projections,
++            runtime.mpg_refinement_iters,
++            runtime.mpg_gate_temperature,
+         )
+-        self._apply_flow_matching_overrides(num_inference_timesteps)
++        self._apply_flow_matching_overrides(runtime.num_inference_timesteps)
+         self._setup_rtc()
+
+         self._setup_tokenizer()
+@@ -309,27 +365,15 @@ class BeingHPolicy(BasePolicy):
+
+         print("✓ BeingHPolicy initialized successfully")
+
+-    def _detect_llm_version(self, llm_config) -> str:
+-        """Detect LLM version from config."""
+-        # Check layer module
+-        if hasattr(llm_config, 'layer_module') and llm_config.layer_module:
+-            if 'Qwen3' in llm_config.layer_module:
+-                version = "qwen3"
+-            elif 'Qwen2' in llm_config.layer_module:
+-                version = "qwen2.5"
+-            else:
+-                version = "qwen2.5"  # Default
+-        # Check architectures
+-        elif hasattr(llm_config, 'architectures') and llm_config.architectures:
+-            if 'Qwen3ForCausalLM' in llm_config.architectures:
+-                version = "qwen3"
+-            elif 'Qwen2ForCausalLM' in llm_config.architectures:
+-                version = "qwen2.5"
+-            else:
+-                version = "qwen2.5"
+-
+-
+-        return version
++    @staticmethod
++    def _require_qwen3(llm_config) -> None:
++        """Fail clearly instead of silently loading an unsupported checkpoint."""
++        layer_module = getattr(llm_config, "layer_module", "") or ""
++        architectures = getattr(llm_config, "architectures", None) or []
++        if "Qwen3" not in layer_module and "Qwen3ForCausalLM" not in architectures:
++            raise ValueError(
++                "This production runtime supports the Being-H0.5 Qwen3 checkpoint only"
++            )
+
+     def _apply_mpg_overrides(
+         self,
+@@ -540,6 +584,13 @@ class BeingHPolicy(BasePolicy):
+
+         print(f"✓ Metadata loaded for '{self.dataset_name}'")
+
++    def _raise_if_npu_capture_unhealthy(self) -> None:
++        if self._npu_capture_unhealthy_reason is not None:
++            raise NPUCaptureProcessUnhealthyError(
++                "NPU capture/replay process is unhealthy; restart the policy "
++                f"worker: {self._npu_capture_unhealthy_reason}"
++            )
++
+     @torch.no_grad()
+     def get_action(self, observations: Dict[str, Any]) -> Dict[str, Any]:
+         """
+@@ -557,6 +608,8 @@ class BeingHPolicy(BasePolicy):
+         Returns:
+             Action dictionary with unnormalized actions
+         """
++        self._raise_if_npu_capture_unhealthy()
++
+         # ===== 1. Extract RTC Parameters (sent by client) =====
+         prev_chunk = observations.pop('prev_chunk', None)
+         inference_delay = observations.pop('inference_delay', 0)
+@@ -603,7 +656,11 @@ class BeingHPolicy(BasePolicy):
+             packed_inputs['inference_delay'] = inference_delay
+
+         # ===== 5. Generate Action Chunk =====
+-        model_pred = self.model.get_action(**packed_inputs)
++        try:
++            model_pred = self.model.get_action(**packed_inputs)
++        except NPUCaptureProcessUnhealthyError as error:
++            self._npu_capture_unhealthy_reason = str(error)
++            raise
+         action_pred = model_pred["action_pred"]
+
+         # Reshape to 3D for processing, from (B * chunk_length, action_dim) to (1, chunk_length, action_dim)
+@@ -617,6 +674,43 @@ class BeingHPolicy(BasePolicy):
+             if key.startswith('action.'):
+                 sliced_action_dict[key] = action_pred_cpu[:, :, start:end]
+
++        unknown_clip_keys = self.clip_normalized_action_keys.difference(
++            sliced_action_dict
++        )
++        if unknown_clip_keys:
++            raise ValueError(
++                "Cannot clip unknown normalized action keys: "
++                f"{sorted(unknown_clip_keys)}"
++            )
++        for key in self.clip_normalized_action_keys:
++            sliced_action_dict[key] = torch.clamp(
++                sliced_action_dict[key], -1.0, 1.0
++            )
++
++        # PyTorch3D decodes Rot6D with Gram-Schmidt. Near-zero first vectors or
++        # nearly collinear vector pairs are ill-conditioned; reject them before
++        # inverse conversion so the deployment safety wrapper can hold/terminate.
++        for key in self._rotation_6d_action_keys:
++            rotation_6d = sliced_action_dict[key]
++            first = rotation_6d[..., 0:3]
++            second = rotation_6d[..., 3:6]
++            first_norm = torch.linalg.vector_norm(first, dim=-1)
++            safe_first_norm = torch.clamp(first_norm, min=1e-8)
++            first_unit = first / safe_first_norm.unsqueeze(-1)
++            second_orthogonal = second - (
++                (first_unit * second).sum(dim=-1, keepdim=True) * first_unit
++            )
++            second_orthogonal_norm = torch.linalg.vector_norm(
++                second_orthogonal, dim=-1
++            )
++            invalid = (first_norm < 1e-5) | (second_orthogonal_norm < 1e-5)
++            if invalid.any():
++                invalid_count = int(invalid.sum().item())
++                raise ValueError(
++                    f"Degenerate Rot6D prediction for {key}: "
++                    f"{invalid_count} action(s) cannot define a stable rotation"
++                )
++
+         unnormalized_action_dict = self._modality_transform.unapply(sliced_action_dict)
+
+         if not is_batch:
+@@ -634,6 +728,94 @@ class BeingHPolicy(BasePolicy):
+
+         return result
+
++    def _encode_prompt_parts(self, instruction: str):
++        cache_key = (
++            self.model.system_message,
++            self.instruction_template,
++            self.action_chunk_length,
++            instruction,
++        )
++        if self.enable_policy_prompt_cache:
++            cached = self._prompt_token_cache.get(cache_key)
++            if cached is not None:
++                return cached
++
++        system_ids = tuple(
++            self.tokenizer.encode(f"system\n{self.model.system_message}")
++        )
++        user_ids = tuple(self.tokenizer.encode("user\n"))
++        assistant_ids = tuple(self.tokenizer.encode("assistant\n"))
++        formatted = self.instruction_template.format(
++            task_description=instruction,
++            k=self.action_chunk_length,
++        )
++        instruction_ids = tuple(self.tokenizer.encode(formatted))
++        result = (system_ids, user_ids, assistant_ids, instruction_ids)
++        if self.enable_policy_prompt_cache:
++            if len(self._prompt_token_cache) >= 256:
++                self._prompt_token_cache.clear()
++            self._prompt_token_cache[cache_key] = result
++        return result
++
++    def configure_fixed_prefix_padding(
++        self, instructions: List[str]
++    ) -> Dict[str, Any]:
++        """Choose the smallest fixed Prefix that covers a known task set."""
++        if not self.model.enable_npu_capture_replay:
++            raise ValueError(
++                "fixed Prefix padding requires the npu_final profile"
++            )
++        prefix_lengths = []
++        for instruction in instructions:
++            system_ids, user_ids, assistant_ids, inst_ids = (
++                self._encode_prompt_parts(instruction)
++            )
++            prefix_lengths.append(
++                # System turn.
++                3
++                + len(system_ids)
++                # User BOS/text, image delimiters/tokens, state triplet,
++                # instruction EOS/newline, and Assistant BOS/text.
++                + 1
++                + len(user_ids)
++                + 2
++                + self.num_image_token * self.num_images
++                + 3
++                + len(inst_ids)
++                + 2
++                + 1
++                + len(assistant_ids)
++            )
++        required_length = max(prefix_lengths)
++        if (
++            self.fixed_prefix_length is not None
++            and self.fixed_prefix_length < required_length
++        ):
++            raise ValueError(
++                "Configured fixed Prefix is shorter than the prewarm task "
++                f"set: {self.fixed_prefix_length} < {required_length}"
++            )
++        if self.fixed_prefix_length is None:
++            self.fixed_prefix_length = required_length
++        # The fixed Prefix backend is enabled only after a bounded task set
++        # establishes one safe physical shape.  Without startup prewarm the
++        # validated multi-shape Action graph path remains unchanged.
++        self.model.enable_npu_prefix_graph_replay = (
++            self.npu_prefix_backend == "npugraph"
++        )
++        self.model.enable_npu_prefix_torchair = (
++            self.npu_prefix_backend == "torchair"
++        )
++        stats = {
++            "fixed_prefix_length": self.fixed_prefix_length,
++            "min_unpadded_prefix_length": min(prefix_lengths),
++            "max_unpadded_prefix_length": required_length,
++            "instruction_count": len(prefix_lengths),
++            "prefix_backend": self.npu_prefix_backend,
++        }
++        print(f"NPU fixed Prefix padding: {json.dumps(stats, sort_keys=True)}")
++        return stats
++
+     def _prepare_packed_inputs(self, processed_obs: Dict[str, Any], instructions: List[str]) -> Dict[str, Any]:
+         """Prepare packed inputs for model."""
+         first_state_key = next((k for k in processed_obs if k.startswith('state.')), None)
+@@ -664,46 +846,36 @@ class BeingHPolicy(BasePolicy):
+
+         pixel_values = torch.stack([self.image_transform(img) for img in all_frames])
+
+-        # Build prompt components
+-        system_prompt = f"system\n{self.model.system_message}"
+-        system_ids = self.tokenizer.encode(system_prompt)
+-
+-        user_prompt = "user\n"
+-        user_ids = self.tokenizer.encode(user_prompt)
+-
+-        assistant_prompt = "assistant\n"
+-        assistant_ids = self.tokenizer.encode(assistant_prompt)
+-
+-        inst_formatted = self.instruction_template.format(
+-            task_description=instructions[0], k=self.action_chunk_length
++        # Build prompt components. The prompt cache stores immutable tokenizer results
++        # by the full template/instruction key; packed tensors remain
++        # request-local because images and state are dynamic.
++        system_ids, user_ids, assistant_ids, inst_ids = (
++            self._encode_prompt_parts(instructions[0])
+         )
+-        inst_ids = self.tokenizer.encode(inst_formatted)
+
+         # CORE: Build packed sequence
+         packed_text_ids, packed_text_indexes = [], []
+         packed_vit_token_indexes, packed_state_indexes, packed_action_indexes = [], [], []
+         packed_position_ids = []
+-        split_lens, attn_modes = [], []
+-
+         curr = 0
+         curr_rope_id = 0
+
+         # === Block 1: System Turn ===
+-        block_ids = [self.bos_token_id] + system_ids + [self.eos_token_id, self.newline_token_id]
++        block_ids = [
++            self.bos_token_id,
++            *system_ids,
++            self.eos_token_id,
++            self.newline_token_id,
++        ]
+         packed_text_ids.extend(block_ids)
+         packed_text_indexes.extend(range(curr, curr + len(block_ids)))
+         packed_position_ids.extend(range(curr_rope_id, curr_rope_id + len(block_ids)))
+         curr += len(block_ids)
+         curr_rope_id += len(block_ids)
+-        split_lens.append(len(block_ids))
+-        attn_modes.append("causal")
+-
+         # === Block 2: Content (user + vision + state + instruction) ===
+-        curr_split_start = curr
+-
+         # User prompt
+         # is_bos: True, is_eos: False
+-        block_ids = [self.bos_token_id] + user_ids
++        block_ids = [self.bos_token_id, *user_ids]
+         packed_text_ids.extend(block_ids)
+         packed_text_indexes.extend(range(curr, curr + len(block_ids)))
+         curr += len(block_ids)
+@@ -735,70 +907,145 @@ class BeingHPolicy(BasePolicy):
+
+         # Instruction
+         # is_bos: False, is_eos: True
+-        block_ids = inst_ids + [self.eos_token_id, self.newline_token_id]
++        block_ids = [*inst_ids, self.eos_token_id, self.newline_token_id]
+         packed_text_ids.extend(block_ids)
+         packed_text_indexes.extend(range(curr, curr + len(block_ids)))
+         curr += len(block_ids)
+
+-        # Finalize Content Block
+-        curr_split_len = curr - curr_split_start
+-        packed_position_ids.extend(range(curr_rope_id, curr_rope_id + curr_split_len))
+-        curr_rope_id += curr_split_len
+-        split_lens.append(curr_split_len)
+-        attn_modes.append("causal")
++        content_length = curr - curr_rope_id
++        packed_position_ids.extend(
++            range(curr_rope_id, curr_rope_id + content_length)
++        )
++        curr_rope_id += content_length
+
+-        # === # Block 3: Action (assistant + action placeholders) ===
+-        curr_split_start = curr
++        # === Block 3: Assistant + fixed Prefix padding + Action ===
++        action_rope_start = curr_rope_id
+
+         # Assistant prompt
+         # is_bos: True, is_eos: False
+-        block_ids = [self.bos_token_id] + assistant_ids
++        block_ids = [self.bos_token_id, *assistant_ids]
+         packed_text_ids.extend(block_ids)
+         packed_text_indexes.extend(range(curr, curr + len(block_ids)))
++        packed_position_ids.extend(
++            range(action_rope_start, action_rope_start + len(block_ids))
++        )
+         curr += len(block_ids)
+
++        # Single-environment NPU inference uses one physical Prefix shape.
++        # Padding is inserted after every real Prefix token and before Action,
++        # so causal Prefix queries cannot observe it.  Action masks the padded
++        # KV columns in BeingH.get_action.  Logical RoPE ids are deliberately
++        # not advanced, preserving every real token's original position id.
++        prefix_padding_start = curr
++        parallel_inference = N != 1 or len(instructions) != 1
++        fixed_prefix_length = (
++            self.fixed_prefix_length
++            if not parallel_inference
++            else None
++        )
++        if fixed_prefix_length is not None:
++            if curr > fixed_prefix_length:
++                raise ValueError(
++                    "Prompt Prefix exceeds the configured fixed NPU shape: "
++                    f"{curr} > {fixed_prefix_length}. Increase "
++                    "NPUInferenceConfig.fixed_prefix_length; truncation is "
++                    "forbidden because it changes model output."
++                )
++            fixed_padding_len = fixed_prefix_length - curr
++            if fixed_padding_len:
++                packed_text_ids.extend(
++                    [self.eos_token_id] * fixed_padding_len
++                )
++                packed_text_indexes.extend(
++                    range(curr, curr + fixed_padding_len)
++                )
++                # Padding queries need a finite RoPE id, but Padding does not
++                # consume logical positions.  Their KV is never visible to a
++                # real query.
++                pad_rope_id = action_rope_start + len(block_ids) - 1
++                packed_position_ids.extend(
++                    [pad_rope_id] * fixed_padding_len
++                )
++                curr += fixed_padding_len
++
+         # Action placeholders
+         packed_action_indexes.extend(range(curr, curr + self.action_token_num))
++        logical_action_rope_start = action_rope_start + len(block_ids)
++        packed_position_ids.extend(
++            range(
++                logical_action_rope_start,
++                logical_action_rope_start + self.action_token_num,
++            )
++        )
+         curr += self.action_token_num
+
+         # Final EOS
+         packed_text_ids.append(self.eos_token_id)
+         packed_text_indexes.append(curr)
++        packed_position_ids.append(
++            logical_action_rope_start + self.action_token_num
++        )
+         curr += 1
+
+-        # Finalize Action Block
+-        curr_split_len = curr - curr_split_start
+-        packed_position_ids.extend(range(curr_rope_id, curr_rope_id + curr_split_len))
+-        # curr_rope_id += curr_split_len # No need to update rope_id for the last block
+-        split_lens.append(curr_split_len)
+-        attn_modes.append("causal")
+-
+-        # Padding for block attention
+         sequence_length = curr
+-        padding_len = (BLOCK_SIZE - (sequence_length % BLOCK_SIZE)) % BLOCK_SIZE
+         sample_lens = [sequence_length]
+
+-        if padding_len > 0:
+-            split_lens.append(padding_len)
+-            attn_modes.append("causal")
+-            sample_lens.append(padding_len)
+-
+         # Assemble final dict
+-        return {
++        packed_inputs = {
+             "sequence_length": sequence_length,
+             "packed_text_ids": torch.tensor(packed_text_ids, dtype=torch.long),
+             "packed_text_indexes": torch.tensor(packed_text_indexes, dtype=torch.long),
+             "sample_lens": sample_lens,
+             "packed_position_ids": torch.tensor(packed_position_ids, dtype=torch.long),
+-            "split_lens": split_lens,
+-            "attn_modes": attn_modes,
+             "packed_vit_tokens": pixel_values.to(dtype=torch.bfloat16),
+             "packed_vit_token_indexes": torch.tensor(packed_vit_token_indexes, dtype=torch.long),
+             "packed_action_indexes": torch.tensor(packed_action_indexes, dtype=torch.long),
+             "padded_state": state_tensor.to(dtype=torch.bfloat16),
+             "packed_state_indexes": torch.tensor(packed_state_indexes, dtype=torch.long),
+-            "embodiment_ids": torch.tensor([31], dtype=torch.long),
+         }
++        if fixed_prefix_length is not None:
++            packed_inputs["npu_prefix_padding_range"] = (
++                prefix_padding_start,
++                fixed_prefix_length,
++            )
++        if parallel_inference:
++            # Fixed-shape capture/replay is a single-environment route.  Keep
++            # packed multi-environment requests on the original eager path.
++            packed_inputs["parallel_inference"] = True
++        if (
++            self.model.enable_npu_prefix_segment_route
++            and self.model.enable_static_prefix_cache
++        ):
++            prefix_segment_route = None
++            prefix_segment_route_fallback_reason = None
++            try:
++                if not packed_action_indexes:
++                    raise ValueError("action indexes are empty")
++                action_start = packed_action_indexes[0]
++                prefix_und_indexes = [
++                    index
++                    for index in packed_text_indexes + packed_vit_token_indexes
++                    if index < action_start
++                ]
++                prefix_gen_indexes = [
++                    index
++                    for index in packed_state_indexes
++                    if index < action_start
++                ]
++                prefix_segment_route = build_prefix_segment_route(
++                    und_global_indexes=prefix_und_indexes,
++                    gen_global_indexes=prefix_gen_indexes,
++                    prefix_length=action_start,
++                )
++            except ValueError as error:
++                prefix_segment_route_fallback_reason = (
++                    f"invalid_cpu_prefix_route:{error}"
++                )
++            packed_inputs["npu_prefix_segment_route"] = prefix_segment_route
++            packed_inputs["npu_prefix_segment_route_fallback_reason"] = (
++                prefix_segment_route_fallback_reason
++            )
++        return packed_inputs
+
+     def _check_is_batched(self, obs: Dict[str, Any]) -> bool:
+         first_val = next(iter(obs.values()))
+@@ -808,6 +1055,3 @@ class BeingHPolicy(BasePolicy):
+         if isinstance(first_val, list):  # Applies to instruction lists
+             return True
+         return False
+-
+-    def get_modality_config(self) -> Dict[str, ModalityConfig]:
+-        return self.data_config.modality_config()
+diff --git a/base/BeingH/inference/service.py b/target/BeingH/inference/service.py
+index 05a24c0..9a747f0 100644
+--- a/base/BeingH/inference/service.py
++++ b/target/BeingH/inference/service.py
+@@ -4,7 +4,7 @@
+
+ from dataclasses import dataclass
+ from io import BytesIO
+-from typing import Any, Callable, Dict
++from typing import Callable
+
+ import torch
+ import zmq
+@@ -177,17 +177,3 @@ class BaseInferenceClient:
+         """Cleanup resources on destruction"""
+         self.socket.close()
+         self.context.term()
+-
+-
+-class ExternalRobotInferenceClient(BaseInferenceClient):
+-    """
+-    Client for communicating with the RealRobotServer
+-    """
+-
+-    def get_action(self, observations: Dict[str, Any]) -> Dict[str, Any]:
+-        """
+-        Get the action from the server.
+-        The exact definition of the observations is defined
+-        by the policy, which contains the modalities configuration.
+-        """
+-        return self.call_endpoint("get_action", observations)
+diff --git a/base/BeingH/model/layers.py b/target/BeingH/model/layers.py
+index 6704284..69d7ec2 100644
+--- a/base/BeingH/model/layers.py
++++ b/target/BeingH/model/layers.py
+@@ -1,153 +1,9 @@
+ # Copyright (c) 2026 BeingBeyond Ltd. and/or its affiliates.
+ # SPDX-License-Identifier: Apache-2.0
+
+-import math
+-
+-import numpy as np
+ import torch
+ from torch import nn
+-from typing import Any
+ import torch.nn.functional as F
+-from transformers.activations import ACT2FN
+-
+-
+-class ProprioProjector(nn.Module):
+-    """
+-    Projects proprio state inputs into the LLM's embedding space.
+-    """
+-    def __init__(self, llm_dim: int, max_state_dim: int) -> None:
+-        super().__init__()
+-        self.llm_dim = llm_dim
+-        self.max_state_dim = max_state_dim
+-
+-        self.fc1 = nn.Linear(self.max_state_dim, self.llm_dim, bias=True)
+-        self.fc2 = nn.Linear(self.llm_dim, self.llm_dim, bias=True)
+-        self.act_fn1 = nn.GELU()
+-
+-    def forward(self, proprio: torch.Tensor = None) -> torch.Tensor:
+-        # proprio: (bsz, max_state_dim)
+-        # print(proprio.shape)
+-        # print(self.max_state_dim)
+-        projected_features = self.fc1(proprio)
+-        projected_features = self.act_fn1(projected_features)
+-        projected_features = self.fc2(projected_features)
+-        return projected_features
+-
+-
+-class SinusoidalPositionalEncoding(nn.Module):
+-    """
+-    Sine- and cosine-based positional encoding that produces embeddings of a batch of timesteps.
+-
+-    For example, at train time, the input might be a batch of 32 randomly sampled diffusion timesteps -> shape (32,)
+-    Then the output would be a batch of 32 timestep embeddings -> shape (32, D)
+-
+-    Adapted from: https://github.com/real-stanford/diffusion_policy/blob/main/diffusion_policy/model/diffusion/positional_embedding.py
+-    """
+-
+-    def __init__(self, dim):
+-        super().__init__()
+-        self.dim = dim  # dimensionality of the positional encoding
+-
+-    def forward(self, x):
+-        # x: (batch_size,)
+-        device = x.device
+-        assert self.dim % 2 == 0, f"# dimensions must be even but got {self.dim}"
+-        half_dim = self.dim // 2
+-        exponent = torch.arange(half_dim, device=device) * -math.log(10000) / (half_dim - 1)  # shape: (D/2,)
+-        emb = torch.exp(exponent)  # shape: (D/2,)
+-        emb = x[:, None] * emb[None, :]  # shape: (batch_size, 1) * (1, D/2) -> (batch_size, D/2)
+-        emb = torch.cat((emb.sin(), emb.cos()), dim=-1)  # shape: (batch_size, D)
+-        return emb
+-
+-class FlowMatchingHead(nn.Module):
+-    def __init__(self, condition_dim: int, action_dim: int, hidden_dim: int):
+-        super().__init__()
+-        self.action_dim = action_dim
+-
+-        self.time_encoder = SinusoidalPositionalEncoding(dim=hidden_dim)
+-
+-        # 1. Define fusion layer
+-        # Input dimension is the sum of three feature dimensions: condition + action + time
+-        fusion_input_dim = condition_dim + action_dim + hidden_dim
+-        self.fusion_layer = nn.Linear(fusion_input_dim, hidden_dim)
+-
+-        # 2. Core network
+-        self.model = nn.Sequential(
+-            nn.ReLU(),  # Apply activation immediately after fusion
+-            nn.Linear(hidden_dim, hidden_dim),
+-            nn.ReLU(),
+-            nn.Linear(hidden_dim, action_dim)
+-        )
+-
+-        # (Optional but recommended) Add layer normalization after fusion to stabilize training
+-        self.layer_norm = nn.LayerNorm(hidden_dim)
+-
+-    def forward(self, noisy_action: torch.Tensor, time: torch.Tensor, condition: torch.Tensor) -> torch.Tensor:
+-        # 1. Encode timestep t
+-        time_embed = self.time_encoder(time).to(noisy_action.dtype).to(noisy_action.device)
+-
+-        if noisy_action.ndim == 3 and time_embed.ndim == 2:
+-            time_embed = time_embed.unsqueeze(1).expand(-1, noisy_action.shape[1], -1)
+-
+-        # 2. Concatenate all features
+-        # Note: Here we directly use the original noisy_action and condition without pre-projection
+-        concatenated_features = torch.cat([condition, noisy_action, time_embed], dim=-1)
+-
+-        # 3. Project and fuse through the fusion layer
+-        fused_features = self.fusion_layer(concatenated_features)
+-
+-        # (Optional but recommended) Apply layer normalization
+-        fused_features = self.layer_norm(fused_features)
+-
+-        # 4. Predict through the core network
+-        predicted_velocity = self.model(fused_features)
+-
+-        return predicted_velocity
+-
+-class MLPResNetBlock(nn.Module):
+-    """One MLP ResNet block with a residual connection."""
+-    def __init__(self, dim):
+-        super().__init__()
+-        self.dim = dim
+-        self.ffn = nn.Sequential(  # feedforward network, similar to the ones in Transformers
+-            nn.LayerNorm(dim),
+-            nn.Linear(dim, dim),
+-            nn.ReLU(),
+-        )
+-
+-    def forward(self, x):
+-        # x: (batch_size, hidden_dim)
+-        # We follow the module ordering of "Pre-Layer Normalization" feedforward networks in Transformers as
+-        # described here: https://arxiv.org/pdf/2002.04745.pdf
+-        identity = x
+-        x = self.ffn(x)
+-        x = x + identity
+-        return x
+-
+-
+-class MLPResNet(nn.Module):
+-    """MLP with residual connection blocks."""
+-    def __init__(self, num_blocks, input_dim, hidden_dim, output_dim):
+-        super().__init__()
+-        self.layer_norm1 = nn.LayerNorm(input_dim)
+-        self.fc1 = nn.Linear(input_dim, hidden_dim)
+-        self.relu = nn.ReLU()
+-        self.mlp_resnet_blocks = nn.ModuleList()
+-        for _ in range(num_blocks):
+-            self.mlp_resnet_blocks.append(MLPResNetBlock(dim=hidden_dim))
+-        self.layer_norm2 = nn.LayerNorm(hidden_dim)
+-        self.fc2 = nn.Linear(hidden_dim, output_dim)
+-
+-    def forward(self, x):
+-        # x: (batch_size, input_dim)
+-        x = self.layer_norm1(x)  # shape: (batch_size, input_dim)
+-        x = self.fc1(x)  # shape: (batch_size, hidden_dim)
+-        x = self.relu(x)  # shape: (batch_size, hidden_dim)
+-        for block in self.mlp_resnet_blocks:
+-            x = block(x)  # shape: (batch_size, hidden_dim)
+-        x = self.layer_norm2(x)  # shape: (batch_size, hidden_dim)
+-        x = self.fc2(x)  # shape: (batch_size, output_dim)
+-        return x
+
+
+ class InternVLConnector(nn.Module):
+@@ -161,16 +17,6 @@ class InternVLConnector(nn.Module):
+             nn.Linear(llm_hidden_size, llm_hidden_size)
+         )
+
+-    def init_weights(self, state_dict, logger):
+-        if state_dict is None:
+-            raise NotImplementedError
+-        else:
+-            logger.info("Initializing connector from MLLM weights")
+-            for name, param in self.named_parameters():
+-                param.data.copy_(state_dict.pop(name).data)
+-
+-        return state_dict
+-
+     def forward(self, x):
+         return self.mlp1(x)
+
+@@ -184,6 +30,8 @@ class SinusoidalPositionalEncoding(nn.Module):
+     def __init__(self, embedding_dim):
+         super().__init__()
+         self.embedding_dim = embedding_dim
++        self.enable_frequency_cache = False
++        self._frequency_cache = {}
+
+     def forward(self, timesteps):
+         # timesteps: shape (B, T) or (N,) for packed 1D inputs
+@@ -196,10 +44,20 @@ class SinusoidalPositionalEncoding(nn.Module):
+         device = timesteps.device
+
+         half_dim = self.embedding_dim // 2
+-        exponent = -torch.arange(half_dim, dtype=torch.float, device=device) * (
+-            torch.log(torch.tensor(10000.0)) / half_dim
++        cache_key = (str(device), half_dim)
++        frequency = (
++            self._frequency_cache.get(cache_key)
++            if self.enable_frequency_cache
++            else None
+         )
+-        freqs = timesteps.unsqueeze(-1) * exponent.exp()
++        if frequency is None:
++            exponent = -torch.arange(
++                half_dim, dtype=torch.float, device=device
++            ) * (torch.log(torch.tensor(10000.0)) / half_dim)
++            frequency = exponent.exp()
++            if self.enable_frequency_cache:
++                self._frequency_cache[cache_key] = frequency
++        freqs = timesteps.unsqueeze(-1) * frequency
+
+         sin = torch.sin(freqs)
+         cos = torch.cos(freqs)
+@@ -207,86 +65,8 @@ class SinusoidalPositionalEncoding(nn.Module):
+
+         return enc
+
+-class CategorySpecificLinear(nn.Module):
+-    def __init__(self, num_categories, input_dim, hidden_dim):
+-        super().__init__()
+-        self.num_categories = num_categories
+-        self.W = nn.Parameter(0.02 * torch.randn(num_categories, input_dim, hidden_dim))
+-        self.b = nn.Parameter(torch.zeros(num_categories, hidden_dim))
+-
+-    def forward(self, x, cat_ids):
+-        # Handle both 2D (B, D_in) and 3D (B, T, D_in) inputs uniformly
+-        is_2d = x.dim() == 2
+-        if is_2d:
+-            x = x.unsqueeze(1)
+-
+-        selected_W = self.W[cat_ids]
+-        selected_b = self.b[cat_ids]
+-        output = torch.bmm(x, selected_W) + selected_b.unsqueeze(1)
+-
+-        if is_2d:
+-            output = output.squeeze(1)
+-
+-        return output
+-
+-
+-class CategorySpecificMLP(nn.Module):
+-    def __init__(self, num_categories, input_dim, hidden_dim, output_dim):
+-        super().__init__()
+-        self.num_categories = num_categories
+-        self.layer1 = CategorySpecificLinear(num_categories, input_dim, hidden_dim)
+-        self.layer2 = CategorySpecificLinear(num_categories, hidden_dim, output_dim)
+-
+-    def forward(self, x, cat_ids):
+-        hidden = F.relu(self.layer1(x, cat_ids))
+-        return self.layer2(hidden, cat_ids)
+-
+-
+-class MultiEmbodimentActionEncoder(nn.Module):
+-    def __init__(self, action_dim, hidden_size, num_embodiments):
+-        super().__init__()
+-        self.hidden_size = hidden_size
+-        self.num_embodiments = num_embodiments
+-
+-        self.W1 = CategorySpecificLinear(num_embodiments, action_dim, hidden_size)
+-        self.W2 = CategorySpecificLinear(num_embodiments, 2 * hidden_size, hidden_size)
+-        self.W3 = CategorySpecificLinear(num_embodiments, hidden_size, hidden_size)
+-        self.pos_encoding = SinusoidalPositionalEncoding(hidden_size)
+-
+-    def forward(self, actions, timesteps, cat_ids):
+-        """
+-        actions:   shape (B, T, action_dim)
+-        timesteps: shape (B,) -- one timestep per batch item
+-        cat_ids:   shape (B,)
+-        """
+-        B, T, _ = actions.shape
+-
+-        # 1. Expand timesteps from (B,) to (B, T) to align with action sequence
+-        if timesteps.dim() == 1 and timesteps.shape[0] == B:
+-            timesteps = timesteps.unsqueeze(1).expand(-1, T)
+-        else:
+-            raise ValueError("Expected `timesteps` to have shape (B,)")
+-
+-        # 2. Encode actions
+-        a_emb = self.W1(actions, cat_ids)
+-
+-        # 3. Encode timesteps
+-        tau_emb = self.pos_encoding(timesteps).to(dtype=a_emb.dtype)
+-
+-        # 4. Concatenate and fuse
+-        x = torch.cat([a_emb, tau_emb], dim=-1)
+-        x = swish(self.W2(x, cat_ids))
+-
+-        # 5. Final projection
+-        x = self.W3(x, cat_ids)
+-        return x
+-
+-
+ class SimpleMLP(nn.Module):
+-    """
+-    A simple two-layer MLP using standard torch.nn.Linear layers.
+-    This is the standard version of CategorySpecificMLP.
+-    """
++    """Two-layer projection shared by every input."""
+     def __init__(self, input_dim, hidden_dim, output_dim):
+         super().__init__()
+         # Use standard linear layers where all inputs share the same weights
+@@ -314,7 +94,6 @@ class ActionEncoder(nn.Module):
+         super().__init__()
+         self.hidden_size = hidden_size
+
+-        # Use standard linear layers instead of CategorySpecificLinear
+         self.W1 = nn.Linear(action_dim, hidden_size)
+         self.W2 = nn.Linear(2 * hidden_size, hidden_size)  # Concatenated action and time encoding
+         self.W3 = nn.Linear(hidden_size, hidden_size)
+@@ -421,6 +200,44 @@ class SlicedWassersteinDistance(nn.Module):
+     def __init__(self, num_projections: int = 32):
+         super().__init__()
+         self.num_projections = num_projections
++        self.enable_vectorized_projections = False
++
++    def _forward_vectorized(
++        self,
++        x: torch.Tensor,
++        y: torch.Tensor,
++        generator,
++    ) -> torch.Tensor:
++        """Compute all fixed-count projections in one batched tensor program."""
++        feature_dim = x.shape[-1]
++        directions = torch.randn(
++            self.num_projections,
++            feature_dim,
++            device=x.device,
++            dtype=x.dtype,
++            generator=generator,
++        )
++        directions = directions / torch.norm(
++            directions, dim=1, keepdim=True
++        )
++
++        # Keep one row per projection.  Flattening batch and samples matches
++        # the original loop's per-projection reshape(-1) exactly.
++        x_projected = torch.matmul(x, directions.transpose(0, 1))
++        y_projected = torch.matmul(y, directions.transpose(0, 1))
++        x_projected = x_projected.permute(2, 0, 1).reshape(
++            self.num_projections, -1
++        )
++        y_projected = y_projected.permute(2, 0, 1).reshape(
++            self.num_projections, -1
++        )
++        x_sorted = torch.sort(x_projected, dim=1).values
++        y_sorted = torch.sort(y_projected, dim=1).values
++        common_length = min(x_sorted.shape[1], y_sorted.shape[1])
++        differences = (
++            x_sorted[:, :common_length] - y_sorted[:, :common_length]
++        )
++        return differences.square().mean(dim=1).mean()
+
+     def forward(
+         self,
+@@ -450,6 +267,9 @@ class SlicedWassersteinDistance(nn.Module):
+         else:
+             generator = None
+
++        if self.enable_vectorized_projections:
++            return self._forward_vectorized(x, y, generator)
++
+         total_transport_cost = 0.0
+
+         for k in range(self.num_projections):
+diff --git a/base/BeingH/model/llm/qwen3/modeling_qwen3.py b/target/BeingH/model/llm/qwen3/modeling_qwen3.py
+index fed8c27..ac720a6 100644
+--- a/base/BeingH/model/llm/qwen3/modeling_qwen3.py
++++ b/target/BeingH/model/llm/qwen3/modeling_qwen3.py
+@@ -1,5 +1,6 @@
+ import torch
+ import torch.nn as nn
++import torch.nn.functional as F
+ from functools import partial
+ from typing import Callable, Optional, Tuple, Union
+ from transformers.activations import ACT2FN
+@@ -24,6 +25,12 @@ from transformers.utils import (
+ )
+ from transformers.utils.deprecation import deprecate_kwarg
+ from .configuration_qwen3 import Qwen3Config
++from BeingH.cuda_fused_ops import fused_swiglu
++from BeingH.fused_projection_storage import combined_storage_view
++try:
++    import torch_npu
++except ImportError:
++    torch_npu = None
+
+ logger = logging.get_logger(__name__)
+
+@@ -38,8 +45,20 @@ class Qwen3RMSNorm(nn.Module):
+         super().__init__()
+         self.weight = nn.Parameter(torch.ones(hidden_size))
+         self.variance_epsilon = eps
++        self.enable_npu_fused_rms_norm = False
+
+     def forward(self, hidden_states):
++        if (
++            self.enable_npu_fused_rms_norm
++            and hidden_states.device.type == "npu"
++        ):
++            if torch_npu is None:
++                raise RuntimeError("OPT-06 NPU RMSNorm requires torch-npu")
++            return torch_npu.npu_rms_norm(
++                hidden_states,
++                self.weight,
++                epsilon=self.variance_epsilon,
++            )[0]
+         input_dtype = hidden_states.dtype
+         hidden_states = hidden_states.to(torch.float32)
+         variance = hidden_states.pow(2).mean(-1, keepdim=True)
+@@ -60,9 +79,53 @@ class Qwen3MLP(nn.Module):
+         self.up_proj = nn.Linear(self.hidden_size, self.intermediate_size, bias=False)
+         self.down_proj = nn.Linear(self.intermediate_size, self.hidden_size, bias=False)
+         self.act_fn = ACT2FN[config.hidden_act]
++        # OPT-06 is deliberately opt-in.  The packed tensor is derived from
++        # the checkpoint parameters and is not registered in the state dict,
++        # so checkpoint compatibility and the original training path remain
++        # unchanged.
++        self.enable_npu_gate_up_fusion = False
++        self.enable_npu_fused_swiglu = False
++        self.enable_cuda_fused_swiglu = False
++        self._npu_fused_gate_up_weight = None
++
++    def _get_npu_fused_gate_up_weight(self):
++        weight = self._npu_fused_gate_up_weight
++        expected_rows = self.gate_proj.weight.shape[0] * 2
++        if (
++            weight is None
++            or weight.device != self.gate_proj.weight.device
++            or weight.dtype != self.gate_proj.weight.dtype
++            or weight.shape[0] != expected_rows
++        ):
++            weight = combined_storage_view(
++                (self.gate_proj.weight, self.up_proj.weight)
++            )
++            if weight is not None:
++                weight = weight.detach()
++            else:
++                weight = torch.cat(
++                    (self.gate_proj.weight, self.up_proj.weight), dim=0
++                ).detach()
++            self._npu_fused_gate_up_weight = weight
++        return weight
+
+     def forward(self, x):
+-        down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))
++        if self.enable_npu_gate_up_fusion:
++            gate_up = F.linear(x, self._get_npu_fused_gate_up_weight())
++            if self.enable_npu_fused_swiglu and gate_up.device.type == "npu":
++                if torch_npu is None:
++                    raise RuntimeError("NPU fused SwiGLU requires torch-npu")
++                hidden = torch_npu.npu_swiglu(gate_up, dim=-1)
++            elif self.enable_cuda_fused_swiglu and gate_up.device.type == "cuda":
++                hidden = fused_swiglu(gate_up)
++            else:
++                gate, up = gate_up.split(self.intermediate_size, dim=-1)
++                hidden = self.act_fn(gate) * up
++        else:
++            gate = self.gate_proj(x)
++            up = self.up_proj(x)
++            hidden = self.act_fn(gate) * up
++        down_proj = self.down_proj(hidden)
+         return down_proj
+
+
+@@ -851,4 +914,3 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel, GenerationMixin):
+             hidden_states=outputs.hidden_states,
+             attentions=outputs.attentions,
+         )
+-
+diff --git a/base/BeingH/model/llm/qwen3_navit.py b/target/BeingH/model/llm/qwen3_navit.py
+index 388780c..300abd6 100644
+--- a/base/BeingH/model/llm/qwen3_navit.py
++++ b/target/BeingH/model/llm/qwen3_navit.py
+@@ -5,12 +5,26 @@ import glob
+ import torch
+ import re
+ from functools import partial
+-from typing import List, Optional, Tuple
++from typing import Any, Dict, List, Optional, Tuple
+ from torch import nn
++from torch.nn import functional as F
+ from torch.nn.attention import SDPBackend, sdpa_kernel
+ from torch.nn.attention.flex_attention import flex_attention
+ from torch.nn.functional import scaled_dot_product_attention
+ from safetensors import safe_open
++try:
++    import torch_npu
++except ImportError:
++    torch_npu = None
++from BeingH.npu_single_sample_fast_path import (
++    real_sample_lens as _real_sample_lens,
++)
++from BeingH.npu_prefix_segment_route import (
++    PrefixSegment,
++    PrefixSegmentRoute,
++)
++from BeingH.cuda_fused_ops import fused_rotary
++from BeingH.fused_projection_storage import combined_storage_view
+ from .qwen3.modeling_qwen3 import (
+     Qwen3Attention,
+     Qwen3MLP,
+@@ -29,6 +43,164 @@ torch._dynamo.config.accumulated_cache_size_limit = 4096
+ flex_attention = torch.compile(flex_attention)
+
+
++def _apply_rotary_pos_emb(
++    query_states: torch.Tensor,
++    key_states: torch.Tensor,
++    cos: torch.Tensor,
++    sin: torch.Tensor,
++    *,
++    enable_npu_fused_rotary: bool,
++    enable_cuda_fused_rotary: bool = False,
++) -> Tuple[torch.Tensor, torch.Tensor]:
++    """Apply half-rotation RoPE, optionally using the native NPU kernel.
++
++    Being-H stores attention projections as ``[S, N, D]`` and the shared
++    rotary tables as ``[S, D]``.  ``npu_rotary_mul`` consumes four-dimensional
++    BSND tensors, so the added batch/head singleton dimensions are metadata
++    only.  Non-NPU execution deliberately retains the checkpoint's original
++    PyTorch expression.
++    """
++    if (
++        enable_cuda_fused_rotary
++        and query_states.device.type == "cuda"
++    ):
++        return fused_rotary(query_states, key_states, cos, sin)
++
++    if not (
++        enable_npu_fused_rotary
++        and torch_npu is not None
++        and query_states.device.type == "npu"
++    ):
++        return apply_rotary_pos_emb(
++            query_states,
++            key_states,
++            cos,
++            sin,
++            unsqueeze_dim=1,
++        )
++
++    if query_states.ndim != 3 or key_states.ndim != 3:
++        raise ValueError("NPU fused RoPE expects [S, N, D] query/key tensors")
++    if cos.ndim != 2 or sin.ndim != 2:
++        raise ValueError("NPU fused RoPE expects [S, D] cosine/sine tables")
++    cos_bsnd = cos.unsqueeze(0).unsqueeze(2)
++    sin_bsnd = sin.unsqueeze(0).unsqueeze(2)
++    query_output = torch_npu.npu_rotary_mul(
++        query_states.unsqueeze(0), cos_bsnd, sin_bsnd, rotary_mode="half"
++    )
++    key_output = torch_npu.npu_rotary_mul(
++        key_states.unsqueeze(0), cos_bsnd, sin_bsnd, rotary_mode="half"
++    )
++    return query_output.squeeze(0), key_output.squeeze(0)
++
++
++def _npu_fusion_attention(
++    query_states: torch.Tensor,
++    key_states: torch.Tensor,
++    value_states: torch.Tensor,
++    attention_mask: torch.Tensor,
++    head_num: int,
++    scale: float,
++    input_layout: str = "BNSD",
++) -> torch.Tensor:
++    """Run fused attention with native GQA for logical [N, S, D] tensors."""
++    if torch_npu is None or query_states.device.type != "npu":
++        raise RuntimeError("NPU fusion attention requires torch-npu NPU tensors")
++
++    # The fused op uses True for masked positions. The existing dense path
++    # represents the same mask as additive 0/-inf values.
++    bool_mask = attention_mask.to(torch.bool)
++    if input_layout == "BSND":
++        # Callers hold transposed [N, S, D] views of contiguous [S, N, D]
++        # projections.  Transposing the views back is metadata-only and lets
++        # the fused op consume the naturally contiguous BSND representation.
++        query_input = query_states.transpose(0, 1).unsqueeze(0)
++        key_input = key_states.transpose(0, 1).unsqueeze(0)
++        value_input = value_states.transpose(0, 1).unsqueeze(0)
++    elif input_layout == "BNSD":
++        query_input = query_states.unsqueeze(0)
++        key_input = key_states.unsqueeze(0)
++        value_input = value_states.unsqueeze(0)
++    else:
++        raise ValueError(f"Unsupported NPU fusion-attention layout: {input_layout}")
++
++    output = torch_npu.npu_fusion_attention(
++        query_input,
++        key_input,
++        value_input,
++        head_num=head_num,
++        input_layout=input_layout,
++        atten_mask=bool_mask,
++        scale=scale,
++        keep_prob=1.0,
++        sparse_mode=1,
++        sync=True,
++    )[0]
++    output = output.squeeze(0)
++    return output.transpose(0, 1) if input_layout == "BSND" else output
++
++
++def _cuda_grouped_query_attention(
++    query: torch.Tensor,
++    key: torch.Tensor,
++    value: torch.Tensor,
++    attention_mask: torch.Tensor,
++) -> torch.Tensor:
++    """Run memory-efficient CUDA GQA without materialized K/V repeats.
++
++    Folding the KV-head index into the batch dimension lets SDPA see
++    ``groups`` query heads and stride-zero expanded K/V heads.  It retains the
++    legacy memory-efficient kernel's BF16 reduction order while removing the
++    physical K/V repeat.
++    """
++    if query.device.type != "cuda":
++        raise RuntimeError("CUDA grouped-query attention requires CUDA tensors")
++    if query.ndim != 4 or key.ndim != 4 or value.ndim != 4:
++        raise ValueError("CUDA grouped-query attention expects [B, N, S, D]")
++    batch_size, query_heads, query_length, head_dim = query.shape
++    key_batch, key_heads, key_length, key_dim = key.shape
++    if (
++        key_batch != batch_size
++        or value.shape != key.shape
++        or key_dim != head_dim
++        or query_heads % key_heads != 0
++    ):
++        raise ValueError("incompatible CUDA grouped-query attention shapes")
++    groups = query_heads // key_heads
++    grouped_query = query.reshape(
++        batch_size * key_heads, groups, query_length, head_dim
++    )
++    grouped_key = key.reshape(
++        batch_size * key_heads, 1, key_length, head_dim
++    ).expand(batch_size * key_heads, groups, key_length, head_dim)
++    grouped_value = value.reshape(
++        batch_size * key_heads, 1, key_length, head_dim
++    ).expand(batch_size * key_heads, groups, key_length, head_dim)
++    if attention_mask.ndim == 3:
++        attention_mask = attention_mask.unsqueeze(1)
++    with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
++        output = scaled_dot_product_attention(
++            grouped_query,
++            grouped_key,
++            grouped_value,
++            attention_mask,
++        )
++    return output.reshape(batch_size, query_heads, query_length, head_dim)
++
++
++def _effective_npu_attention_layout(
++    requested_layout: str,
++    real_sample_count: int,
++    prefer_bnsd: bool = False,
++) -> str:
++    """Keep packed multi-sample inference on the established BNSD path."""
++    if prefer_bnsd:
++        return "BNSD"
++    if requested_layout == "BSND" and real_sample_count == 1:
++        return "BSND"
++    return "BNSD"
++
++
+ class Qwen3Config(_Qwen3Config):
+     model_type = "qwen3"
+     keys_to_ignore_at_inference = ["past_key_values"]
+@@ -48,6 +220,15 @@ class PackedAttention(Qwen3Attention):
+         else:
+             self.q_norm = nn.Identity()
+             self.k_norm = nn.Identity()
++        self.enable_npu_fusion_attention = False
++        self.npu_fusion_attention_input_layout = "BNSD"
++        self.enable_npu_hybrid_attention_layout = False
++        self.enable_npu_qkv_fusion = False
++        self.enable_npu_dtype_fast_path = False
++        self.enable_npu_fused_rotary = False
++        self.enable_cuda_fused_rotary = False
++        self.enable_cuda_gqa_attention = False
++        self.use_npu_single_sample_fast_path = False
+
+     def forward(self, *args, **kwargs):
+         return self.forward_train(*args, **kwargs)
+@@ -81,32 +262,111 @@ class PackedAttention(Qwen3Attention):
+         packed_key_states_[packed_und_token_indexes] = self.k_norm(packed_key_states[packed_und_token_indexes])
+
+         packed_cos, packed_sin = packed_position_embeddings
+-        packed_query_states, packed_key_states = apply_rotary_pos_emb(
+-            packed_query_states_, packed_key_states_, packed_cos, packed_sin, unsqueeze_dim=1
++        packed_query_states, packed_key_states = _apply_rotary_pos_emb(
++            packed_query_states_,
++            packed_key_states_,
++            packed_cos,
++            packed_sin,
++            enable_npu_fused_rotary=self.enable_npu_fused_rotary,
++            enable_cuda_fused_rotary=self.enable_cuda_fused_rotary,
+         )
+
+         if isinstance(attention_mask, List):
+-            packed_key_states_ = packed_key_states_[:, :, None, :].repeat(1, 1, self.num_key_value_groups, 1)
+-            packed_key_states_ = packed_key_states_.reshape(-1, self.num_heads, self.head_dim)
+-            packed_value_states = packed_value_states[:, :, None, :].repeat(1, 1, self.num_key_value_groups, 1)
+-            packed_value_states = packed_value_states.reshape(-1, self.num_heads, self.head_dim)
+-
+-            unpacked_query_states = packed_query_states_.transpose(0, 1).split(sample_lens, dim=1)
+-            unpacked_key_states = packed_key_states_.transpose(0, 1).split(sample_lens, dim=1)
+-            unpacked_value_states = packed_value_states.transpose(0, 1).split(sample_lens, dim=1)
+-            upacked_attn_output = []
+-            for query_states, key_states, value_states, attention_mask_per_sample in zip(
+-                unpacked_query_states, unpacked_key_states, unpacked_value_states, attention_mask
+-            ):
+-                with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
+-                    attn_output = scaled_dot_product_attention(
++            real_sample_lens = _real_sample_lens(
++                sample_lens, packed_query_states_.shape[0]
++            )
++            use_cuda_gqa = (
++                self.enable_cuda_gqa_attention and device.type == "cuda"
++            )
++            use_native_gqa = self.enable_npu_fusion_attention or use_cuda_gqa
++            fusion_attention_input_layout = _effective_npu_attention_layout(
++                self.npu_fusion_attention_input_layout,
++                len(real_sample_lens),
++                self.enable_npu_hybrid_attention_layout,
++            )
++            if not use_native_gqa:
++                # Keep the pre-OPT-02 dense path byte-for-byte equivalent:
++                # expand [S, Nkv, D] before transposing/splitting. Expanding
++                # after the transpose would reshape [Nkv, S, G, D] and mix
++                # sequence positions with GQA groups.
++                packed_key_states_ = packed_key_states_[:, :, None, :].repeat(
++                    1, 1, self.num_key_value_groups, 1
++                ).reshape(-1, self.num_heads, self.head_dim)
++                packed_value_states = packed_value_states[
++                    :, :, None, :
++                ].repeat(
++                    1, 1, self.num_key_value_groups, 1
++                ).reshape(-1, self.num_heads, self.head_dim)
++            if self.use_npu_single_sample_fast_path:
++                if len(real_sample_lens) != 1:
++                    raise RuntimeError(
++                        "OPT-03 fast path reached attention with "
++                        f"{len(real_sample_lens)} real samples"
++                    )
++                query_states = packed_query_states_.transpose(0, 1)
++                key_states = packed_key_states_.transpose(0, 1)
++                value_states = packed_value_states.transpose(0, 1)
++                attention_mask_per_sample = attention_mask[0]
++                if self.enable_npu_fusion_attention:
++                    packed_attn_output = _npu_fusion_attention(
++                        query_states.to(torch.bfloat16),
++                        key_states.to(torch.bfloat16),
++                        value_states.to(torch.bfloat16),
++                        attention_mask_per_sample,
++                        head_num=self.num_heads,
++                        scale=self.head_dim**-0.5,
++                        input_layout=fusion_attention_input_layout,
++                    )
++                elif use_cuda_gqa:
++                    packed_attn_output = _cuda_grouped_query_attention(
+                         query_states.to(torch.bfloat16).unsqueeze(0),
+                         key_states.to(torch.bfloat16).unsqueeze(0),
+                         value_states.to(torch.bfloat16).unsqueeze(0),
+                         attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
+-                    )
+-                upacked_attn_output.append(attn_output.squeeze(0))
+-            packed_attn_output = torch.cat(upacked_attn_output, dim=1)
++                    ).squeeze(0)
++                else:
++                    with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
++                        packed_attn_output = scaled_dot_product_attention(
++                            query_states.to(torch.bfloat16).unsqueeze(0),
++                            key_states.to(torch.bfloat16).unsqueeze(0),
++                            value_states.to(torch.bfloat16).unsqueeze(0),
++                            attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
++                        ).squeeze(0)
++            else:
++                unpacked_query_states = packed_query_states_.transpose(0, 1).split(real_sample_lens, dim=1)
++                unpacked_key_states = packed_key_states_.transpose(0, 1).split(real_sample_lens, dim=1)
++                unpacked_value_states = packed_value_states.transpose(0, 1).split(real_sample_lens, dim=1)
++                upacked_attn_output = []
++                for query_states, key_states, value_states, attention_mask_per_sample in zip(
++                    unpacked_query_states, unpacked_key_states, unpacked_value_states, attention_mask
++                ):
++                    if self.enable_npu_fusion_attention:
++                        attn_output = _npu_fusion_attention(
++                            query_states.to(torch.bfloat16),
++                            key_states.to(torch.bfloat16),
++                            value_states.to(torch.bfloat16),
++                            attention_mask_per_sample,
++                            head_num=self.num_heads,
++                            scale=self.head_dim**-0.5,
++                            input_layout=fusion_attention_input_layout,
++                        )
++                    elif use_cuda_gqa:
++                        attn_output = _cuda_grouped_query_attention(
++                            query_states.to(torch.bfloat16).unsqueeze(0),
++                            key_states.to(torch.bfloat16).unsqueeze(0),
++                            value_states.to(torch.bfloat16).unsqueeze(0),
++                            attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
++                        ).squeeze(0)
++                    else:
++                        with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
++                            attn_output = scaled_dot_product_attention(
++                                query_states.to(torch.bfloat16).unsqueeze(0),
++                                key_states.to(torch.bfloat16).unsqueeze(0),
++                                value_states.to(torch.bfloat16).unsqueeze(0),
++                                attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
++                            ).squeeze(0)
++                    upacked_attn_output.append(attn_output)
++                packed_attn_output = torch.cat(upacked_attn_output, dim=1)
+         else:
+             pad_size = sum(sample_lens) - packed_query_states.shape[0]
+             packed_query_states_ = pad_sequence(packed_query_states_.permute(1, 0, 2), pad_size)
+@@ -142,6 +402,15 @@ class PackedAttentionMoT(Qwen3Attention):
+             self.k_norm = nn.Identity()
+             self.q_norm_mot_gen = nn.Identity()
+             self.k_norm_mot_gen = nn.Identity()
++        self.enable_npu_fusion_attention = False
++        self.npu_fusion_attention_input_layout = "BNSD"
++        self.enable_npu_hybrid_attention_layout = False
++        self.enable_npu_qkv_fusion = False
++        self.enable_npu_dtype_fast_path = False
++        self.enable_npu_fused_rotary = False
++        self.enable_cuda_fused_rotary = False
++        self.enable_cuda_gqa_attention = False
++        self.use_npu_single_sample_fast_path = False
+
+         # if llm and expert are the same, then use the pretrained weight, else reinitializaiton
+         mot_gen_hidden_size = config.expert_config.hidden_size
+@@ -150,10 +419,161 @@ class PackedAttentionMoT(Qwen3Attention):
+         self.k_proj_mot_gen = nn.Linear(mot_gen_hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
+         self.v_proj_mot_gen = nn.Linear(mot_gen_hidden_size, self.num_key_value_heads * self.head_dim, bias=config.attention_bias)
+         self.o_proj_mot_gen = nn.Linear(self.num_heads * self.head_dim, mot_gen_hidden_size, bias=config.attention_bias)
++        self._npu_fused_qkv_mot_gen_weight = None
++        self._npu_fused_qkv_mot_gen_bias = None
++
++    def _get_npu_fused_qkv_mot_gen(self):
++        weight = self._npu_fused_qkv_mot_gen_weight
++        expected_rows = (
++            self.q_proj_mot_gen.weight.shape[0]
++            + self.k_proj_mot_gen.weight.shape[0]
++            + self.v_proj_mot_gen.weight.shape[0]
++        )
++        if (
++            weight is None
++            or weight.device != self.q_proj_mot_gen.weight.device
++            or weight.dtype != self.q_proj_mot_gen.weight.dtype
++            or weight.shape[0] != expected_rows
++        ):
++            weight = combined_storage_view(
++                (
++                    self.q_proj_mot_gen.weight,
++                    self.k_proj_mot_gen.weight,
++                    self.v_proj_mot_gen.weight,
++                )
++            )
++            if weight is not None:
++                weight = weight.detach()
++            else:
++                weight = torch.cat(
++                    (
++                        self.q_proj_mot_gen.weight,
++                        self.k_proj_mot_gen.weight,
++                        self.v_proj_mot_gen.weight,
++                    ),
++                    dim=0,
++                ).detach()
++            biases = (
++                self.q_proj_mot_gen.bias,
++                self.k_proj_mot_gen.bias,
++                self.v_proj_mot_gen.bias,
++            )
++            if all(item is None for item in biases):
++                bias = None
++            else:
++                bias = combined_storage_view(biases)  # type: ignore[arg-type]
++                if bias is not None:
++                    bias = bias.detach()
++                else:
++                    bias = torch.cat(biases, dim=0).detach()
++            self._npu_fused_qkv_mot_gen_weight = weight
++            self._npu_fused_qkv_mot_gen_bias = bias
++        return weight, self._npu_fused_qkv_mot_gen_bias
++
++    def _project_action_qkv(self, action_sequence):
++        if not self.enable_npu_qkv_fusion:
++            return (
++                self.q_proj_mot_gen(action_sequence),
++                self.k_proj_mot_gen(action_sequence),
++                self.v_proj_mot_gen(action_sequence),
++            )
++        weight, bias = self._get_npu_fused_qkv_mot_gen()
++        qkv = F.linear(action_sequence, weight, bias)
++        q_rows = self.num_heads * self.head_dim
++        kv_rows = self.num_key_value_heads * self.head_dim
++        return qkv.split((q_rows, kv_rows, kv_rows), dim=-1)
++
++    def _to_attention_bfloat16(self, tensor):
++        if (
++            self.enable_npu_dtype_fast_path
++            and tensor.dtype == torch.bfloat16
++        ):
++            return tensor
++        return tensor.to(torch.bfloat16)
+
+     def forward(self, *args, **kwargs):
+         return self.forward_train(*args, **kwargs)
+
++    @staticmethod
++    def _join_global_prefix_segments(
++        packed_sequence_und: torch.Tensor,
++        packed_sequence_gen: torch.Tensor,
++        segments: Tuple[PrefixSegment, ...],
++    ) -> torch.Tensor:
++        parts = []
++        for segment in segments:
++            source = (
++                packed_sequence_und
++                if segment.branch == "und"
++                else packed_sequence_gen
++            )
++            parts.append(source[segment.source_start : segment.source_end])
++        return torch.cat(parts, dim=0)
++
++    @staticmethod
++    def _restore_prefix_branch_order(
++        packed_sequence: torch.Tensor,
++        segments: Tuple[PrefixSegment, ...],
++    ) -> torch.Tensor:
++        if not segments:
++            return packed_sequence[:0]
++        parts = [
++            packed_sequence[segment.global_start : segment.global_end]
++            for segment in segments
++        ]
++        if len(parts) == 1:
++            return parts[0]
++        return torch.cat(parts, dim=0)
++
++    def _project_static_prefix_qkv(
++        self,
++        packed_sequence_und: torch.Tensor,
++        packed_sequence_gen: torch.Tensor,
++        prefix_segment_route: PrefixSegmentRoute,
++    ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
++        """Project branch-major tokens, then restore exact global token order."""
++        query_states_und = self.q_proj(packed_sequence_und).view(
++            -1, self.num_heads, self.head_dim
++        )
++        query_states_gen = self.q_proj_mot_gen(packed_sequence_gen).view(
++            -1, self.num_heads, self.head_dim
++        )
++        key_states_und = self.k_proj(packed_sequence_und).view(
++            -1, self.num_key_value_heads, self.head_dim
++        )
++        key_states_gen = self.k_proj_mot_gen(packed_sequence_gen).view(
++            -1, self.num_key_value_heads, self.head_dim
++        )
++        value_states_und = self.v_proj(packed_sequence_und).view(
++            -1, self.num_key_value_heads, self.head_dim
++        )
++        value_states_gen = self.v_proj_mot_gen(packed_sequence_gen).view(
++            -1, self.num_key_value_heads, self.head_dim
++        )
++
++        query_states_und = self.q_norm(query_states_und)
++        query_states_gen = self.q_norm_mot_gen(query_states_gen)
++        key_states_und = self.k_norm(key_states_und)
++        key_states_gen = self.k_norm_mot_gen(key_states_gen)
++
++        return (
++            self._join_global_prefix_segments(
++                query_states_und,
++                query_states_gen,
++                prefix_segment_route.global_segments,
++            ),
++            self._join_global_prefix_segments(
++                key_states_und,
++                key_states_gen,
++                prefix_segment_route.global_segments,
++            ),
++            self._join_global_prefix_segments(
++                value_states_und,
++                value_states_gen,
++                prefix_segment_route.global_segments,
++            ),
++        )
++
+     def forward_train(
+         self,
+         packed_sequence_und: torch.Tensor,
+@@ -163,66 +583,163 @@ class PackedAttentionMoT(Qwen3Attention):
+         packed_position_embeddings: Tuple[torch.Tensor, torch.Tensor],
+         packed_und_token_indexes: torch.LongTensor,
+         packed_gen_token_indexes: torch.LongTensor,
++        return_kv_cache: bool = False,
++        prefix_segment_route: Optional[PrefixSegmentRoute] = None,
+     ):
+
+         total_seq_len = packed_sequence_und.shape[0] + packed_sequence_gen.shape[0]
+         dtype, device = packed_sequence_und.dtype, packed_sequence_und.device
+
+-        packed_query_states = torch.zeros((total_seq_len, self.num_heads * self.head_dim), dtype=dtype, device=device)
+-        packed_key_states = torch.zeros((total_seq_len, self.num_key_value_heads * self.head_dim), dtype=dtype, device=device)
+-        packed_value_states = torch.zeros((total_seq_len, self.num_key_value_heads * self.head_dim), dtype=dtype, device=device)
++        if prefix_segment_route is not None:
++            (
++                packed_query_states_,
++                packed_key_states_,
++                packed_value_states,
++            ) = self._project_static_prefix_qkv(
++                packed_sequence_und,
++                packed_sequence_gen,
++                prefix_segment_route,
++            )
++            packed_query_states = packed_query_states_
++        else:
++            packed_query_states = torch.zeros((total_seq_len, self.num_heads * self.head_dim), dtype=dtype, device=device)
++            packed_key_states = torch.zeros((total_seq_len, self.num_key_value_heads * self.head_dim), dtype=dtype, device=device)
++            packed_value_states = torch.zeros((total_seq_len, self.num_key_value_heads * self.head_dim), dtype=dtype, device=device)
+
+-        # 0123 6789 45 1011         <-> 0123 6789 45 1011
+-        packed_query_states[packed_und_token_indexes] = self.q_proj(packed_sequence_und)
+-        packed_query_states[packed_gen_token_indexes] = self.q_proj_mot_gen(packed_sequence_gen)
++            # 0123 6789 45 1011         <-> 0123 6789 45 1011
++            packed_query_states[packed_und_token_indexes] = self.q_proj(packed_sequence_und)
++            packed_query_states[packed_gen_token_indexes] = self.q_proj_mot_gen(packed_sequence_gen)
+
+-        packed_key_states[packed_und_token_indexes] = self.k_proj(packed_sequence_und)
+-        packed_key_states[packed_gen_token_indexes] = self.k_proj_mot_gen(packed_sequence_gen)
++            packed_key_states[packed_und_token_indexes] = self.k_proj(packed_sequence_und)
++            packed_key_states[packed_gen_token_indexes] = self.k_proj_mot_gen(packed_sequence_gen)
+
+-        packed_value_states[packed_und_token_indexes] = self.v_proj(packed_sequence_und)
+-        packed_value_states[packed_gen_token_indexes] = self.v_proj_mot_gen(packed_sequence_gen)
++            packed_value_states[packed_und_token_indexes] = self.v_proj(packed_sequence_und)
++            packed_value_states[packed_gen_token_indexes] = self.v_proj_mot_gen(packed_sequence_gen)
+
+-        packed_query_states = packed_query_states.view(-1, self.num_heads, self.head_dim)
+-        packed_key_states = packed_key_states.view(-1, self.num_key_value_heads, self.head_dim)
+-        packed_value_states = packed_value_states.view(-1, self.num_key_value_heads, self.head_dim)
++            packed_query_states = packed_query_states.view(-1, self.num_heads, self.head_dim)
++            packed_key_states = packed_key_states.view(-1, self.num_key_value_heads, self.head_dim)
++            packed_value_states = packed_value_states.view(-1, self.num_key_value_heads, self.head_dim)
+
+-        packed_query_states_ = packed_query_states.new_zeros(packed_query_states.shape)
+-        packed_key_states_ = packed_key_states.new_zeros(packed_key_states.shape)
++            packed_query_states_ = packed_query_states.new_zeros(packed_query_states.shape)
++            packed_key_states_ = packed_key_states.new_zeros(packed_key_states.shape)
+
+-        packed_query_states_[packed_und_token_indexes] = self.q_norm(packed_query_states[packed_und_token_indexes])
+-        packed_query_states_[packed_gen_token_indexes] = self.q_norm_mot_gen(packed_query_states[packed_gen_token_indexes])
++            packed_query_states_[packed_und_token_indexes] = self.q_norm(packed_query_states[packed_und_token_indexes])
++            packed_query_states_[packed_gen_token_indexes] = self.q_norm_mot_gen(packed_query_states[packed_gen_token_indexes])
+
+-        packed_key_states_[packed_und_token_indexes] = self.k_norm(packed_key_states[packed_und_token_indexes])
+-        packed_key_states_[packed_gen_token_indexes] = self.k_norm_mot_gen(packed_key_states[packed_gen_token_indexes])
++            packed_key_states_[packed_und_token_indexes] = self.k_norm(packed_key_states[packed_und_token_indexes])
++            packed_key_states_[packed_gen_token_indexes] = self.k_norm_mot_gen(packed_key_states[packed_gen_token_indexes])
+
+         packed_cos, packed_sin = packed_position_embeddings
+-        packed_query_states_, packed_key_states_ = apply_rotary_pos_emb(
+-            packed_query_states_, packed_key_states_, packed_cos, packed_sin, unsqueeze_dim=1
++        packed_query_states_, packed_key_states_ = _apply_rotary_pos_emb(
++            packed_query_states_,
++            packed_key_states_,
++            packed_cos,
++            packed_sin,
++            enable_npu_fused_rotary=self.enable_npu_fused_rotary,
++            enable_cuda_fused_rotary=self.enable_cuda_fused_rotary,
+         )
+
++        cached_key_states = None
++        cached_value_states = None
+         if isinstance(attention_mask, List):
+-            packed_key_states_ = packed_key_states_[:, :, None, :].repeat(1, 1, self.num_key_value_groups, 1)
+-            packed_key_states_ = packed_key_states_.reshape(-1, self.num_heads, self.head_dim)
+-            packed_value_states = packed_value_states[:, :, None, :].repeat(1, 1, self.num_key_value_groups, 1)
+-            packed_value_states = packed_value_states.reshape(-1, self.num_heads, self.head_dim)
+-
+-            unpacked_query_states = packed_query_states_.transpose(0, 1).split(sample_lens, dim=1)
+-            unpacked_key_states = packed_key_states_.transpose(0, 1).split(sample_lens, dim=1)
+-            unpacked_value_states = packed_value_states.transpose(0, 1).split(sample_lens, dim=1)
+-            upacked_attn_output = []
+-            for query_states, key_states, value_states, attention_mask_per_sample in zip(
+-                unpacked_query_states, unpacked_key_states, unpacked_value_states, attention_mask
+-            ):
+-                # breakpoint()
+-                with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
+-                    attn_output = scaled_dot_product_attention(
++            real_sample_lens = _real_sample_lens(
++                sample_lens, packed_query_states_.shape[0]
++            )
++            use_cuda_gqa = (
++                self.enable_cuda_gqa_attention and device.type == "cuda"
++            )
++            use_native_gqa = self.enable_npu_fusion_attention or use_cuda_gqa
++            fusion_attention_input_layout = _effective_npu_attention_layout(
++                self.npu_fusion_attention_input_layout,
++                len(real_sample_lens),
++                self.enable_npu_hybrid_attention_layout,
++            )
++            if use_native_gqa:
++                cached_key_states = packed_key_states_
++                cached_value_states = packed_value_states
++            else:
++                # Preserve the OPT-01 cache shape and dense attention ordering:
++                # [S, Nkv, D] -> [S, Nq, D] before transpose/split.
++                packed_key_states_ = packed_key_states_[:, :, None, :].repeat(
++                    1, 1, self.num_key_value_groups, 1
++                ).reshape(-1, self.num_heads, self.head_dim)
++                packed_value_states = packed_value_states[
++                    :, :, None, :
++                ].repeat(
++                    1, 1, self.num_key_value_groups, 1
++                ).reshape(-1, self.num_heads, self.head_dim)
++                cached_key_states = packed_key_states_
++                cached_value_states = packed_value_states
++            if self.use_npu_single_sample_fast_path:
++                if len(real_sample_lens) != 1:
++                    raise RuntimeError(
++                        "OPT-03 fast path reached attention with "
++                        f"{len(real_sample_lens)} real samples"
++                    )
++                query_states = packed_query_states_.transpose(0, 1)
++                key_states = packed_key_states_.transpose(0, 1)
++                value_states = packed_value_states.transpose(0, 1)
++                attention_mask_per_sample = attention_mask[0]
++                if self.enable_npu_fusion_attention:
++                    packed_attn_output = _npu_fusion_attention(
++                        query_states.to(torch.bfloat16),
++                        key_states.to(torch.bfloat16),
++                        value_states.to(torch.bfloat16),
++                        attention_mask_per_sample,
++                        head_num=self.num_heads,
++                        scale=self.head_dim**-0.5,
++                        input_layout=fusion_attention_input_layout,
++                    )
++                elif use_cuda_gqa:
++                    packed_attn_output = _cuda_grouped_query_attention(
+                         query_states.to(torch.bfloat16).unsqueeze(0),
+                         key_states.to(torch.bfloat16).unsqueeze(0),
+                         value_states.to(torch.bfloat16).unsqueeze(0),
+                         attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
+-                    )
+-                upacked_attn_output.append(attn_output.squeeze(0))
+-            packed_attn_output = torch.cat(upacked_attn_output, dim=1)
++                    ).squeeze(0)
++                else:
++                    with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
++                        packed_attn_output = scaled_dot_product_attention(
++                            query_states.to(torch.bfloat16).unsqueeze(0),
++                            key_states.to(torch.bfloat16).unsqueeze(0),
++                            value_states.to(torch.bfloat16).unsqueeze(0),
++                            attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
++                        ).squeeze(0)
++            else:
++                unpacked_query_states = packed_query_states_.transpose(0, 1).split(real_sample_lens, dim=1)
++                unpacked_key_states = packed_key_states_.transpose(0, 1).split(real_sample_lens, dim=1)
++                unpacked_value_states = packed_value_states.transpose(0, 1).split(real_sample_lens, dim=1)
++                upacked_attn_output = []
++                for query_states, key_states, value_states, attention_mask_per_sample in zip(
++                    unpacked_query_states, unpacked_key_states, unpacked_value_states, attention_mask
++                ):
++                    if self.enable_npu_fusion_attention:
++                        attn_output = _npu_fusion_attention(
++                            query_states.to(torch.bfloat16),
++                            key_states.to(torch.bfloat16),
++                            value_states.to(torch.bfloat16),
++                            attention_mask_per_sample,
++                            head_num=self.num_heads,
++                            scale=self.head_dim**-0.5,
++                            input_layout=fusion_attention_input_layout,
++                        )
++                    elif use_cuda_gqa:
++                        attn_output = _cuda_grouped_query_attention(
++                            query_states.to(torch.bfloat16).unsqueeze(0),
++                            key_states.to(torch.bfloat16).unsqueeze(0),
++                            value_states.to(torch.bfloat16).unsqueeze(0),
++                            attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
++                        ).squeeze(0)
++                    else:
++                        with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
++                            attn_output = scaled_dot_product_attention(
++                                query_states.to(torch.bfloat16).unsqueeze(0),
++                                key_states.to(torch.bfloat16).unsqueeze(0),
++                                value_states.to(torch.bfloat16).unsqueeze(0),
++                                attention_mask_per_sample.to(torch.bfloat16).unsqueeze(0),
++                            ).squeeze(0)
++                    upacked_attn_output.append(attn_output)
++                packed_attn_output = torch.cat(upacked_attn_output, dim=1)
+         else:
+             pad_size = sum(sample_lens) - packed_query_states.shape[0]
+             packed_query_states_ = pad_sequence(packed_query_states_.permute(1, 0, 2), pad_size)
+@@ -240,11 +757,167 @@ class PackedAttentionMoT(Qwen3Attention):
+             packed_attn_output = packed_attn_output[0, :, :end_index, :]
+
+         packed_attn_output = packed_attn_output.transpose(0, 1).reshape(-1, self.num_heads * self.head_dim)
+-        packed_attn_output_und = self.o_proj(packed_attn_output[packed_und_token_indexes])
+-        packed_attn_output_gen = self.o_proj_mot_gen(packed_attn_output[packed_gen_token_indexes])
+-
++        if prefix_segment_route is not None:
++            packed_attn_output_und = self.o_proj(
++                self._restore_prefix_branch_order(
++                    packed_attn_output,
++                    prefix_segment_route.und_segments,
++                )
++            )
++            packed_attn_output_gen = self.o_proj_mot_gen(
++                self._restore_prefix_branch_order(
++                    packed_attn_output,
++                    prefix_segment_route.gen_segments,
++                )
++            )
++        else:
++            packed_attn_output_und = self.o_proj(packed_attn_output[packed_und_token_indexes])
++            packed_attn_output_gen = self.o_proj_mot_gen(packed_attn_output[packed_gen_token_indexes])
++
++        if return_kv_cache:
++            if cached_key_states is None or cached_value_states is None:
++                raise RuntimeError(
++                    "Prefix KV caching requires the dense accelerator attention path"
++                )
++            return (
++                packed_attn_output_und,
++                packed_attn_output_gen,
++                (cached_key_states, cached_value_states),
++            )
+         return packed_attn_output_und, packed_attn_output_gen
+
++    def forward_action_with_prefix_cache(
++        self,
++        action_sequence: torch.Tensor,
++        prefix_key_states: torch.Tensor,
++        prefix_value_states: torch.Tensor,
++        action_position_embeddings: Tuple[torch.Tensor, torch.Tensor],
++        attention_mask: torch.Tensor,
++        key_workspace: Optional[torch.Tensor] = None,
++        value_workspace: Optional[torch.Tensor] = None,
++    ) -> torch.Tensor:
++        """Run causal attention only for action tokens using a static prefix KV."""
++        query_states, key_states, value_states = self._project_action_qkv(
++            action_sequence
++        )
++
++        query_states = query_states.view(-1, self.num_heads, self.head_dim)
++        key_states = key_states.view(-1, self.num_key_value_heads, self.head_dim)
++        value_states = value_states.view(
++            -1, self.num_key_value_heads, self.head_dim
++        )
++
++        query_states = self.q_norm_mot_gen(query_states)
++        key_states = self.k_norm_mot_gen(key_states)
++        cos, sin = action_position_embeddings
++        query_states, key_states = _apply_rotary_pos_emb(
++            query_states,
++            key_states,
++            cos,
++            sin,
++            enable_npu_fused_rotary=self.enable_npu_fused_rotary,
++            enable_cuda_fused_rotary=self.enable_cuda_fused_rotary,
++        )
++
++        use_cuda_gqa = (
++            self.enable_cuda_gqa_attention
++            and action_sequence.device.type == "cuda"
++        )
++        if self.enable_npu_fusion_attention or use_cuda_gqa:
++            if (key_workspace is None) != (value_workspace is None):
++                raise ValueError("key/value workspaces must be provided together")
++            if key_workspace is None:
++                all_key_states = torch.cat(
++                    [prefix_key_states, key_states], dim=0
++                )
++                all_value_states = torch.cat(
++                    [prefix_value_states, value_states], dim=0
++                )
++            else:
++                prefix_length = prefix_key_states.shape[0]
++                expected_key_shape = (
++                    prefix_length + key_states.shape[0],
++                    *key_states.shape[1:],
++                )
++                expected_value_shape = (
++                    prefix_value_states.shape[0] + value_states.shape[0],
++                    *value_states.shape[1:],
++                )
++                if tuple(key_workspace.shape) != expected_key_shape:
++                    raise ValueError(
++                        "key workspace shape mismatch: "
++                        f"expected {expected_key_shape}, got "
++                        f"{tuple(key_workspace.shape)}"
++                    )
++                if tuple(value_workspace.shape) != expected_value_shape:
++                    raise ValueError(
++                        "value workspace shape mismatch: "
++                        f"expected {expected_value_shape}, got "
++                        f"{tuple(value_workspace.shape)}"
++                    )
++                key_workspace[prefix_length:].copy_(key_states)
++                value_workspace[prefix_length:].copy_(value_states)
++                all_key_states = key_workspace
++                all_value_states = value_workspace
++            if self.enable_npu_fusion_attention:
++                attention_output = _npu_fusion_attention(
++                    self._to_attention_bfloat16(
++                        query_states.transpose(0, 1)
++                    ),
++                    self._to_attention_bfloat16(
++                        all_key_states.transpose(0, 1)
++                    ),
++                    self._to_attention_bfloat16(
++                        all_value_states.transpose(0, 1)
++                    ),
++                    attention_mask,
++                    head_num=self.num_heads,
++                    scale=self.head_dim**-0.5,
++                    # Prefix-cache action suffix is constructed only by the
++                    # validated single-sample route.  Packed multi-sample requests
++                    # use forward_train above and are forced to BNSD there.
++                    input_layout=self.npu_fusion_attention_input_layout,
++                )
++            else:
++                attention_output = _cuda_grouped_query_attention(
++                    query_states.transpose(0, 1)
++                    .unsqueeze(0)
++                    .to(torch.bfloat16),
++                    all_key_states.transpose(0, 1)
++                    .unsqueeze(0)
++                    .to(torch.bfloat16),
++                    all_value_states.transpose(0, 1)
++                    .unsqueeze(0)
++                    .to(torch.bfloat16),
++                    attention_mask.unsqueeze(0).unsqueeze(0),
++                ).squeeze(0)
++        else:
++            key_states = key_states[:, :, None, :].repeat(
++                1, 1, self.num_key_value_groups, 1
++            ).reshape(-1, self.num_heads, self.head_dim)
++            value_states = value_states[:, :, None, :].repeat(
++                1, 1, self.num_key_value_groups, 1
++            ).reshape(-1, self.num_heads, self.head_dim)
++            all_key_states = torch.cat(
++                [prefix_key_states, key_states], dim=0
++            )
++            all_value_states = torch.cat(
++                [prefix_value_states, value_states], dim=0
++            )
++            with sdpa_kernel(backends=[SDPBackend.EFFICIENT_ATTENTION]):
++                attention_output = scaled_dot_product_attention(
++                    query_states.transpose(0, 1).unsqueeze(0).to(torch.bfloat16),
++                    all_key_states.transpose(0, 1).unsqueeze(0).to(torch.bfloat16),
++                    all_value_states.transpose(0, 1)
++                    .unsqueeze(0)
++                    .to(torch.bfloat16),
++                    attention_mask.unsqueeze(0).unsqueeze(0),
++                ).squeeze(0)
++        attention_output = attention_output.transpose(0, 1).reshape(
++            -1, self.num_heads * self.head_dim
++        )
++        return self.o_proj_mot_gen(attention_output)
++
+
+ class Qwen3DecoderLayer(nn.Module):
+     def __init__(self, config: Qwen3Config, layer_idx: int):
+@@ -313,6 +986,7 @@ class Qwen3MoTDecoderLayer(nn.Module):
+         self.input_layernorm_mot_gen = Qwen3RMSNorm(config.expert_config.hidden_size, eps=config.expert_config.rms_norm_eps)
+         self.post_attention_layernorm = Qwen3RMSNorm(config.hidden_size, eps=config.rms_norm_eps)
+         self.post_attention_layernorm_mot_gen = Qwen3RMSNorm(config.expert_config.hidden_size, eps=config.expert_config.rms_norm_eps)
++        self.enable_npu_add_rms_norm = False
+
+     def forward(self, *args, **kwargs):
+         return self.forward_train(*args, **kwargs)
+@@ -326,6 +1000,8 @@ class Qwen3MoTDecoderLayer(nn.Module):
+         packed_position_embeddings: Tuple[torch.Tensor, torch.Tensor],
+         packed_und_token_indexes: torch.LongTensor,
+         packed_gen_token_indexes: torch.LongTensor,
++        return_kv_cache: bool = False,
++        prefix_segment_route: Optional[PrefixSegmentRoute] = None,
+     ) -> torch.Tensor:
+
+         residual_und = packed_sequence_und
+@@ -335,7 +1011,7 @@ class Qwen3MoTDecoderLayer(nn.Module):
+         packed_sequence_gen_ = self.input_layernorm_mot_gen(packed_sequence_gen)
+
+         # Self Attention
+-        packed_sequence_und_, packed_sequence_gen_ = self.self_attn(
++        attention_outputs = self.self_attn(
+             packed_sequence_und=packed_sequence_und_,
+             packed_sequence_gen=packed_sequence_gen_,
+             sample_lens=sample_lens,
+@@ -343,7 +1019,17 @@ class Qwen3MoTDecoderLayer(nn.Module):
+             packed_position_embeddings=packed_position_embeddings,
+             packed_und_token_indexes=packed_und_token_indexes,
+             packed_gen_token_indexes=packed_gen_token_indexes,
++            return_kv_cache=return_kv_cache,
++            prefix_segment_route=prefix_segment_route,
+         )
++        if return_kv_cache:
++            (
++                packed_sequence_und_,
++                packed_sequence_gen_,
++                kv_cache,
++            ) = attention_outputs
++        else:
++            packed_sequence_und_, packed_sequence_gen_ = attention_outputs
+
+         packed_sequence_und = residual_und + packed_sequence_und_
+         packed_sequence_gen = residual_gen + packed_sequence_gen_
+@@ -363,8 +1049,53 @@ class Qwen3MoTDecoderLayer(nn.Module):
+         packed_sequence_und = residual_und + packed_sequence_und_
+         packed_sequence_gen = residual_gen + packed_sequence_gen_
+
++        if return_kv_cache:
++            return packed_sequence_und, packed_sequence_gen, kv_cache
+         return packed_sequence_und, packed_sequence_gen
+
++    def forward_action_with_prefix_cache(
++        self,
++        action_sequence: torch.Tensor,
++        prefix_key_states: torch.Tensor,
++        prefix_value_states: torch.Tensor,
++        action_position_embeddings: Tuple[torch.Tensor, torch.Tensor],
++        attention_mask: torch.Tensor,
++        key_workspace: Optional[torch.Tensor] = None,
++        value_workspace: Optional[torch.Tensor] = None,
++    ) -> torch.Tensor:
++        residual = action_sequence
++        normalized_action = self.input_layernorm_mot_gen(action_sequence)
++        attention_delta = self.self_attn.forward_action_with_prefix_cache(
++            action_sequence=normalized_action,
++            prefix_key_states=prefix_key_states,
++            prefix_value_states=prefix_value_states,
++            action_position_embeddings=action_position_embeddings,
++            attention_mask=attention_mask,
++            key_workspace=key_workspace,
++            value_workspace=value_workspace,
++        )
++        if (
++            self.enable_npu_add_rms_norm
++            and attention_delta.device.type == "npu"
++        ):
++            if torch_npu is None:
++                raise RuntimeError("NPU add RMSNorm requires torch-npu")
++            normalized_action, _, action_sequence = (
++                torch_npu.npu_add_rms_norm(
++                    attention_delta,
++                    residual,
++                    self.post_attention_layernorm_mot_gen.weight,
++                    self.post_attention_layernorm_mot_gen.variance_epsilon,
++                )
++            )
++        else:
++            action_sequence = residual + attention_delta
++            normalized_action = self.post_attention_layernorm_mot_gen(
++                action_sequence
++            )
++        mlp_delta = self.mlp_mot_gen(normalized_action)
++        return action_sequence + mlp_delta
++
+     def forward_inference(
+         self,
+         packed_query_sequence: torch.Tensor,
+@@ -452,6 +1183,100 @@ class Qwen3Model(Qwen3PreTrainedModel):
+
+         self.post_init()
+
++    def set_npu_fusion_attention(
++        self,
++        enabled: bool,
++        input_layout: str = "BNSD",
++        hybrid_prefix_bnsd: bool = False,
++    ) -> None:
++        """Toggle OPT-02 on every packed attention layer."""
++        if input_layout not in {"BNSD", "BSND"}:
++            raise ValueError(
++                f"Unsupported NPU fusion-attention layout: {input_layout}"
++            )
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.enable_npu_fusion_attention = enabled
++            decoder_layer.self_attn.npu_fusion_attention_input_layout = (
++                input_layout
++            )
++            decoder_layer.self_attn.enable_npu_hybrid_attention_layout = (
++                hybrid_prefix_bnsd
++            )
++
++    def set_cuda_gqa_attention(self, enabled: bool) -> None:
++        """Use CUDA SDPA's native GQA path without materializing K/V heads."""
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.enable_cuda_gqa_attention = enabled
++
++    def set_npu_projection_fusion(self, enabled: bool) -> None:
++        """Toggle OPT-06 fused projections and native NPU RMSNorm."""
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.enable_npu_qkv_fusion = enabled
++            decoder_layer.mlp.enable_npu_gate_up_fusion = enabled
++            if hasattr(decoder_layer, "mlp_mot_gen"):
++                decoder_layer.mlp_mot_gen.enable_npu_gate_up_fusion = enabled
++            for name in (
++                "input_layernorm",
++                "post_attention_layernorm",
++                "input_layernorm_mot_gen",
++                "post_attention_layernorm_mot_gen",
++            ):
++                norm = getattr(decoder_layer, name, None)
++                if norm is not None:
++                    norm.enable_npu_fused_rms_norm = enabled
++            for name in (
++                "q_norm",
++                "k_norm",
++                "q_norm_mot_gen",
++                "k_norm_mot_gen",
++            ):
++                norm = getattr(decoder_layer.self_attn, name, None)
++                if isinstance(norm, Qwen3RMSNorm):
++                    norm.enable_npu_fused_rms_norm = enabled
++        self.norm.enable_npu_fused_rms_norm = enabled
++        if self.use_mot:
++            self.norm_mot_gen.enable_npu_fused_rms_norm = enabled
++
++    def set_npu_dtype_fast_path(self, enabled: bool) -> None:
++        """Toggle OPT-09 proven no-op BF16 cast elimination."""
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.enable_npu_dtype_fast_path = enabled
++
++    def set_npu_fused_rotary(self, enabled: bool) -> None:
++        """Use the native NPU half-rotation kernel for query/key RoPE."""
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.enable_npu_fused_rotary = enabled
++
++    def set_cuda_fused_rotary(self, enabled: bool) -> None:
++        """Use the CUDA/Triton fused half-rotation kernel for query/key RoPE."""
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.enable_cuda_fused_rotary = enabled
++
++    def set_npu_fused_swiglu(self, enabled: bool) -> None:
++        """Fuse SwiGLU activation/multiply after the packed gate/up GEMM."""
++        for decoder_layer in self.layers:
++            decoder_layer.mlp.enable_npu_fused_swiglu = enabled
++            if hasattr(decoder_layer, "mlp_mot_gen"):
++                decoder_layer.mlp_mot_gen.enable_npu_fused_swiglu = enabled
++
++    def set_cuda_fused_swiglu(self, enabled: bool) -> None:
++        """Use the CUDA/Triton fused SwiGLU kernel after gate/up projection."""
++        for decoder_layer in self.layers:
++            decoder_layer.mlp.enable_cuda_fused_swiglu = enabled
++            if hasattr(decoder_layer, "mlp_mot_gen"):
++                decoder_layer.mlp_mot_gen.enable_cuda_fused_swiglu = enabled
++
++    def set_npu_add_rms_norm(self, enabled: bool) -> None:
++        """Fuse the action-suffix attention residual add and RMSNorm."""
++        for decoder_layer in self.layers:
++            if isinstance(decoder_layer, Qwen3MoTDecoderLayer):
++                decoder_layer.enable_npu_add_rms_norm = enabled
++
++    def set_npu_single_sample_fast_path(self, enabled: bool) -> None:
++        """Route packed attention layers through the OPT-03 fast path."""
++        for decoder_layer in self.layers:
++            decoder_layer.self_attn.use_npu_single_sample_fast_path = enabled
++
+     def forward(self, *args, **kwargs):
+         return self.forward_train(*args, **kwargs)
+
+@@ -506,6 +1331,105 @@ class Qwen3Model(Qwen3PreTrainedModel):
+             assert packed_sequence_gen.shape[0]==0
+             return self.norm(packed_sequence_und), packed_sequence_gen
+
++    def build_static_prefix_cache(
++        self,
++        packed_sequence_und: torch.Tensor,
++        packed_sequence_gen: torch.Tensor,
++        packed_position_ids: torch.Tensor,
++        packed_und_token_indexes: torch.LongTensor,
++        packed_gen_token_indexes: torch.LongTensor,
++        attention_mask: torch.Tensor,
++        prefix_segment_route: Optional[PrefixSegmentRoute] = None,
++    ) -> Dict[str, Any]:
++        """Prefill the invariant causal prefix and retain per-layer expanded KV."""
++        if not self.use_mot:
++            raise RuntimeError("Static prefix caching requires the MoT model")
++
++        cos, sin = self.rotary_emb(
++            packed_sequence_und, packed_position_ids.unsqueeze(0)
++        )
++        position_embeddings = (cos.squeeze(0), sin.squeeze(0))
++        layer_caches = []
++        prefix_len = len(packed_position_ids)
++        sample_lens = [prefix_len]
++        if (
++            prefix_segment_route is not None
++            and not prefix_segment_route.matches(
++                prefix_length=prefix_len,
++                und_length=packed_sequence_und.shape[0],
++                gen_length=packed_sequence_gen.shape[0],
++            )
++        ):
++            prefix_segment_route = None
++
++        for decoder_layer in self.layers:
++            if not isinstance(decoder_layer, Qwen3MoTDecoderLayer):
++                raise RuntimeError(
++                    "Static prefix caching requires Qwen3MoTDecoderLayer"
++                )
++            (
++                packed_sequence_und,
++                packed_sequence_gen,
++                layer_cache,
++            ) = decoder_layer(
++                packed_sequence_und=packed_sequence_und,
++                packed_sequence_gen=packed_sequence_gen,
++                sample_lens=sample_lens,
++                attention_mask=[attention_mask],
++                packed_position_embeddings=position_embeddings,
++                packed_und_token_indexes=packed_und_token_indexes,
++                packed_gen_token_indexes=packed_gen_token_indexes,
++                return_kv_cache=True,
++                prefix_segment_route=prefix_segment_route,
++            )
++            layer_caches.append(layer_cache)
++
++        return {
++            "layers": layer_caches,
++            "prefix_length": prefix_len,
++        }
++
++    def forward_action_with_prefix_cache(
++        self,
++        action_sequence: torch.Tensor,
++        packed_position_ids: torch.Tensor,
++        attention_mask: torch.Tensor,
++        prefix_cache: Dict[str, Any],
++    ) -> torch.Tensor:
++        """Run the dynamic action suffix against a previously prefetched prefix."""
++        if len(prefix_cache["layers"]) != len(self.layers):
++            raise RuntimeError("Prefix cache layer count does not match model")
++
++        cos, sin = self.rotary_emb(
++            action_sequence, packed_position_ids.unsqueeze(0)
++        )
++        action_position_embeddings = (cos.squeeze(0), sin.squeeze(0))
++
++        full_layers = prefix_cache.get("full_layers")
++        if full_layers is not None and len(full_layers) != len(self.layers):
++            raise RuntimeError("Full KV workspace layer count does not match model")
++
++        for layer_index, (
++            decoder_layer,
++            (prefix_key_states, prefix_value_states),
++        ) in enumerate(zip(self.layers, prefix_cache["layers"])):
++            key_workspace = None
++            value_workspace = None
++            if full_layers is not None:
++                key_workspace, value_workspace = full_layers[layer_index]
++            action_sequence = (
++                decoder_layer.forward_action_with_prefix_cache(
++                    action_sequence=action_sequence,
++                    prefix_key_states=prefix_key_states,
++                    prefix_value_states=prefix_value_states,
++                    action_position_embeddings=action_position_embeddings,
++                    attention_mask=attention_mask,
++                    key_workspace=key_workspace,
++                    value_workspace=value_workspace,
++                )
++            )
++        return self.norm_mot_gen(action_sequence)
++
+
+ class Qwen3ForCausalLM(Qwen3PreTrainedModel):
+     _tied_weights_keys = ["lm_head.weight"]
+@@ -658,3 +1582,9 @@ class Qwen3ForCausalLM(Qwen3PreTrainedModel):
+             packed_gen_token_indexes=packed_gen_token_indexes,
+         )
+         return outputs
++
++    def build_static_prefix_cache(self, **kwargs):
++        return self.model.build_static_prefix_cache(**kwargs)
++
++    def forward_action_with_prefix_cache(self, **kwargs):
++        return self.model.forward_action_with_prefix_cache(**kwargs)
