@@ -18,7 +18,7 @@
 # 检查传入参数数量
 if [ $# -lt 2 ]; then
     echo "Usage: bash run_pi0_inference.sh [dataset] [checkpoint] [warmup] [iters] 
-          [use_noise_from_file] [save_noise] [use_fixed_noise] [save_actions]"
+          [batch_size] [episodes_idx] [target_sample_idx]"
     exit 1
 fi
 
