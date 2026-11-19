@@ -1,0 +1,16 @@
+{
+  "model_path": "/path/to/model",
+  "dataset_path": "/path/to/dataset/embspatial_bench.json",
+  "output_path": "/path/to/results/embspatial.jsonl",
+  "device": "npu:0",
+  "dtype": "bfloat16",
+  "model_revision": "79f8301d8a80dd03ba778c58d6429e414e9ef5d3",
+  "dataset_revision": "e2733cacf0f20371518c687176e881d79644e61e",
+  "thinking": true,
+  "max_new_tokens": 32768,
+  "temperature": 0.05,
+  "top_p": 1.0,
+  "seed": 42,
+  "timeout_seconds": 7200,
+  "decode_backend": "graph"
+}

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "model": {
+    "repository": "tencent/HY-Embodied-0.5-X",
+    "revision": "79f8301d8a80dd03ba778c58d6429e414e9ef5d3",
+    "files": {
+      "LICENSE": "25ff14d2ddebedc422445d68d14fd4d004f71a3aa51cc5ae9b8c18613e8a00ae",
+      "chat_template.jinja": "c1bb404124c4b5b7ac4f4a6b6d2a5e8f3116d57aded58b9b38406384f1bafbfc",
+      "config.json": "637d4da72b09e8b92af9e62185b0cdc7d172437ac73c5c790d5811f0bcfe9469",
+      "generation_config.json": "e50d8075692c7b863faed5b8b0a79ec71e3f69098cb99d88aa608874b5c45734",
+      "model-00001-of-00002.safetensors": "f78e77184ab4f3d53e28b85ffda8b328185cc40fcfaab59d17c3df0f2524621e",
+      "model-00002-of-00002.safetensors": "a5ad94eb2fc98b41bd89b8cf33f446e86c472ccd15382c0f17a53028af90258d",
+      "model.safetensors.index.json": "7d87e4a5b5f6da33a5689f9a0883fbeb663616b0616f620f975ca5f71c5a77c2",
+      "preprocessor_config.json": "1929c3a757543d069398007ad9033620f626f33ae552dd6e379a31cf00418e01",
+      "special_tokens_map.json": "bb9f59990034dae326581b9c62471523975417869f78a244b7ae2ce8cbb085eb",
+      "tokenizer.json": "1ac285056de1f8bbc1145fac3078be7867c79d83a521c387335603da98244ed9",
+      "tokenizer_config.json": "c3e74613a06954b66ef95ec7ca855704356d47da3faeb2417c857686f0930a0d",
+      "video_preprocessor_config.json": "b6acded2960a1126477af275753a0713f93e07b3a164afa0a13dc5338a570e45"
+    }
+  },
+  "dataset": {
+    "repository": "Phineas476/EmbSpatial-Bench",
+    "revision": "e2733cacf0f20371518c687176e881d79644e61e",
+    "file": "embspatial_bench.json",
+    "bytes": 253512493,
+    "sha256": "f9427218bb69afa218ca075e7efc1ca7a0a2379f87c0b55e4813ca19b9de0fa8"
+  }
+}

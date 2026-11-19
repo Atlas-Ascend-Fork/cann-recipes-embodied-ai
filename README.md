@@ -2,6 +2,9 @@
 
 ## 🚀 Latest News
 - [2026/11] Cosmos3 在昇腾 Atlas A2/A3 上支持文生视频（T2V），并新增文本生图（T2I）和带音轨的文生视频（T2VS），运行命令与生成样例见[推理指南](world_model/cosmos3/README.md)。
+- [2026/11] 腾讯混元 HY-Embodied-0.5-X 新增 Atlas A2/A3 单卡 BF16 [图文推理与 EmbSpatial-Bench 评测样例](manipulation/hy-embodied-0.5-x/infer_with_torch/README.md)，支持 direct/thinking 和串行批量输入。
+  现有 `torch.nn.GELU` 基线在 Atlas A3、BF16、单样本条件下，EmbSpatial-Bench 全量 Accuracy 为 **83.0495%**（3,640 题），平均吞吐为 **21.55 token/s**。
+  详见[评测与性能数据](manipulation/hy-embodied-0.5-x/infer_with_torch/README.md#已有评测与性能数据)及 [NPU 适配与验证说明](docs/manipulation/hy-embodied-0.5-x/infer_with_torch/npu-adaptation.md)。
 - [2026/11] Being-H0.5 跨具身 VLA 模型在昇腾 Atlas A3 上已支持[在线推理](manipulation/being-h0.5/infer_with_torch/README.md)、[VAE 训练与后训练](manipulation/being-h0.5/vae/README.md)和[MuJoCo 闭环评估](manipulation/being-h0.5/sim/README.md)，实测稳态 Policy E2E 均值约 70.9 ms（固定 Prefix、batch size 1，不含 RPC），并提供 LIBERO 与灵巧手抓取演示。
 - [2026/11] Alpamayo-R1智驾VLA模型在昇腾Atlas A2/A3上新增[图模式与权重预取优化](navigation/alpamayo-r1/README.md)：扩散去噪10步整段捕获回放、视觉塔位置编码缓存与CMO权重预取，单次推理耗时A2由7.88s降至7.49s、A3由6.79s降至6.53s，100 clips 10轨迹 mean minADE A2 0.4828 / A3 0.4954，样例已开源。
 - [2026/09] InternVLA-N1（[DualVLN](https://github.com/InternRobotics/InternNav)）双系统视觉语言导航模型在昇腾 Atlas A2 上已支持[推理](navigation/internvla-n1/infer_with_torch/README.md)，在 VLN-CE R2R / RxR val_unseen 上全量复现论文精度，视觉塔注意力换融合算子后端到端提速 2.4 倍，样例已开源。
@@ -71,6 +74,8 @@ flowchart TB
 
 | 模型 | 平台 | 场景 | 简介 | 性能参考 |
 |----|----|----|----|----|
+| **[HY-Embodied-0.5-X](manipulation/hy-embodied-0.5-x/infer_with_torch/README.md)** | | | | |
+| [图文推理与评测](manipulation/hy-embodied-0.5-x/infer_with_torch/README.md) | Atlas A2/A3 | 图文推理、空间理解评测 | 腾讯混元具身多模态模型，支持 direct/thinking、单图和串行批量输入。 | EmbSpatial-Bench **83.0495%**；**21.55 token/s**（A3、BF16、`torch.nn.GELU`；[测量条件](manipulation/hy-embodied-0.5-x/infer_with_torch/README.md#已有性能与内存记录)） |
 | **[Being-H0.5](manipulation/being-h0.5/README.md)** | | | | |
 | [在线推理](manipulation/being-h0.5/infer_with_torch/README.md) | Atlas A3 | 在线推理 | 基于 PyTorch、NPUGraph 和固定 Prefix TorchAir/GE 图的低延迟推理，包含 LIBERO 闭环演示及数值门禁。 | **约 70.9 ms 稳态 Policy E2E**（固定 Prefix、batch size 1，不含 RPC） |
 | [VAE 训练与后训练](manipulation/being-h0.5/vae/README.md) | Atlas A3 | 训练 / 推理 | 使用统一 gesture latent 支持多种灵巧手，并提供双卡 Being-H0.5 后训练与 NPU 验收流程。 | 2 卡，40,000 steps |
