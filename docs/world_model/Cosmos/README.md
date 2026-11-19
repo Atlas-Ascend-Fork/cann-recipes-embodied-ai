@@ -1,4 +1,4 @@
-# Cosmos 昇腾 NPU 多卡并行优化说明
+# Cosmos 昇腾 NPU 适配与优化说明
 
 ## 1. 优化概述
 
@@ -34,7 +34,7 @@ Cosmos-Transfer2.5 原生支持多种控制模态（深度图、语义分割、�
 ```python
 # 在 SetupArguments 数据类中添加新参数
 enable_cfg_parallel: bool = False
-"""Enable Classifier-Free Guidance parallelism for better scaling across more NPUs. 
+"""Enable Classifier-Free Guidance parallelism for better scaling across more NPUs.
 Splits NPUs into two groups for conditional/unconditional denoising."""
 ```
 
@@ -62,9 +62,9 @@ cfg_parallel = args.enable_cfg_parallel  # 新增：读取 CFG 并行标志
 process_group = None
 if args.context_parallel_size > 1:
     from megatron.core import parallel_state
-    
+
     distributed.init()
-    
+
     # 根据 cfg_parallel 决定上下文并行规模
     if cfg_parallel:
         # CFG 并行模式：将总卡数对半分，一半用于 condition，一半用于 unconditional
@@ -72,7 +72,7 @@ if args.context_parallel_size > 1:
     else:
         # 标准模式：使用全部卡进行上下文并行
         parallel_state.initialize_model_parallel(context_parallel_size=args.context_parallel_size)
-    
+
     process_group = parallel_state.get_context_parallel_group()
 ```
 
@@ -80,7 +80,7 @@ if args.context_parallel_size > 1:
 1. **CFG 并行模式** (`enable_cfg_parallel=True`):
    - 假设总卡数为 8，则 `context_parallel_size=4`
    - 4 卡处理条件去噪分支，4 卡处理无条件去噪分支
-   
+
 
 2. **标准并行模式** (`enable_cfg_parallel=False`):
    - 8 卡全部用于上下文并行
@@ -108,7 +108,7 @@ if args.context_parallel_size > 1:
 （1）在 Cosmos-Predict2.5-2B 中使用了 `torch_npu` 接口调用方式：
 ```python
 attn_output_bnsd = torch_npu.npu_fusion_attention(
-    query_bnsd, key_bnsd, value_bnsd, head_num, input_layout="BNSD", 
+    query_bnsd, key_bnsd, value_bnsd, head_num, input_layout="BNSD",
     pse=None,
     atten_mask=self.atten_mask_npu,
     scale=scale,
@@ -121,10 +121,10 @@ attn_output_bnsd = torch_npu.npu_fusion_attention(
 （2）在 Cosmos-Transfer2.5-2B 中使用了原生 SDPA 接口调用：
 ```python
 attn_output_bnsd = F.scaled_dot_product_attention(
-    query_bnsd, 
-    key_bnsd, 
-    value_bnsd, 
-    attn_mask=None, 
+    query_bnsd,
+    key_bnsd,
+    value_bnsd,
+    attn_mask=None,
     dropout_p=0.0,
     is_causal=True
 )
@@ -201,9 +201,9 @@ def apply_rotary_pos_emb(
     x: torch.Tensor,
     freqs: torch.Tensor,
 ) -> torch.Tensor:
-    radians = freqs.transpose(0, 1) 
-    cos = torch.cos(radians) 
-    sin = torch.sin(radians) 
+    radians = freqs.transpose(0, 1)
+    cos = torch.cos(radians)
+    sin = torch.sin(radians)
     res_rot = torch_npu.npu_rotary_mul(x, cos, sin)
     return res_rot
 ```
@@ -238,4 +238,22 @@ def apply_rotary_pos_emb(
 - **RMSNorm**：使用 `npu_rms_norm` 融合算子提升归一化性能
 - **Rotary 位置编码**：使用 `npu_rotary_mul` 加速旋转位置编码计算
 
+## 5. Cosmos3 场景适配
 
+Cosmos3 适配基于 NVIDIA `cosmos-framework` 的固定提交 `a61b292`。部署步骤、T2V、I2V、V2V、T2I、T2VS 的运行命令和实测结果见 [Cosmos3 使用指南](../../../world_model/cosmos3/README.md)。将适配文件覆盖到上游仓库后执行 `npu_adapt.sh`；输入 JSON 直接使用上游 `inputs/omni/` 中的文件。
+
+### 5.1 音频模块
+
+`inference/lazy_sound.py` 延迟创建 AVAE，首次音频编码或解码时加载原模块。初始化在独立的 CPU/NPU RNG 上下文中执行，避免消耗请求的随机数序列。其他 tokenizer 保持原有构造方式。
+
+AVAE 的 Hann 窗改为在 CPU 构造，再转换到 waveform 的设备和类型，以避开 NPU 默认设备上的整数 `cos_` 路径。STFT 和生成算法不变。
+
+### 5.2 输入检查与补丁应用
+
+`inference/scene_checks.py` 在分配模型前检查单帧模式与 sound 是否兼容，以及 AAC 编码器是否可用。其余参数仍由上游校验。
+
+`adaptor_patches/scenes.patch` 在基础适配后应用。脚本检查补丁是否已应用；源码不匹配时退出并报错。
+
+### 5.3 推理分析
+
+统一推理入口的 `--profile` 使用 `torch_npu.profiler`，保留 `profile_memory=True`，关闭当前环境不兼容的调用栈采集。该模式会采集 CPU/NPU 活动及内存事件，不能将开启 profiler 时的耗时与正常推理性能直接比较。本地测量工具和原始分析数据不随样例合入。

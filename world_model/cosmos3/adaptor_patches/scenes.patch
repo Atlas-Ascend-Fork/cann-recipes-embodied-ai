@@ -1,0 +1,92 @@
+--- a/cosmos_framework/model/vfm/omni_mot_model.py
++++ b/cosmos_framework/model/vfm/omni_mot_model.py
+@@ -159,7 +159,12 @@
+         # 3. Sound/audio tokenizer (optional)
+         if self.config.sound_gen:
+             assert self.config.sound_tokenizer is not None, "sound_tokenizer must be provided when sound_gen is True"
+-            self.tokenizer_sound_gen = lazy_instantiate(self.config.sound_tokenizer)
++            if DEVICE == Device.NPU and not TRAINING:
++                from cosmos_framework.inference.lazy_sound import make_sound_tokenizer
++
++                self.tokenizer_sound_gen = make_sound_tokenizer(self.config.sound_tokenizer)
++            else:
++                self.tokenizer_sound_gen = lazy_instantiate(self.config.sound_tokenizer)
+             assert self.config.sound_dim is not None, "sound_dim must be provided when sound_gen is True"
+             assert self.tokenizer_sound_gen.latent_ch == self.config.sound_dim, (
+                 f"sound tokenizer latent_ch {self.tokenizer_sound_gen.latent_ch} != sound_dim {self.config.sound_dim}"
+--- a/cosmos_framework/scripts/inference.py
++++ b/cosmos_framework/scripts/inference.py
+@@ -53,6 +53,11 @@
+             sample_overrides.output_dir = setup_args.output_dir / sample_overrides.name
+             sample_overrides.download(sample_overrides.output_dir / "inputs")
+
++    from cosmos_framework.inference.scene_checks import check_scene_inputs
++
++    with sync_distributed_errors():
++        check_scene_inputs(sample_overrides_list)
++
+     pipe = setup_args.get_inference_cls().create(setup_args)
+     sample_args_list = []
+     for overrides in sample_overrides_list:
+--- a/cosmos_framework/inference/common/inference.py
++++ b/cosmos_framework/inference/common/inference.py
+@@ -11,7 +11,7 @@
+ from typing import TYPE_CHECKING, Any, ContextManager, Self, Sequence, final
+
+ import torch
+-import torch.profiler
++import torch_npu.profiler as npu_profiler
+
+ from cosmos_framework.inference.common.args import GuardrailArgs, SampleArgs, SampleOutputs, SetupArgs
+ from cosmos_framework.inference.common.init import is_rank0
+@@ -122,11 +122,11 @@
+             log.debug(f"[{i_batch + 1}] Processing batch", rank0_only=False)
+
+             if self.setup_args.profile:
+-                profiler = torch.profiler.profile(
+-                    activities=[torch.profiler.ProfilerActivity.CPU, torch.profiler.ProfilerActivity.CUDA],
++                profiler = npu_profiler.profile(
++                    activities=[npu_profiler.ProfilerActivity.CPU, npu_profiler.ProfilerActivity.NPU],
+                     record_shapes=True,
+                     profile_memory=True,
+-                    with_stack=True,
++                    with_stack=False,
+                 )
+             else:
+                 profiler = contextlib.nullcontext()
+@@ -139,10 +139,12 @@
+                 sample_outputs.extend(self.generate_batch(sample_args_batch, data_batch))
+
+             if self.setup_args.profile and is_rank0():
+-                assert isinstance(profiler, torch.profiler.profile)
++                assert isinstance(profiler, npu_profiler.profile)
+                 sample_args = sample_args_batch[0]
+-                profile_file = sample_args.output_dir / "profile.json.gz"
++                profile_file = sample_args.output_dir / "profile.json"
+                 profiler.export_chrome_trace(str(profile_file))
++                if not profile_file.is_file() or profile_file.stat().st_size == 0:
++                    raise RuntimeError(f"Profiler did not produce a trace: {profile_file}")
+                 log.success(f"Saved profile to '{profile_file}'")
+
+         return sample_outputs
+--- a/cosmos_framework/model/vfm/tokenizers/audio/avae_utils/models.py
++++ b/cosmos_framework/model/vfm/tokenizers/audio/avae_utils/models.py
+@@ -215,12 +215,17 @@
+         pad_size_r = (n_fft - hop_length) - pad_size_l
+         with torch.autocast(device_type=wav.device.type, enabled=False):
+             wav = F.pad(wav, (pad_size_l, pad_size_r)).float()  # [B_ch,T_audio+pad]
++            # NPU hann_window's default dtype path reaches an integer cos_.
++            # Construct the same small floating window on CPU; STFT stays on
++            # the waveform device, and window values/periodicity are unchanged.
++            with torch.device("cpu" if wav.device.type == "npu" else wav.device):
++                window = window_fn(win_length)
+             spec = torch.stft(
+                 wav,
+                 n_fft,
+                 hop_length=hop_length,
+                 win_length=win_length,
+-                window=window_fn(win_length).to(wav),
++                window=window.to(wav),
+                 center=False,
+                 normalized=False,
+                 onesided=True,

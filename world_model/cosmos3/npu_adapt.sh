@@ -325,6 +325,23 @@ adapt_optional_nvml() {
     info "Made pynvml optional in device utilities"
 }
 
+apply_scenes_patch() {
+    local patch_file
+    patch_file="$(repo_file "adaptor_patches/scenes.patch")"
+    if [ ! -f "$patch_file" ]; then
+        printf '[ERROR] Missing scene adaptation patch: %s\n' "$patch_file" >&2
+        exit 1
+    fi
+    if patch --batch --forward --dry-run --silent -d "$COSMOS_ROOT" -p1 -i "$patch_file"; then
+        patch -d "$COSMOS_ROOT" -p1 -i "$patch_file"
+    elif patch --batch --dry-run --silent --reverse -d "$COSMOS_ROOT" -p1 -i "$patch_file"; then
+        info "Scene adaptation patch already applied"
+    else
+        printf '[ERROR] Scene patch does not match the source; refusing partial adaptation.\n' >&2
+        exit 1
+    fi
+}
+
 main() {
     verify_expected_commit
 
@@ -344,6 +361,7 @@ main() {
     adapt_attention_cann_registration
     apply_inference_local_checkpoint_patch
     adapt_optional_nvml
+    apply_scenes_patch
 
     info "Simple NPU adaptation completed."
 }
