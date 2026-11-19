@@ -1,0 +1,94 @@
+--- a/wan_va/configs/va_libero_cfg.py
++++ b/wan_va/configs/va_libero_cfg.py
+@@ -1,0 +2,2 @@
++import json
++import os
+@@ -10 +12,9 @@
+-va_libero_cfg.wan22_pretrained_model_name_or_path = "/path/to/pretrained/model"
++va_libero_cfg.wan22_pretrained_model_name_or_path = os.environ.get("LINGBOT_VA_MODEL_ROOT", "/path/to/pretrained/model")
++_norm_stats_path = os.environ.get("LINGBOT_VA_NORM_STATS")
++if _norm_stats_path:
++    with open(_norm_stats_path, encoding="utf-8") as _stream:
++        _norm_stats = json.load(_stream)
++    va_libero_cfg.norm_stat = {
++        "q01": _norm_stats["q01"] + [0.0] * 23,
++        "q99": _norm_stats["q99"] + [0.0] * 23,
++    }
+@@ -60,0 +71,6 @@
++# Suite checkpoints carry their own action quantiles; apply them last.
++if _norm_stats_path:
++    va_libero_cfg.norm_stat = {
++        "q01": _norm_stats["q01"] + [0.0] * 23,
++        "q99": _norm_stats["q99"] + [0.0] * 23,
++    }
+--- a/wan_va/distributed/fsdp.py
++++ b/wan_va/distributed/fsdp.py
+@@ -41 +41 @@
+-    torch.cuda.empty_cache()
++    torch.npu.empty_cache()
+--- a/wan_va/distributed/util.py
++++ b/wan_va/distributed/util.py
+@@ -26,2 +26,2 @@
+-    torch.cuda.set_device(local_rank)
+-    dist.init_process_group(backend="nccl",
++    torch.npu.set_device(local_rank)
++    dist.init_process_group(backend="hccl",
+--- a/wan_va/modules/model.py
++++ b/wan_va/modules/model.py
+@@ -32 +32,4 @@
+-    from flash_attn import flash_attn_func
++    try:
++        from flash_attn import flash_attn_func
++    except ModuleNotFoundError:
++        flash_attn_func = None
+--- a/wan_va/utils/sever_utils.py
++++ b/wan_va/utils/sever_utils.py
+@@ -31 +31 @@
+-                       device='cuda' if torch.cuda.is_available() else 'cpu')
++                       device='npu' if torch.npu.is_available() else 'cpu')
+@@ -46 +46 @@
+-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
++    device = 'npu' if torch.npu.is_available() else 'cpu'
+@@ -77 +77 @@
+-            device='cuda' if torch.cuda.is_available() else 'cpu')
++            device='npu' if torch.npu.is_available() else 'cpu')
+--- a/wan_va/wan_va_server.py
++++ b/wan_va/wan_va_server.py
+@@ -48 +48 @@
+-        self.device = torch.device(f"cuda:{job_config.local_rank}")
++        self.device = torch.device(f"npu:{job_config.local_rank}")
+@@ -67,0 +68,4 @@
++        # A reset can receive a prefilled history window.  The causal VAE
++        # needs its first frame to seed the temporal shortcut cache before a
++        # multi-frame chunk is encoded.
++        self._streaming_vae_started = False
+@@ -330,0 +335,5 @@
++        # Streaming Wan VAE temporal shortcuts require multi-frame chunks to
++        # be aligned to four frames. Keep the first observation unchanged;
++        # pad later key-frame chunks by repeating the latest frame.
++        if len(images) > 1 and len(images) % 4:
++            images = images + [images[-1]] * (4 - len(images) % 4)
+@@ -368 +377,8 @@
+-            enc_out = self.streaming_vae.encode_chunk(videos_chunk)
++            logger.info("VAE_CHUNK shape=%s", tuple(videos_chunk.shape))
++            if not self._streaming_vae_started and videos_chunk.shape[2] > 1:
++                first = self.streaming_vae.encode_chunk(videos_chunk[:, :, :1])
++                remainder = self.streaming_vae.encode_chunk(videos_chunk[:, :, 1:])
++                enc_out = torch.cat([first, remainder], dim=2)
++            else:
++                enc_out = self.streaming_vae.encode_chunk(videos_chunk)
++            self._streaming_vae_started = True
+@@ -385,0 +402 @@
++        self._streaming_vae_started = False
+@@ -441 +458 @@
+-        torch.cuda.empty_cache()
++        torch.npu.empty_cache()
+@@ -569 +586 @@
+-        torch.cuda.empty_cache()
++        torch.npu.empty_cache()
+@@ -603 +620 @@
+-        torch.cuda.empty_cache()
++        torch.npu.empty_cache()
+@@ -668 +685 @@
+-        torch.cuda.empty_cache()
++        torch.npu.empty_cache()

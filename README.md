@@ -6,6 +6,7 @@
   现有 `torch.nn.GELU` 基线在 Atlas A3、BF16、单样本条件下，EmbSpatial-Bench 全量 Accuracy 为 **83.0495%**（3,640 题），平均吞吐为 **21.55 token/s**。
   详见[评测与性能数据](manipulation/hy-embodied-0.5-x/infer_with_torch/README.md#已有评测与性能数据)及 [NPU 适配与验证说明](docs/manipulation/hy-embodied-0.5-x/infer_with_torch/npu-adaptation.md)。
 - [2026/11] Being-H0.5 跨具身 VLA 模型在昇腾 Atlas A3 上已支持[在线推理](manipulation/being-h0.5/infer_with_torch/README.md)、[VAE 训练与后训练](manipulation/being-h0.5/vae/README.md)和[MuJoCo 闭环评估](manipulation/being-h0.5/sim/README.md)，实测稳态 Policy E2E 均值约 70.9 ms（固定 Prefix、batch size 1，不含 RPC），并提供 LIBERO 与灵巧手抓取演示。
+- [2026/11] LingBot-VA 在昇腾 Atlas A3 上已支持[在线推理](manipulation/lingbot-va/infer_with_torch/README.md)，提供 LIBERO 双相机闭环样例，四个 suite 平均成功率 97.15%，性能与适配细节见[优化文档](docs/manipulation/lingbot-va_optimization.md)。
 - [2026/11] Alpamayo-R1智驾VLA模型在昇腾Atlas A2/A3上新增[图模式与权重预取优化](navigation/alpamayo-r1/README.md)：扩散去噪10步整段捕获回放、视觉塔位置编码缓存与CMO权重预取，单次推理耗时A2由7.88s降至7.49s、A3由6.79s降至6.53s，100 clips 10轨迹 mean minADE A2 0.4828 / A3 0.4954，样例已开源。
 - [2026/09] InternVLA-N1（[DualVLN](https://github.com/InternRobotics/InternNav)）双系统视觉语言导航模型在昇腾 Atlas A2 上已支持[推理](navigation/internvla-n1/infer_with_torch/README.md)，在 VLN-CE R2R / RxR val_unseen 上全量复现论文精度，视觉塔注意力换融合算子后端到端提速 2.4 倍，样例已开源。
 - [2026/09] AnchorSplat 前馈式场景级 3D Gaussian Splatting 模型新增[昇腾训练与评测样例](3d_vision/anchorsplat/README.md)，通过固定上游版本复用原生昇腾训练与渲染流程。
@@ -104,6 +105,8 @@ flowchart TB
 | **PUMA (DOMINO)** | | | | |
 | [训练](manipulation/puma/train/README.md) | Atlas A2 | 训练 | [DOMINO](https://github.com/H-EmbodVis/DOMINO)（ECCV 2026）的动态操作 VLA 模型，8 卡 DeepSpeed ZeRO-2 训练，权重可在昇腾直接加载，无需转换。 | - |
 | [在线推理](manipulation/puma/infer_with_torch/README.md) | Atlas A2 | 在线推理 | PUMA policy server 在线推理，对接 RoboTwin 仿真评测，checkpoint 无需转换。 | - |
+| **LingBot-VA** | | | | |
+| [在线推理](manipulation/lingbot-va/infer_with_torch/README.md) | Atlas A3 | 在线推理 | LingBot-VA 双相机 LIBERO 在线推理，保留 server/client、动作 chunk 与 KV Cache 回灌协议；性能与适配说明见[优化文档](docs/manipulation/lingbot-va_optimization.md)。 | 4 suite 平均成功率 **97.15%** |
 
 ### 世界模型 (World Model)
 

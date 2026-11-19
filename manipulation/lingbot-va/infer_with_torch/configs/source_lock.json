@@ -1,0 +1,18 @@
+{
+  "upstream_commit": "7c6ffa9bfc4b83582cafc860fab4c82cc7deeeeb",
+  "libero_commit": "8f1084e3132a39270c3a13ebe37270a43ece2a01",
+  "patch_sha256": "1c95cf0403c55d7e963752c21352717ec09d41260261a2b3568e14e5bbb70d97",
+  "patched_files": {
+    "wan_va/configs/va_libero_cfg.py": "1aa01075b538b96e8ef550a1c62e90d7458c56c0c988186d125c9e892618cea3",
+    "wan_va/distributed/fsdp.py": "cf6e4a4a542ce1505d0dc0beb1d3c2a158c5fcb892ce48e4ebc6f0ba09f32875",
+    "wan_va/distributed/util.py": "6753910acefa648ab40365a36f43fe13c38bae20bc6c718408bae705d87002ef",
+    "wan_va/modules/model.py": "ae62e2922a62f527d6ac8dfc110c3eaa2accb2a5eb9d018bf30c247c72bd6500",
+    "wan_va/utils/sever_utils.py": "aa061a83ec7c868095b9086d0e92958cb7487881c729561576bea3de3f7f3ccc",
+    "wan_va/wan_va_server.py": "11a3ac0f1fd45f431eb78cde1a560fe1145298717466af8cd1dba69ba30ac46a"
+  },
+  "reference_method_ast_sha256": {
+    "_repeat_input_for_cfg": "109f3fd5a87c81cadfec5baef316cbf1415f623aa4056e1e1585efa3b9dcf957",
+    "_prepare_latent_input": "4e8606d721db5364c3d45b869e4788dfa4ce451eebf62fa7796b905df05c0eaf"
+  },
+  "patch_format": "zero-context unified diff"
+}
