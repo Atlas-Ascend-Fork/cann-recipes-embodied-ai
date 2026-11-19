@@ -9,3 +9,5 @@
 
 **/anchorsplat_bak/
 **/anchorsplat_bak/**
+.pytest_cache/
+.ruff_cache/

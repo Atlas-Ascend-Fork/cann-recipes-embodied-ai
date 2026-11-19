@@ -1,0 +1,252 @@
+diff -ruN alpamayo/src/alpamayo_r1/action_space/utils.py alpamayo/src/alpamayo_r1/action_space/utils.py
+--- alpamayo/src/alpamayo_r1/action_space/utils.py	2026-10-16 16:12:57.757770790 +0000
++++ alpamayo/src/alpamayo_r1/action_space/utils.py	2026-10-16 16:12:57.761770790 +0000
+@@ -22,6 +22,46 @@
+ logger = logging.getLogger(__name__)
+ 
+ 
++def cholesky_solve_torch(lhs: torch.Tensor, rhs: torch.Tensor) -> torch.Tensor:
++    """纯 torch 批量 Cholesky 求解（lhs 为 (..., N, N) 对称正定，rhs 为 (..., N)）。
++
++    NPU 上 torch.linalg.cholesky 与 torch.cholesky_solve 会回退到 CPU，每次调用都带来
++    主机与设备之间的同步。这里用逐列向量算子实现同一算法：Cholesky 分解之后做一遍
++    前代、一遍回代，全部算子在 NPU 上执行。
++    """
++    from ..flags import legacy_ops
++
++    if legacy_ops():
++        factor = torch.linalg.cholesky(lhs)
++        return torch.cholesky_solve(rhs.unsqueeze(-1), factor).squeeze(-1)
++
++    n = lhs.size(-1)
++    factor = torch.zeros_like(lhs)
++    for i in range(n):
++        diagonal = lhs[..., i, i] - (factor[..., i, :i] * factor[..., i, :i]).sum(-1)
++        factor[..., i, i] = torch.sqrt(torch.clamp(diagonal, min=1e-12))
++        if i + 1 < n:
++            column = lhs[..., i + 1:, i] - (
++                factor[..., i + 1:, :i] * factor[..., i, :i].unsqueeze(-2)
++            ).sum(-1)
++            factor[..., i + 1:, i] = column / factor[..., i, i].unsqueeze(-1)
++    y = torch.zeros_like(rhs)
++    for i in range(n):
++        if i == 0:
++            y[..., i] = rhs[..., i] / factor[..., i, i]
++        else:
++            y[..., i] = (
++                rhs[..., i] - (factor[..., i, :i] * y[..., :i]).sum(-1)
++            ) / factor[..., i, i]
++    x = torch.zeros_like(rhs)
++    for i in range(n - 1, -1, -1):
++        if i == n - 1:
++            x[..., i] = y[..., i] / factor[..., i, i]
++        else:
++            x[..., i] = (
++                y[..., i] - (factor[..., i + 1:, i] * x[..., i + 1:]).sum(-1)
++            ) / factor[..., i, i]
++    return x
+ def unwrap_angle(phi: torch.Tensor) -> torch.Tensor:
+     """Unwrap the last dimension of the tensor to make sure the diff is in (-pi, pi]."""
+     d = torch.diff(phi, dim=-1)
+@@ -227,8 +267,7 @@
+     # strip off the x_init term
+     lhs = ATA + DTD[..., 1:, 1:] + ridge_term
+ 
+-    L = torch.linalg.cholesky(lhs)
+-    x = torch.cholesky_solve(rhs.unsqueeze(-1), L).squeeze(-1)  # (..., N)
++    x = cholesky_solve_torch(lhs, rhs)  # (..., N)
+ 
+     x = torch.cat([x_init.unsqueeze(-1), x], dim=-1)  # (..., N+1)
+     return x
+@@ -295,21 +334,12 @@
+ 
+     # NOTE: Since there is no terminal constraint, we need to handle the singularity case by
+     # increasing the ridge term.
+-    L = None
+-    while L is None:
+-        try:
+-            ridge_term = ridge * torch.eye(N, dtype=dtype, device=device).expand(*lead, N, N)
+-            lhs = ATA + DTD + ridge_term
+-            # Ensure dtype consistency for torch.compile fake tensor meta pass
+-            if rhs.dtype != lhs.dtype:
+-                rhs = rhs.to(lhs.dtype)
+-            L = torch.linalg.cholesky(lhs)
+-        except RuntimeError as e:
+-            logger.error(f"Error in cholesky decomposition: {e}", exc_info=True)
+-            ridge *= 10
+-            logger.warning(f"Resolving singularity using ridge {ridge}")
+-
+-    return torch.cholesky_solve(rhs.unsqueeze(-1), L).squeeze(-1)  # (..., N)
++    ridge_term = ridge * torch.eye(N, dtype=dtype, device=device).expand(*lead, N, N)
++    lhs = ATA + DTD + ridge_term
++    # Ensure dtype consistency
++    if rhs.dtype != lhs.dtype:
++        rhs = rhs.to(lhs.dtype)
++    return cholesky_solve_torch(lhs, rhs)  # (..., N)
+ 
+ 
+ @torch.no_grad()
+@@ -392,8 +422,7 @@
+     # strip off the x_init term
+     lhs = ATA + DTD + ridge_term
+ 
+-    L = torch.linalg.cholesky(lhs)
+-    y = torch.cholesky_solve(rhs.unsqueeze(-1), L).squeeze(-1)  # (..., N+1)
++    y = cholesky_solve_torch(lhs, rhs)  # (..., N+1)
+ 
+     return y  # (..., N+1)
+ 
+@@ -478,8 +507,7 @@
+     # strip off the x_init term
+     lhs = ATA[..., 1:, 1:] + DTD[..., 1:, 1:] + ridge_term
+ 
+-    L = torch.linalg.cholesky(lhs)
+-    y = torch.cholesky_solve(rhs.unsqueeze(-1), L).squeeze(-1)  # (..., N)
++    y = cholesky_solve_torch(lhs, rhs)  # (..., N)
+ 
+     return torch.cat([v0.unsqueeze(-1), y], dim=-1)  # (..., N+1)
+ 
+diff -ruN alpamayo/src/alpamayo_r1/models/action_in_proj.py alpamayo/src/alpamayo_r1/models/action_in_proj.py
+--- alpamayo/src/alpamayo_r1/models/action_in_proj.py	2026-10-16 16:12:57.757770790 +0000
++++ alpamayo/src/alpamayo_r1/models/action_in_proj.py	2026-10-16 16:12:57.761770790 +0000
+@@ -35,9 +35,12 @@
+         else:
+             weight = self.weight
+         
+-        # npu_rms_norm resturns
+-        output = torch_npu.npu_rms_norm(x, weight, self.eps)[0]
+-        return output
++        from ..flags import legacy_ops
++
++        if legacy_ops():
++            return torch_npu.npu_rms_norm(x, weight, self.eps)[0]
++        normed = x * torch.rsqrt(x.float().pow(2).mean(-1, keepdim=True) + self.eps)
++        return normed.to(input_dtype) * weight
+ 
+ class MLPEncoder(nn.Module):
+     """Basic MLP encoder."""
+diff -ruN alpamayo/src/alpamayo_r1/models/alpamayo_r1.py alpamayo/src/alpamayo_r1/models/alpamayo_r1.py
+--- alpamayo/src/alpamayo_r1/models/alpamayo_r1.py	2026-10-16 16:12:57.757770790 +0000
++++ alpamayo/src/alpamayo_r1/models/alpamayo_r1.py	2026-10-16 16:12:57.761770790 +0000
+@@ -86,6 +86,10 @@
+ 
+         # we only need the text config for the expert model
+         expert_config = copy.deepcopy(self.vlm.config.text_config)
++        from ..flags import expert_attention
++
++        self._expert_attn = expert_attention()
++        expert_config._attn_implementation = self._expert_attn
+         if config.expert_cfg is not None:
+             for key, value in config.expert_cfg.items():
+                 setattr(expert_config, key, value)
+@@ -189,6 +193,12 @@
+                 )
+             ]
+         )
++        from ..npu_ext import build_prefetcher, prefetch_enabled
++
++        prefetchers = []
++        if kwargs.get("enable_prefetch", False) or prefetch_enabled():
++            prefetcher = build_prefetcher(list(self.vlm.model.language_model.layers))
++            prefetchers.append(prefetcher.attach())
+         vlm_outputs = self.vlm.generate(
+             input_ids=input_ids,
+             generation_config=generation_config,
+@@ -196,6 +206,8 @@
+             logits_processor=logits_processor,
+             **tokenized_data,
+         )
++        for prefetcher in prefetchers:
++            prefetcher.detach()
+         vlm_outputs.rope_deltas = self.vlm.model.rope_deltas
+ 
+         # manually replace padding after EOS token
+@@ -250,8 +262,40 @@
+         forward_kwargs = {}
+         if self.config.expert_non_causal_attention:
+             forward_kwargs["is_causal"] = False
++        from ..npu_ext import (
++            StaticKVStore,
++            VisionMetadataCache,
++            graph_enabled,
++            static_kv_enabled,
++            vision_cache_enabled,
++            wrap_step_fn,
++        )
++
++        kv_len = prompt_cache.get_seq_length() + n_diffusion_tokens
++        expert_attention_mask = torch.zeros(
++            (b_star, 1, n_diffusion_tokens, kv_len), dtype=torch.float32, device=device
++        )
++        cache_position = None
++        if static_kv_enabled():
++            store = getattr(self, "_static_kv_store", None)
++            if store is None:
++                store = self._static_kv_store = StaticKVStore()
++            state = store.prepare(
++                self.expert.config,
++                b_star,
++                n_diffusion_tokens,
++                prompt_cache,
++                position_ids,
++                device,
++            )
++            expert_attention_mask = state.mask
++            position_ids = state.position_ids
++            cache_position = state.cache_position
++            prompt_cache = state.cache
+ 
+         # 2) Define denoising step that consumes noisy action and timestep
++        enable_graph = kwargs.get("enable_graph", False) or graph_enabled()
++
+         def step_fn(
+             x: torch.Tensor,
+             t: torch.Tensor,
+@@ -266,15 +310,19 @@
+                 future_token_embeds = future_token_embeds.view(b_star, n_diffusion_tokens, -1)
+ 
+             # Run expert with cached prefill, only on the future tokens
++            expert_kwargs = {} if self._expert_attn == "eager" else forward_kwargs
+             expert_out_base = self.expert(
+                 inputs_embeds=future_token_embeds,
++                attention_mask=expert_attention_mask,
+                 position_ids=position_ids,
+                 past_key_values=prompt_cache,
+                 use_cache=True,
+-                **forward_kwargs,
++                cache_position=cache_position,
++                **expert_kwargs,
+             )
+             # crop the prompt cache to remove the newly added tokens
+-            prompt_cache.crop(prefill_seq_len)
++            if cache_position is None:
++                prompt_cache.crop(prefill_seq_len)
+             last_hidden = expert_out_base.last_hidden_state  # (b*, Tf, hidden_size)
+             last_hidden = last_hidden[:, -n_diffusion_tokens:]
+             pred = self.action_out_proj(last_hidden).view(
+@@ -282,6 +330,25 @@
+             )  # (b*, Tf, C_action) -> noise/vector field
+             return pred
+ 
++        if enable_graph and vision_cache_enabled():
++            VisionMetadataCache(self.vlm.model.visual).attach()
++
++        if enable_graph:
++            runners = getattr(self, "_graph_runners", None)
++            if runners is None:
++                runners = self._graph_runners = {}
++            bucket = (
++                int(prompt_cache.get_max_cache_shape())
++                if hasattr(prompt_cache, "get_max_cache_shape")
++                else kv_len
++            )
++            step_fn = wrap_step_fn(
++                step_fn,
++                enable=True,
++                cache=runners if cache_position is not None else None,
++                key=(b_star, bucket),
++            )
++
+         # 3) Diffusion sampling in action space with multiple samples per input
+         total_batch = B * n_samples_total
+         if diffusion_kwargs is None:

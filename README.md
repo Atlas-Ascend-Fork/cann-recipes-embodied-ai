@@ -2,6 +2,7 @@
 
 ## 🚀 Latest News
 - [2026/11] Being-H0.5 跨具身 VLA 模型在昇腾 Atlas A3 上已支持[在线推理](manipulation/being-h0.5/infer_with_torch/README.md)、[VAE 训练与后训练](manipulation/being-h0.5/vae/README.md)和[MuJoCo 闭环评估](manipulation/being-h0.5/sim/README.md)，实测稳态 Policy E2E 均值约 70.9 ms（固定 Prefix、batch size 1，不含 RPC），并提供 LIBERO 与灵巧手抓取演示。
+- [2026/11] Alpamayo-R1智驾VLA模型在昇腾Atlas A2/A3上新增[图模式与权重预取优化](navigation/alpamayo-r1/README.md)：扩散去噪10步整段捕获回放、视觉塔位置编码缓存与CMO权重预取，单次推理耗时A2由7.88s降至7.49s、A3由6.79s降至6.53s，100 clips 10轨迹 mean minADE A2 0.4828 / A3 0.4954，样例已开源。
 - [2026/09] InternVLA-N1（[DualVLN](https://github.com/InternRobotics/InternNav)）双系统视觉语言导航模型在昇腾 Atlas A2 上已支持[推理](navigation/internvla-n1/infer_with_torch/README.md)，在 VLN-CE R2R / RxR val_unseen 上全量复现论文精度，视觉塔注意力换融合算子后端到端提速 2.4 倍，样例已开源。
 - [2026/09] AnchorSplat 前馈式场景级 3D Gaussian Splatting 模型新增[昇腾训练与评测样例](3d_vision/anchorsplat/README.md)，通过固定上游版本复用原生昇腾训练与渲染流程。
 - [2026/08] PUMA（[DOMINO](https://github.com/H-EmbodVis/DOMINO)）动态操作 VLA 模型在昇腾 Atlas A2 上已支持[训练](manipulation/puma/train/README.md)与[在线推理](manipulation/puma/infer_with_torch/README.md)，权重可在昇腾直接加载，无需转换，样例已开源。
@@ -121,7 +122,7 @@ flowchart TB
 | 模型 | 平台 | 场景 | 简介 | 性能参考 |
 |----|----|----|----|----|
 | **Alpamayo-R1** | | | | |
-| [在线推理](navigation/alpamayo-r1/README.md) | Atlas A2 | 在线推理 | 面向L4/L5级智能驾驶的VLA大模型(10B)，支持因果思维链推理。 | **~7.32 s** (生成10条预测轨迹) |
+| [在线推理](navigation/alpamayo-r1/README.md) | Atlas A2/A3 | 在线推理 | 面向L4/L5级智能驾驶的VLA大模型(10B)，支持因果思维链推理。 | **A2 ~7.49 s / A3 ~6.53 s** (生成10条预测轨迹，图模式) |
 | **InternVLA-N1** | | | | |
 | [推理](navigation/internvla-n1/infer_with_torch/README.md) | Atlas A2 | 推理 | 上海AI实验室的双系统视觉语言导航模型(8.38B)，在VLN-CE R2R / RxR val_unseen上全量复现论文精度(SR 63.57 / 61.82)。 | **2.4x** (视觉塔融合注意力，端到端单episode) |
 
@@ -171,7 +172,7 @@ flowchart TB
 
 | 原子化能力 | 适用范围 | 已覆盖样例 |
 |----|----|----|
-| 图模式 | 全部推理样例（torchair / OM 静态图） | [Pi0 在线](manipulation/pi0/infer_with_torch/README.md)、[Isaac-GR00T](manipulation/Isaac-GR00T/README.md)、[Hunyuan3D](3d_vision/Hunyuan3D/README.md)（torchair）；[Pi0 OM](manipulation/pi0/infer_with_om/README.md)、[Pi0.5 OM](manipulation/pi05/infer_with_om/README.md)、[ACT OM](manipulation/act/infer_with_om/README.md)、[DiffusionPolicy OM](manipulation/diffusion-policy/infer_with_om/README.md)、[OpenVLA OM](manipulation/openvla/infer_with_om/README.md)（ATC 静态图） |
+| 图模式 | 全部推理样例（torchair / OM 静态图） | [Pi0 在线](manipulation/pi0/infer_with_torch/README.md)、[Isaac-GR00T](manipulation/Isaac-GR00T/README.md)、[Hunyuan3D](3d_vision/Hunyuan3D/README.md)（torchair）、[Alpamayo-R1](navigation/alpamayo-r1/README.md)（ACL Graph 捕获回放）；[Pi0 OM](manipulation/pi0/infer_with_om/README.md)、[Pi0.5 OM](manipulation/pi05/infer_with_om/README.md)、[ACT OM](manipulation/act/infer_with_om/README.md)、[DiffusionPolicy OM](manipulation/diffusion-policy/infer_with_om/README.md)、[OpenVLA OM](manipulation/openvla/infer_with_om/README.md)（ATC 静态图） |
 | CPU 绑核与多线程 | host-bound 或含 CPU 侧渲染/光栅化的推理样例 | [Hunyuan3D](3d_vision/Hunyuan3D/README.md)（`--multi_thread` 多线程光栅化与 delighting） |
 | 计算逻辑优化 | Transformer / Diffusion 等可融合算子改写的样例 | [Pi0 在线](manipulation/pi0/infer_with_torch/README.md)、[Isaac-GR00T](manipulation/Isaac-GR00T/README.md)、[Spirit v1.5](manipulation/spirit-v1.5/infer_with_torch/README.md)、[Cosmos-Predict2.5](world_model/cosmos-predict2.5/README.md)、[Cosmos-Transfer2.5](world_model/cosmos-transfer2.5/README.md)、[Alpamayo-R1](navigation/alpamayo-r1/README.md)、[Hunyuan3D](3d_vision/Hunyuan3D/README.md)、[VGGT](3d_vision/vggt/README.md)（FA / RMSNorm / Rotary / QKV 融合等） |
 | DiTCache | 多步去噪的 DiT 扩散模型（Hunyuan3D、Cosmos-Predict2.5、Cosmos-Transfer2.5） | [Hunyuan3D](3d_vision/Hunyuan3D/README.md)（FBCache / TeaCache / Taylorseer） |
