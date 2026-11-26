@@ -156,7 +156,7 @@ flowchart TB
 |----|----|----|----|----|
 | **Hunyuan3D 2.0** | | | | |
 | [在线推理](3d_vision/Hunyuan3D/README.md) | Atlas A2 | 在线推理 | 腾讯混元三维生成与渲染模型，支持文本/图像生成高保真3D资产，带高分辨率纹理贴图。 | **~26 s** (texgen，2万平面mesh) |
-|**VGGT** | | | |
+|**VGGT** | | | | |
 |[在线推理](3d_vision/vggt/README.md)|Atlas A2/A3 | 在线推理 | 三维重建模型，支持图像生成对应的三维重建场景。| **~1.12s** (25张图片输入)|
 | **3DGS** | | | | |
 | [训练与推理](3d_vision/gaussian_splatting/README.md) | Atlas A2 | 训练/推理 | 基于gsplat开源加速库，针对NPU实现Alpha-blending、视锥剔除、负载均衡、Precise Intersection等融合算子优化。 | - |

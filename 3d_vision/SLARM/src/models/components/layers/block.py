@@ -19,7 +19,7 @@ import warnings
 import torch
 from torch import nn, Tensor
 
-from .attention import Attention
+from .attention import Attention, MemEffAttention
 from .drop_path import DropPath
 from .layer_scale import LayerScale
 from .mlp import Mlp

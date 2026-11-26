@@ -21,9 +21,9 @@
 
 script_path=$(realpath $(dirname $0))
 root_path=$(realpath $script_path/..)
-rm -rf build_out
-mkdir build_out
-cd build_out
+rm -rf build_out || exit 1
+mkdir build_out || exit 1
+cd build_out || exit 1
 SINGLE_OP=""
 BUILD_TYPE="Release"
 
@@ -47,16 +47,15 @@ function parse_script_args() {
     return 0
 }
 
-parse_script_args $@
+parse_script_args "$@" || exit 1
 
 cmake_version=$(cmake --version | grep "cmake version" | awk '{print $3}')
 if [ "$cmake_version" \< "3.19.0" ]; then
   opts=$(python3 $root_path/cmake/util/preset_parse.py $root_path/CMakePresets.json)
   echo $opts
-  cmake .. $opts -DSINGLE_OP=$SINGLE_OP -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  cmake .. $opts -DSINGLE_OP=$SINGLE_OP -DCMAKE_BUILD_TYPE=$BUILD_TYPE || exit 1
 else
-  cmake .. --preset=default -DSINGLE_OP=$SINGLE_OP -DCMAKE_BUILD_TYPE=$BUILD_TYPE
+  cmake .. --preset=default -DSINGLE_OP=$SINGLE_OP -DCMAKE_BUILD_TYPE=$BUILD_TYPE || exit 1
 fi
 
-cmake --build . -j16
-if [ $? -ne 0 ]; then exit 1; fi
+cmake --build . -j16 || exit 1
