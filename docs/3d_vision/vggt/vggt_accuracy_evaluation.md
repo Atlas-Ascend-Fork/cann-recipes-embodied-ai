@@ -181,4 +181,4 @@
   |NPU实验数据|1.4669|0.5475|1.0072|
   |GPU实验数据|1.4675|0.5813|1.0244|
   <!-- |NPU实验数据|1.4702|0.5823|1.0262| -->
-- **已知问题**：由于论文官方仓库中为开源相关评测代码，复现过程主要参考官方仓库相关[issue](https://github.com/facebookresearch/vggt/issues/208)，目前在该任务上的精度复现结果与论文结果存在一定差异，而与官方仓库相关讨论中其他人复现的结果接近（[结果讨论1](https://github.com/facebookresearch/vggt/issues/208#issuecomment-3172136901)，[结果讨论2](https://github.com/facebookresearch/vggt/issues/208#issuecomment-3128037216)）。其原因在于复现过程和论文实验设置上存在细微区别，后续会继续根据作者公布的细节或代码进一步调整该任务的评测程序。
+- **已知问题**：由于论文官方仓库中未开源相关评测代码，复现过程主要参考官方仓库相关[issue](https://github.com/facebookresearch/vggt/issues/208)，目前在该任务上的精度复现结果与论文结果存在一定差异，而与官方仓库相关讨论中其他人复现的结果接近（[结果讨论1](https://github.com/facebookresearch/vggt/issues/208#issuecomment-3172136901)，[结果讨论2](https://github.com/facebookresearch/vggt/issues/208#issuecomment-3128037216)）。其原因在于复现过程和论文实验设置上存在细微区别，后续会继续根据作者公布的细节或代码进一步调整该任务的评测程序。

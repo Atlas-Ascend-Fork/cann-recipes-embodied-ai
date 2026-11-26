@@ -74,7 +74,7 @@ python preproc/waymo_download.py \
 
 Download the [scene flow version](https://console.cloud.google.com/storage/browser/waymo_open_dataset_scene_flow;tab=objects?prefix=&forceOnObjectsSortingFiltering=false) of Waymo.
 
-Download the [sematic version](https://console.cloud.google.com/storage/browser/waymo_open_dataset_v_1_4_3;tab=objects?prefix=&forceOnObjectsSortingFiltering=false) of Waymo.
+Download the [semantic version](https://console.cloud.google.com/storage/browser/waymo_open_dataset_v_1_4_3;tab=objects?prefix=&forceOnObjectsSortingFiltering=false) of Waymo.
 
 ![Waymo Dataset Download Page](https://github.com/user-attachments/assets/a1737699-e792-4fa0-bb68-0ab1813f1088)
 
