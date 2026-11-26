@@ -192,36 +192,36 @@ def timestep_embedding(t: Tensor, dim, max_period=10000, time_factor: float = 10
     |O2N3|72|3.11|6.67s|67.9%|0.373|0.221|
     |O2N5|78|3.96|5.23s|74.8%|0.368|0.217|
 - **启动方式：** 本代码模块通过修改cache_config.json文件决定是否使用Cache，Cache范式，Cache相关参数均在[3d_vision\Hunyuan3D\hy3dgen\cache\cache_config.json](../../../3d_vision/Hunyuan3D/hy3dgen/cache/cache_config.json) 中直接修改，同时，使用如下指令可以自定义cache_config.json位置
-```python
+```bash
 python minimal_demo_npu.py  --cache_config './hy3dgen/cache/cache_config.json'  #cache_config.json位置
 ```
-其中参数意义如下
-```python
+以下配置可直接保存为 `cache_config.json`。`cache_forward` 可设为 `FBCache`、`TeaCache`、`TaylorSeer` 或 `NoCache`；默认 `NoCache` 执行完整前向计算。
+```json
 {
-        "cache_forward": "NoCache", #直接设置Cache方案，目前支持FBCache/TeaCache/Taylorseer,默认启动NoCache，也就是无ditcache方法，只需按照下面的提示代替NoCache即可启动
-        "comment": "choose from FBCache/TeaCache/Taylorseer, otherwise use NoCache",
-        "enable_separate_cfg": false, #CFG串行开关，适配wan2.2等CFG串行的项目，开启双分支TeaCache/FBcache,不支持Taylorseer，同时在非CFG串行项目保持关闭，Hunyuan3D为非CFG串行，因此关闭
+        "cache_forward": "NoCache",
+        "comment": "choose from FBCache/TeaCache/TaylorSeer, otherwise use NoCache",
+        "enable_separate_cfg": false,
         "FBCache":{
                 "cache_name": "FBCache",
-                "rel_l1_thresh": 0.05, #FBCache阈值，阈值越大跳过越多，精度损失越大，需要平衡性能和精度
+                "rel_l1_thresh": 0.05,
                 "latent": "latent",
                 "judge_input": "cache_latent"
         },
         "TeaCache":{
                 "cache_name" : "TeaCache",
-                "rel_l1_thresh": 0.1, #TeaCache阈值，阈值越大跳过越多，精度损失越大，需要平衡性能和精度
-                "coefficients": [733.226126,-401.131952,67.5869174,-3.149879,0.0961237896], #TeaCache多项式拟合，通过输入输出进行拟合
-                "warmup": 2, #预热步数，强制前面几步进行计算
+                "rel_l1_thresh": 0.1,
+                "coefficients": [733.226126,-401.131952,67.5869174,-3.149879,0.0961237896],
+                "warmup": 2,
                 "latent": "latent",
                 "judge_input": "modulated_inp"
         },
-        "Taylorseer":{
-                "cache_name" : "Taylorseer",
-                "n_derivatives": 3, #Taylorseer导数设置，导数阶数越大，理论上对原特征拟合越优秀，但是过大的导数可能会出现过拟合现象，且占用显存会更大
-                "skip_interval_steps": 4, #Taylorseer计算间隔设置，注意 计算间隔 = 跳过计算步数+1 跳过计算间隔越大，对性能提升越明显，但是精度会下降
-                "warmup": 1, #预热步数，强制前面几步进行计算，避免前期特征变化明显的时候出现跳过计算
-                "cutoff_steps": 1, #截断步数，强制最后几步进行计算
-                "offload": false #offload开关，开启后可以降低显存占用
+        "TaylorSeer":{
+                "cache_name" : "TaylorSeer",
+                "n_derivatives": 3,
+                "skip_interval_steps": 4,
+                "warmup": 1,
+                "cutoff_steps": 1,
+                "offload": false
         },
         "NoCache":{
             "cache_name" : "NoCache"
@@ -229,6 +229,20 @@ python minimal_demo_npu.py  --cache_config './hy3dgen/cache/cache_config.json'  
     }
 
 ```
+
+参数说明：
+
+| 参数 | 说明 |
+| --- | --- |
+| `enable_separate_cfg` | CFG 串行开关，适配 wan2.2 等 CFG 串行项目的双分支 TeaCache/FBCache；Hunyuan3D 使用 `false`，TaylorSeer 使用 `false`。 |
+| `rel_l1_thresh` | FBCache/TeaCache 阈值；提高阈值会增加跳过比例，需结合评测平衡性能与精度。 |
+| `coefficients` | TeaCache 多项式系数，通过输入输出拟合。 |
+| `warmup` | 预热步数，预热阶段执行完整计算。 |
+| `n_derivatives` | TaylorSeer 导数阶数；提高阶数会增加显存占用，需结合评测选择。 |
+| `skip_interval_steps` | TaylorSeer 完整计算间隔，跳过步数为间隔减一。 |
+| `cutoff_steps` | TaylorSeer 末尾执行完整计算的步数。 |
+| `offload` | TaylorSeer offload 开关，开启可降低显存占用。 |
+
 - **框架位置：** 使用dit_cache作为自定义库，dit_cache方案插入逻辑如下：
 ```
     cann-recipes-embodied-ai
